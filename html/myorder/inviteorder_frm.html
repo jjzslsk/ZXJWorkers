@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>邀约订单frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/nearorder/nearorder.css" />
+    <style>
+    	.main-list {margin-top: 10px}
+    	.copy-icon{background-color:#FFFFFF;width: 0.8em;height: 0.8em;border:1px solid #CECECE;border-radius: 2px;margin-left: 5px;}
+		.copy-icon02{background-color:#FFFFFF;width: 0.8em;height: 0.8em;border:1px solid #CECECE;border-radius: 2px;position: absolute;margin-left: -0.6em;margin-top: 0.1em;z-index: 98}
+    		
+    </style>
+</head>
+<body class="body-bg" ontouchstart="" onmouseover="">
+	<div id="main_list" class="main-list">
+		<!--邀约订单-->
+		<template>
+		<div class="list-item click-item-ser" v-for="inviteItem in inviteOrderList" tapmode="hover" @click="itemInviteClick(inviteItem)">
+			
+			<!--item标题-->
+			<div class="item-titlebar horizontal">
+				<div class="title horizontal" @click.stop @touchstart="gotouchstart(inviteItem.order_number)" @touchmove="gotouchmove" @touchend="gotouchend">
+					<div>{{inviteItem.order_number}}</div><div><span class="copy-icon"></span><span class="copy-icon02"></span></div>
+				</div>
+				<div class="time">
+					{{timeStampToDate(inviteItem.creat_time)}}
+				</div>
+			</div>
+			<!--中间内容-->
+			<div class="info">
+				<template v-if="inviteItem.classify!=undefined && inviteItem.classify.length>0">
+				<div class="info-item horizontal">
+					<div class="row-col horizontal">
+						<div class="row-col-item-l">
+							<span class="row-col-item-title">工&emsp;&emsp;种</span>
+						</div>
+					</div>
+					<div class="row-col" style="text-align: right;color: #2fc588;">
+						<span>{{getWorkStateName(inviteItem.work_status)}}</span>
+					</div>
+				</div>
+			    <div>
+					<span v-for="typeItem in inviteItem.classify" class="worker-type-item">{{typeItem.name}}</span>
+		        </div>
+		        </template>
+				<div class="info-item horizontal">
+					<div class="row-col horizontal" v-if="filterShowContent(inviteItem.send_wages)">
+						<div class="row-col-item-l">
+							<span class="row-col-item-title">工&emsp;&emsp;资:</span>
+						</div>
+						<div class="row-col-item-r">
+							<span class="money">{{inviteItem.send_wages}}</span><span class="unit" v-if="inviteItem.send_wages!=undefined && inviteItem.send_wages!=null && inviteItem.send_wages!=''">{{inviteItem.send_unit}}</span>
+						</div>
+					</div>
+					<div class="row-col horizontal" v-if="filterShowContent(inviteItem.plan_start_date)">
+						<div class="row-col-item-l">
+							<span class="row-col-item-title">开工时间:</span>
+						</div>
+						<div class="row-col-item-r">
+							<span>{{timeStampToDate(inviteItem.plan_start_date)}}</span>
+						</div>
+					</div>
+				</div>
+				<div class="info-item horizontal">
+					<div class="row-col horizontal" v-if="filterShowContent(inviteItem.plan_end_day)">
+						<div class="row-col-item-l">
+							<span class="row-col-item-title">工作天数:</span>
+						</div>
+						<div class="row-col-item-r">
+							<span>{{inviteItem.plan_end_day}}天</span>
+						</div>
+					</div>
+					<div class="row-col horizontal" v-if="filterShowContent(inviteItem.plan_people_num)">
+						<div class="row-col-item-l">
+							<span class="row-col-item-title">需要人数:</span>
+						</div>
+						<div class="row-col-item-r">
+							<span>{{inviteItem.plan_people_num}}人</span>
+						</div>
+					</div>
+				</div>
+				<div class="info-item horizontal" v-if="filterShowContent(inviteItem.work_address)">
+					<div class="info-item-l">
+						工作地点:
+					</div>
+					<div class="info-item-r">
+						{{inviteItem.work_address}}
+					</div>
+				</div>
+				<div class="info-item horizontal" v-if="filterShowContent(inviteItem.send_memo_team)">
+					<div class="info-item-l">
+						其他说明:
+					</div>
+					<div class="info-item-r">
+						{{inviteItem.send_memo_team}}
+					</div>
+				</div>
+				<div class="info-item horizontal" v-if="filterShowContent(inviteItem.send_memo)">
+					<div class="info-item-l">
+						说&emsp;&emsp;明:
+					</div>
+					<div class="info-item-r">
+						{{inviteItem.send_memo}}
+					</div>
+				</div>
+			</div>
+			<div class="aui-row aui-row-padded" v-if="inviteItem.scenePic!=undefined && inviteItem.scenePic.length>0">
+				<div class="aui-col-xs-2" v-for="(imgItem,imgIndex) in inviteItem.scenePic" v-if="imgIndex<6">
+					<div class="att-img">
+						<img v-lazy="imgItem.url"/>
+					</div>
+				</div>
+			</div>
+			<div class="more-item horizontal">
+				<div class="title">
+					查看更多
+				</div>
+				<div class="arow-r">
+					<i class="aui-iconfont aui-icon-right"></i>
+				</div>
+			</div>
+		</div>
+		</template>
+	</div>
+	<div id="more_hint" class="more-data"></div>
+</body> 
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_tab.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	
+	var indexPage=0;//页码
+	var pageNum=20;//每页的数量
+	var goHtml;
+	var listVm;
+	var refreshStateData;
+	var getHttpsDataIvite,getHttpsDataByState;
+	var userId='';
+	var rqStatus=0;//100全部订单，0 需求订单 1报价 2待开工 3施工中 4竣工待确认 5竣工已确认 6竣工
+	apiready = function() {
+		var pageParam = api.pageParam;//页面提交过来的参数
+		rqStatus=pageParam.state;//0 需求订单 1报价 2待开工 3施工中 4竣工待确认 5竣工已确认 6竣工
+
+		
+		function getStepsIndexByWorkState(workState){
+			var curStepsIndex=1;//当前订单步骤:0发布需求/立即预约；1报价；2待开工；3施工中；4竣工待确认；5竣工已确认；6竣工
+			if(workState==0){
+				//为未接邀约单单
+				curStepsIndex=0;
+			}
+			else if(workState==1){
+				//报价
+				curStepsIndex=1;
+			}
+			else if(workState==2){
+				//待开工
+				curStepsIndex=2;
+			}
+			else if(workState==3){
+				//施工中
+				curStepsIndex=3;
+			}
+			else if(workState==4){
+				//竣工待确认
+				curStepsIndex=4;
+			}
+			else if(workState==5){
+				//竣工已确认
+				curStepsIndex=5;
+			}
+			else if(workState==6){
+				//竣工
+				curStepsIndex=6;
+			}
+			return curStepsIndex;
+		}
+		
+
+		userId=$api.getStorage("userid");//用户id
+		goHtml = function(param){
+			var curStepsIndex = getStepsIndexByWorkState(param.work_status);
+			api.openWin({
+				name : 'orderdetail_win',
+				url : 'widget://html/myorder/orderdetail_win.html',
+				pageParam:{
+					orderTypeAction:param.work_type,//订单类型：0发布需求订单；1邀约订单
+					curStepsIndex:curStepsIndex,//当前订单步骤:0发布需求/立即预约；1报价；2待开工；3施工中；4竣工待确认；5竣工已确认；6竣工
+					orderId:param.work_demaed_id,
+					sendPersonId:param.send_client_id,
+					workStatus:param.work_status
+				},
+				slidBackEnabled:true,
+				delay:300
+			});
+			
+		}; 
+		
+		
+		//请求获取数据(我的邀约订单)
+		getHttpsDataIvite=function(isRefresh){
+			if(isRefresh){
+				indexPage=0;
+			}else{
+				indexPage++;
+			}
+			var param = 'userId='+userId+'&pageIndex='+indexPage+'&pageSize='+pageNum;
+			
+			_getHttpsData('/worker/getMyOrderAll',param,
+				function(res){
+					api.hideProgress();
+					if(isRefresh){api.refreshHeaderLoadDone();}
+					if(res.status){
+						if(isRefresh){
+							listVm.refreshData(res.data);
+						}else{
+							listVm.appendData(res.data);
+						}
+					}else{
+						if(indexPage>0){
+							indexPage--;
+						}
+						api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+					}
+				},
+				function(err){
+					api.hideProgress();
+					if(isRefresh){api.refreshHeaderLoadDone();}
+					if(indexPage>0){
+						indexPage--;
+					}
+				}
+			);
+		};
+		
+		
+		getHttpsDataByState=function(isRefresh){
+			//根据状态获取工单列表
+			if(isRefresh){
+				indexPage=0;
+			}else{
+				indexPage++;
+			}
+			//''全部，0 需求订单 1报价 2待开工 3施工中 4竣工待确认 5竣工已确认 6竣工
+			var param ='';
+			if(rqStatus==100 || rqStatus=='100') {
+				//获取全部订单
+				param = 'userId='+userId+'&pageIndex='+indexPage+'&pageSize='+pageNum;
+			}else{
+				param = 'userId='+userId+'&status='+rqStatus+'&pageIndex='+indexPage+'&pageSize='+pageNum;
+			}
+			
+			_getHttpsData('/worker/getBelongMyOrserByStatus',param,
+				function(res){
+					api.hideProgress();
+					if(isRefresh){api.refreshHeaderLoadDone();}
+					if(res.status){
+						if(isRefresh){
+							listVm.refreshData(res.data);
+						}else{
+							listVm.appendData(res.data);
+						}
+					}else{
+						if(indexPage>0){
+							indexPage--;
+						}
+						api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+					}
+				},
+				function(err){
+					api.hideProgress();
+					if(isRefresh){api.refreshHeaderLoadDone();}
+					if(indexPage>0){
+						indexPage--;
+					}
+				}
+			);
+		};
+		
+		refreshStateData=function(state){
+			rqStatus=state;
+			api.refreshHeaderLoading();
+		}
+		
+		
+		var timeOutEvent=0;//定时器  
+		
+		// 图片懒加载配置
+		Vue.use(VueLazyload, {
+			preLoad: 1, // 预加载高度比例
+			error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+			loading: '../../image/placeholder_loading.png', // 预加载图片
+			attempt: 1, // 尝试加载图片数量
+			observer: true,
+			observerOptions: {
+			rootMargin: '0px',
+			threshold: 0.1}
+		});
+		
+		listVm = new Vue({
+			el : '#main_list',
+			data : {
+				inviteOrderList : []//邀约订单数据
+			},
+			methods : {
+				refreshData:function(data){
+					//刷新邀约订单数据
+					isFirstInvite=false;
+					for(var index in data){
+						data[index].classify=checkIsJsonObj(data[index].classify);
+					}
+					this.inviteOrderList=data;
+					this.nextTick(data);
+				},
+				appendData:function(data){
+					//追加邀约订单数据
+					if(data==undefined) return;
+					for(var index in data){
+						data[index].classify=checkIsJsonObj(data[index].classify);
+					}
+					this.inviteOrderList=this.inviteOrderList.concat(data);
+					this.nextTick(data);
+				},
+				nextTick:function(data){
+					var ret = data.length>=pageNum?true:false;
+					pullupHint('more_hint',ret);
+//					if(!ret && indexPage>0){
+//						indexPage--;
+//					}
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				gotouchstart:function(data){
+				   clearTimeout(timeOutEvent);//清除定时器
+				   timeOutEvent = 0;
+				   timeOutEvent = setTimeout(function(){
+				        //执行长按要执行的内容，
+						clipBoardCopyMsg(data,function(isSuccsee){
+							if(isSuccsee){
+								api.toast({ msg: '单号复制成功',duration: 2000, location: 'middle'});
+							}
+						})
+				    },600);//这里设置定时
+				},
+		        //手释放，如果在500毫秒内就释放，则取消长按事件，此时可以执行onclick应该执行的事件
+				gotouchend:function(){
+				    clearTimeout(timeOutEvent);
+				     if(timeOutEvent!=0){
+				        //这里写要执行的内容（尤如onclick事件）
+				    }
+				},
+				//如果手指有移动，则取消所有事件，此时说明用户只是要移动而不是长按 
+				gotouchmove:function(){
+				    clearTimeout(timeOutEvent);//清除定时器
+				    timeOutEvent = 0;
+				},
+				filterShowContent:function(data){
+					//过滤显示的信息内容
+					if(data==undefined || data==null || data==''){
+						return false;
+					}else{
+						return true;
+					}
+				},
+				timeStampToDate:function(timeStamp){
+					//时间戳转日期
+					return getLocalTime(timeStamp);
+				},
+				getWorkStateName:function(workState){
+					//通过状态获取状态名称显示
+					var stateName='';
+					if(workState==0){
+						//未接邀约单单
+						stateName='邀约';
+					}
+					else if(workState==1){
+						//报价
+						stateName='报价';
+					}
+					else if(workState==2){
+						//待开工
+						stateName='待开工';
+					}
+					else if(workState==3){
+						//施工中
+						stateName='施工中';
+					}
+					else if(workState==4){
+						//竣工待确认
+						stateName='竣工待确认';
+					}
+					else if(workState==5){
+						//竣工已确认
+						stateName='竣工已确认';
+					}
+					else if(workState==6){
+						//订单完成
+						stateName='订单完成';
+					}
+					return stateName;
+				},
+				itemInviteClick:function(data){
+					//邀约订单
+					goHtml(data);
+				}
+			}
+		});
+		api.showProgress();
+		if(rqStatus==0){
+			//邀约订单
+			getHttpsDataIvite(true);
+		} else{
+			//报价订单、待开工等之后的状态订单
+			getHttpsDataByState(true);
+		}
+		
+		//下拉刷新
+		api.setRefreshHeaderInfo({
+		    loadingImg: '',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉刷新...',
+		    textUp: '松开刷新...'
+		}, function(ret, err) {
+		    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+			if(rqStatus==0){
+				//邀约订单
+				getHttpsDataIvite(true);
+			} else{
+				//订单大厅or邀约订单接单后工单
+				getHttpsDataByState(true);
+			}
+		});
+		//监听距离底部距离,实现上拉加载更多
+		api.addEventListener({
+		    name:'scrolltobottom',
+		    extra:{
+		        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+		    }
+		}, function(ret, err){        
+			if(rqStatus==0){
+				//邀约订单
+				getHttpsDataIvite(false);
+			} else{
+				//报价订单、待开工等之后的状态订单
+				getHttpsDataByState(false);
+			}
+		});
+		
+		//监听订单详情操作提交
+		api.addEventListener({
+		    name: 'detailOrder_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.detailOrderSuccess){
+					//订单详情中操作提交成功
+					api.refreshHeaderLoading();
+				}
+			}
+		});
+	}
+	
+</script>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>退回保证金frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+		html,body{height: 100%;background-color: #f7f7f7}
+    	.row-item{padding: 0 10px;height: 2.2rem;line-height: 2.2rem;background-color: #FFFFFF;}
+    	.row-item.row-item-borbtn{border-bottom: 1px solid #DDDDDD;}
+    	.row-item .item-title{width: 5em;}
+    	.row-item .item-content{width: calc(100% - 5em);}
+    	.row-item .item-content input{width: 100%;}
+    	.row-item .item-content .input-area{line-height: 2.2rem;width: 100%;}
+		.row-item .item-content .input-area .input-item-code{width: calc(100% - 9em);}
+		.row-item .item-content .input-area .input-item-code input{height: 2.2rem;width: 100%;outline:none;}
+		.row-item .item-content .input-area .check-code {width: 9em;text-align: right;}
+		.row-item .item-content .input-area .check-code span{border-radius: 5px;height: 29px;line-height: 29px;max-height: 29px;padding: 0 1em;}
+		.row-item .item-content .input-area .check-code .code-hint01{color:#2fc588;border: 1px solid #2fc588;}
+		.row-item .item-content .input-area .check-code .code-hint02{color:#cecece;border: 1px solid #cecece;}
+		.cur-phone{padding: 5px 10px;color:#999999;}
+		.submit-gradient-bg-footer{padding: 0px;height: 2rem;line-height: 2rem;width: 80%;margin: 20px 10%;text-align: center;border-radius: 20px;}
+		
+    </style>
+</head>
+<body>
+	<div id="margin_id">
+		<template>
+		<div class="row-item row-item-borbtn horizontal">
+			<div class="item-title">转出金额:</div>
+			<div class="item-content">
+				<input type="number" :placeholder="phdHint+totalAmount" maxlength="12" v-model="rtnAmount" @input="inputRtnListening" />
+			</div>
+		</div>
+		<div class="row-item row-item-borbtn horizontal">
+			<div class="item-title">验证码:</div>
+			<div class="item-content">	
+				<div class="horizontal input-area">
+					<div class="input-item-code"><input type="number" placeholder="请输入验证码" oninput="if(value.length>4)value=value.slice(0,4)"  v-model="code"/></div>
+					<div class="check-code" tapmode="hover" @click="checkCodeClick"><span :class="codeIsClick ? 'code-hint01' : 'code-hint02'">{{codeHint}}</span></div>
+				</div>
+			</div>
+		</div>
+		<div class="cur-phone">当前手机号:{{phoneMiddleHideFun(phone)}}</div>
+		<div class="submit-gradient-bg-footer" tapmode="hover" @click="submitClick">确定转出</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var marginVm;
+	var countCodeValStart;
+	apiready = function(){
+		
+		
+		var userId = $api.getStorage("userid");//用户id
+		var phone=$api.getStorage("clientPhone");//手机号
+		
+		var httpsWalletData=function(){
+			api.showProgress();
+			var openId=$api.getStorage("openId");//openId
+			var pwd=$api.getStorage("pwd");//登录密码
+			if(pwd==undefined || pwd==null || pwd==''){
+				pwd='123456';
+			}
+			var param;
+			if(openId!=undefined && openId!='undefined' && openId!=null && openId!=''){
+				param = 'clientId=' + userId + '&openId=' + openId +'&from=2';
+			}else{
+				param = 'clientId=' + userId + '&password='+pwd+'&from=2';
+			}
+			_getHttpsData('/member/getBalance',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						var margin = ret.data==undefined || ret.data.margin==undefined ? 0:ret.data.margin;
+						marginVm.initMargin(margin);
+						$api.setStorage("margin", margin);//保证金
+						api.sendEvent({
+						    name: 'payMargin_send_event',
+						    extra: {
+						        isSuccess: true,
+						    }
+						});
+					}else{
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		}
+		
+		/**
+		 *确认转出
+		 * phone手机号
+		 * verifyCode短信验证码
+		 * amount转出金额
+		 * remainMargin剩余金额
+		 */
+		var sumbitInfoHttps=function(phone,verifyCode,amount,remainMargin){
+			var param={};
+			param.clientPhone=phone;
+			param.verifyCode=verifyCode;
+			param.workerId=userId;
+			param.amount=amount;
+			api.showProgress();
+			_postHttpsData('/order/returnMargin',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						api.alert({
+						    title: '温馨提示',
+						    msg: '操作成功',
+						}, function(ret, err) {
+							remainMargin=_toFixed(remainMargin,2);
+							$api.setStorage("margin", remainMargin);//保证金
+							api.sendEvent({
+							    name: 'payMargin_send_event',
+							    extra: {
+							        isSuccess: true,
+							    }
+							});
+							api.closeWin();
+						});
+					}else{
+						api.alert({
+						    title: '请求失败('+ret.code+')',
+						    msg:ret.msg,
+						}, function(ret, err){
+							
+						});
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+			
+		};
+		
+		marginVm=new Vue({
+			el:'#margin_id',
+			data:{
+				rtnAmount:'',
+				totalAmount:'0',
+				phdHint:'最多能转出:¥',
+				phone:'',
+				code:'',
+				codeHint:'获取验证码',
+				codeIsClick:false,//获取验证码按钮是否允许点击
+			},
+			methods:{
+				initMargin:function(totalAmount){
+					this.totalAmount=totalAmount;
+				},
+				initPhone:function(phone){
+					var resPhone = checkPhone(phone);
+					this.codeIsClick=resPhone;
+					if(!resPhone){
+						api.toast({ msg: '获取不到当前手机号码或号码格式错误,请重新登录试试',duration: 2000, location: 'bottom'});
+						return;
+					}
+					this.phone=phone;
+				},
+				inputRtnListening:function(e){
+					this.rtnAmount = (this.rtnAmount.match(/^\d*(\.?\d{0,2})/g)[0]) || null
+				},
+				phoneMiddleHideFun:function(phoneStr){
+					return phoneMiddleHide(phoneStr);
+				},
+				startCountDown:function(){
+					//开始计时
+					var timeNum=30;//设定30秒时间
+					this.codeIsClick=false;
+					this.codeHint='重新获取'+timeNum;
+					//点击获取验证码
+					countCodeValStart = setInterval(function() {
+						timeNum--;
+						marginVm.codeHint='重新获取'+timeNum;
+						// 你倒计时显示的地方元素
+						if(timeNum==0){
+							marginVm.codeIsClick=true;
+							marginVm.codeHint='重新获取';
+							clearInterval(countCodeValStart);
+						}
+					}, 1000);
+				},
+				checkCodeClick:function(){
+					//点击获取短信验证码
+					if(!this.codeIsClick) return;
+					if(!checkPhone(this.phone)){
+						api.toast({ msg: '获取不到当前手机号码或号码格式错误,请重新登录试试',duration: 2000, location: 'bottom'});
+						return;
+					}
+					var param = 'phone='+this.phone+'&type=5'; //type:1注册，2登录，3修改密码，4信息变更
+					_getHttpsData('/user/getSmsVerify',param,
+						function(res){
+							if(res.status){
+								marginVm.startCountDown();
+							}else{
+								api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+							}
+						},
+						function(err){
+						
+						}
+					);
+				},
+				submitClick:function(){
+					var phone = this.phone;
+					var code = this.code;
+					var rtnAmount=this.rtnAmount;
+					var totalAmount=this.totalAmount;
+					
+    				if(totalAmount==undefined || totalAmount==null || totalAmount=='' || Number(totalAmount)<0){
+    					api.alert({
+							title : '提示',
+							msg : '保证金余额不足',
+						}, function(ret, err) {
+						});
+    					return;
+    				}
+					var remainMargin=Number(totalAmount)-Number(rtnAmount);
+					if(rtnAmount==undefined || rtnAmount==null || rtnAmount==''){
+						api.alert({
+							title : '提示',
+							msg : '请输入转出金额',
+						}, function(ret, err) {
+						});
+					}
+					else if(Number(rtnAmount)==0){
+						api.alert({
+							title : '提示',
+							msg : '请输入转出金额必须大于0',
+						}, function(ret, err) {
+						});
+					}
+					else if(remainMargin<0){
+						api.alert({
+							title : '提示',
+							msg : '保证金余额不足',
+						}, function(ret, err) {
+						});
+					}
+					else if(!checkPhone(phone)){
+						api.alert({
+							title : '提示',
+							msg : '获取不到当前手机号码或号码格式错误,请重新登录试试',
+						}, function(ret, err) {
+						});
+					}
+					else if(code==undefined || code==null || code==''){
+						api.alert({
+							title : '提示',
+							msg : '请输入验证码',
+						}, function(ret, err) {
+						});
+					}
+					else if(code.length<4){
+						api.alert({
+							title : '提示',
+							msg : '请输入正确的4位数验证码',
+						}, function(ret, err) {
+						});
+					} else{	
+						sumbitInfoHttps(phone,code,rtnAmount,remainMargin);
+					}
+					
+				}
+			}
+			
+		});
+		
+		marginVm.initPhone(phone);
+		httpsWalletData();
+		
+		api.addEventListener({
+			name : 'viewdisappear'
+		}, function(ret, err) {
+			//关闭当前window，使用默认动画
+			if(countCodeValStart!=undefined){
+				clearInterval(countCodeValStart);
+			}
+		});
+		
+	};
+</script>
+</html>

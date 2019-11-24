@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>投诉建议处理结果frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7}
+    	.pro-res-item{background-color: #FFFFFF;padding: 8px 10px;border-bottom: 1px solid #DDDDDD;}
+    	.pro-res-item .pro-res-item-row{margin-top: 5px;}
+    	.pro-res-item .pro-res-item-row .title{width: 5em;}
+    	.pro-res-item .pro-res-item-row .content{width: calc(100% - 5em);color:#999999;}
+    	
+    </style>
+</head>
+<body>
+	<div id="prores_id">
+		<template>
+		<div v-if="dataList.length>0">
+			<div class="pro-res-item" v-for="dataItem in dataList">
+				<div class="pro-res-item-row horizontal">
+		          <div class="title">问题:</div>
+		          <div class="content">{{dataItem.CONTENT}}</div>
+		        </div>
+				<div class="pro-res-item-row horizontal">
+		          <div class="title">创建时间:</div>
+		          <div class="content">{{dataItem.CREATE_DATE}}</div>
+		        </div>
+		        <div class="pro-res-item-row horizontal">
+		          <div class="title">处理结果:</div>
+		          <div class="content" v-if="dataItem.STATUS==undefined || dataItem.STATUS==null || dataItem.STATUS=='' || dataItem.STATUS==0">等待受理</div>
+		          <div class="content" v-else>已受理</div>
+		        </div>
+		        <div class="pro-res-item-row horizontal">
+		          <div class="title">处理描述:</div>
+		          <div class="content" v-if="dataItem.MEMO==undefined || dataItem.MEMO==null || dataItem.MEMO=='' || dataItem.MEMO==0"></div>
+		          <div class="content" v-else>{{dataItem.MEMO}}</div>
+		        </div>
+			</div>
+		</div>
+		<div v-else style="margin:3rem auto 0 auto;text-align: center;">暂无投诉建议处理记录</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var proresVm;
+	apiready = function(){
+		var userId = $api.getStorage("userid");//用户id
+		var httpsDataList=function(){
+			var param = 'CLIENT_ID=' + userId;
+			api.showProgress();
+			_httpsPlatformSql('advice_list','list',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.code == 0 || ret.code == '0') {
+						var resultList = checkIsJsonObj(ret.msg);
+						var msgList = resultList!=null ? resultList:[];
+						proresVm.refreshData(msgList);
+					} else{
+						showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			),true;
+		}
+	
+		proresVm = new Vue({
+			el:'#prores_id',
+			data:{
+				dataList:[]
+			},
+			methods:{
+				refreshData:function(data){
+					this.dataList=data;
+				}
+			}
+		});
+		
+		httpsDataList();
+	};
+</script>
+</html>

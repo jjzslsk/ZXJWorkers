@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>忘记密码frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/forgetpwd/forgetpwd.css"></head>
+</head>
+<body>
+	<div id="content_area">
+		<template>
+		<div class="content-area">
+			<div class="horizontal content-item">
+				<div class="title-item"><span>手机号</span></div>
+				<div class="input-item"><input type="tel" placeholder="请输入手机号" maxlength="11" v-bind:readonly="phoneIsRed" v-model="infoData.phone"/></div>
+			</div>
+			<div class="horizontal content-item">
+				<div class="title-item"><span>验证码</span></div>
+				<div class="input-item-code"><input type="number" placeholder="请输入验证码" oninput="if(value.length>4)value=value.slice(0,4)"  v-model="infoData.code"/></div>
+				<div class="check-code" tapmode="hover" @click="checkCodeClick"><span :class="codeIsClick ? 'code-hint01' : 'code-hint02'">{{codeHint}}</span></div>
+			</div>
+			<div class="horizontal content-item">
+				<div class="title-item"><span>输入新密码</span></div>
+				<div class="input-item"><input type="password" placeholder="6-18位新密码" maxlength="18" v-model="infoData.newPwd"/></div>
+			</div>
+			<div class="horizontal content-item">
+				<div class="title-item"><span>确认新密码</span></div>
+				<div class="input-item"><input type="password" placeholder="请确认新密码" maxlength="18" v-model="infoData.againPwd"/></div>
+			</div>
+		</div>
+		<div class="submit-btn" tapmode="hover" onclick="submitData()">提交</div>	
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/md5/md5.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var submitData;
+	var countCodeValForget;
+	var forgerVm;
+	var action;
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		action=pageParam.action;
+	
+		forgerVm=new Vue({
+			el:'#content_area',
+			data:{
+				infoData:{
+					phone:'',
+					code:'',
+					newPwd:'',
+					againPwd:''
+				},
+				codeHint:'获取验证码',
+				codeIsClick:false,//获取验证码按钮是否允许点击
+				phoneIsRed:false,//是否设置手机输入框为只读模式
+				actionFrom:''
+			},
+			watch:{
+				'infoData.phone': function() {
+					var resPhone = checkPhone(this.infoData.phone);
+					this.codeIsClick=resPhone;
+			  	},
+			},
+			methods:{
+				initData:function(){
+					if(action=='login'){
+						this.phoneIsRed=false;
+					} else{
+						this.phoneIsRed=true;
+						this.infoData.phone=$api.getStorage("clientPhone");//手机号
+					}
+				},
+				startCountDown:function(){
+					//开始计时
+					var timeNum=30;//设定30秒时间
+					this.codeIsClick=false;
+					this.phoneIsRed=true;
+					this.codeHint='重新获取'+timeNum;
+					//点击获取验证码
+					countCodeValForget = setInterval(function() {
+						timeNum--;
+						forgerVm.codeHint='重新获取'+timeNum;
+						// 你倒计时显示的地方元素
+						if(timeNum==0){
+							forgerVm.codeIsClick=true;
+							if(action=='login'){
+								forgerVm.phoneIsRed=false;
+							}
+							forgerVm.codeHint='重新获取';
+							clearInterval(countCodeValForget);
+						}
+					}, 1000);
+				},
+				checkCodeClick:function(){
+					//点击获取短信验证码
+					if(!this.codeIsClick) return;
+					var param = 'phone='+this.infoData.phone+'&type=3'+'&from=4'; //type:1注册，2登录，3修改密码，4信息变更
+					_getHttpsData('/user/getSmsVerify',param,
+						function(res){
+							if(res.status){
+								forgerVm.startCountDown();
+							}else{
+								api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+							}
+						},
+						function(err){
+						
+						}
+					);
+				},
+				submitClick:function(){
+					//注册
+					var phone=this.infoData.phone;
+					var code=this.infoData.code;
+					var newPwd=this.infoData.newPwd;
+					var againPwd=this.infoData.againPwd;
+					if(phone==undefined || phone==null || phone==''){
+						api.alert({
+							title : '提示',
+							msg : '请输入手机号',
+						}, function(ret, err) {
+						});
+					}
+					else if(!checkPhone(phone)){
+						api.alert({
+							title : '提示',
+							msg : '请输入正确的手机号',
+						}, function(ret, err) {
+						});
+					}
+					else if(code==undefined || code==null || code==''){
+						api.alert({
+							title : '提示',
+							msg : '请输入验证码',
+						}, function(ret, err) {
+						});
+					}
+					else if(code.length<4){
+						api.alert({
+							title : '提示',
+							msg : '请输入正确的4位数验证码',
+						}, function(ret, err) {
+						});
+					}
+					else if(newPwd==undefined || newPwd==null || newPwd=='' || newPwd.length<6){
+						api.alert({
+							title : '提示',
+							msg : '请输入6-18位新密码',
+						}, function(ret, err) {
+						});
+					}
+					else if(againPwd==undefined || againPwd==null || againPwd==''){
+						api.alert({
+							title : '提示',
+							msg : '请输入确认新密码',
+						}, function(ret, err) {
+						});
+					}
+					else if(newPwd!=againPwd){
+						api.alert({
+							title : '提示',
+							msg : '两次密码输入不一致',
+						}, function(ret, err) {
+						});
+					}
+					else{
+						var param='phone='+phone+'&newPass='+newPwd+'&verifyCode='+code;
+						api.showProgress();
+						_getHttpsData('/user/changePass',param,
+							function(res){
+								api.hideProgress();
+								if(res.status){
+									if(action=='setUp'){
+										setPwdStor(newPwd);
+									}
+									api.alert({
+									    title: '提示',
+									    msg: '修改成功',
+									}, function(ret, err) {
+										api.closeWin();
+									});
+								}
+								api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+							},
+							function(err){
+							
+							}
+						);
+					
+					}
+					
+				}
+			}
+		});
+		forgerVm.initData();
+		//提交数据
+		submitData=function(){
+			forgerVm.submitClick();
+		}
+		
+		api.parseTapmode();
+		api.addEventListener({
+			name : 'viewdisappear'
+		}, function(ret, err) {
+			//关闭当前window，使用默认动画
+			clearInterval(countCodeValForget);
+		});
+		
+	};
+</script>
+</html>

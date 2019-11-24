@@ -1,0 +1,9 @@
+
+/* .shop-main{padding: 8px 10px;} */
+.shop-main .shop-img{text-align:center;width:100%;height:100%;}
+.shop-main .shop-img img{height:auto;width:100%;margin: 0 auto}
+.shop-btn{background-color: #2fc588;width: 60%;height: 48px;max-height:48px;color:#FFFFFF;border-radius: 20px;margin: 0 20%;padding: 4px 0}
+.shop-btn .btn-text01{font-size:16px;}
+.shop-btn .btn-text02{font-size:16px;position: absolute;top: 24px;width: 100%;left: 50%;margin-left: -50%}
+/* .shop-btn .shop-item{background-color: #2fc588;width: 60%;line-height: 40px;color:#FFFFFF;border-radius: 20px;} */
+.bar-btm-footer{background-color: #f7f7f7;border-top: 0}·

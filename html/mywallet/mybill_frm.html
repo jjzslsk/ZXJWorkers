@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>我的账单frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/mywallet/mywallet.css"></head>
+</head>
+<body>
+	<div id="bill_id">
+		<template>
+		<div class="bill-list-item horizontal" v-for="item in dataList" @click="itemClick(item)">
+			<div class="bill-item-img">
+				<img src="../../image/icon/pay/balance_logo.png" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+			</div>
+			<div class="bill-item-info">
+				<div class="bill-item-head horizontal">
+					<div class="bill-item-title">
+						{{item.MEMO}}
+					</div>
+					<div v-if="item.IN_AMNT!=undefined" class="bill-item-money income">
+						{{item.IN_AMNT}}
+					</div>
+					<div v-else-if="item.OUT_AMNT!=undefined" class="bill-item-money">
+						{{item.OUT_AMNT}}
+					</div>
+					<!--<div v-if="item.THIRE_CONFIRM_AMOUNT>0" class="bill-item-money income">
+						+{{item.THIRE_CONFIRM_AMOUNT}}
+					</div>
+					<div v-else class="bill-item-money">
+						{{item.THIRE_CONFIRM_AMOUNT}}
+					</div>-->
+				</div>
+				<div class="bill-item-time">{{item.THIRE_CALL_DATE}}</div>
+			</div>
+		</div>
+		</template>
+	</div>
+	<div id="more_hint" class="more-data"></div>
+</body>
+
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+
+	var startNum=0;//起始位置
+	var pageSize=30;//每页的数量
+	var billVm;
+	apiready = function(){
+		var userId = $api.getStorage("userid");//用户id
+		
+		var getMyBillHttpsData = function(isRefresh){
+			if(isRefresh){
+				startNum=0;
+			}else{
+				startNum=startNum+pageSize;
+			}
+			var param = "CLIENT_ID=" + userId+"&MODE=MX&START_NUM="+startNum+"&PAGE_SIZE="+pageSize;
+			_httpsPlatformClass('getClientOrdersList',param,
+				function(ret){
+					api.hideProgress();
+					if(isRefresh){
+						api.refreshHeaderLoadDone();
+					}
+					if(ret.code == 0 || ret.code == '0') {
+						var resultMsg =  checkIsJsonObj(ret.msg);
+						if(resultMsg!=null) {
+							var resultList = checkIsJsonObj(resultMsg.msg);
+							var msgList = resultList!=null ? resultList:[];
+							if(isRefresh){
+								billVm.refreshData(msgList);
+							}else{
+								billVm.appendData(msgList);
+							}
+						} else{
+							if(isRefresh){
+								billVm.refreshData([]);
+							}else{
+								billVm.appendData([]);
+							}
+						}
+					} else{
+						showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		
+		billVm=new Vue({
+			el:'#bill_id',
+			data:{
+				dataList:[]
+			},
+			methods:{
+				refreshData:function(data){
+					this.dataList=data;
+					this.nextTick(data);
+				},
+				appendData:function(data){
+					this.dataList=this.dataList.concat(data);
+					this.nextTick(data);
+				},
+				nextTick:function(data){
+					var ret = data.length>pageSize?true:false;
+					pullupHint('more_hint',ret);
+					if(!ret && startNum>pageSize){
+						startNum=startNum-pageSize;
+					}
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				itemClick:function(data){
+					
+				}
+			}
+			
+		});
+		api.showProgress();
+		getMyBillHttpsData(true);
+		
+		
+		//下拉刷新
+		api.setRefreshHeaderInfo({
+		    loadingImg: '',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉刷新...',
+		    textUp: '松开刷新...'
+		}, function(ret, err) {
+		    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+			getMyBillHttpsData(true);
+		});
+		
+		//监听距离底部距离,实现上拉加载更多
+		api.addEventListener({
+		    name:'scrolltobottom',
+		    extra:{
+		        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+		    }
+		}, function(ret, err){
+			getMyBillHttpsData(false);
+		});
+		
+	};
+</script>
+</html>

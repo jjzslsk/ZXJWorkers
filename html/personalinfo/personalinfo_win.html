@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>个人信息win</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<style>
+		.check-pro1{font-size: 0.6rem;color:#E51C23}
+		.check-pro2{font-size: 0.6rem;color:#FFFFFF}
+		.check-pro3{font-size: 0.6rem;color:#E51C23}
+	</style>
+</head>
+<body>
+	<header id="header" class="aui-bar aui-bar-nav this-bg-theme">
+        <a class="aui-pull-left" tapmode="hover" onclick="backbar()">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">个人信息</div>
+         <a class="aui-pull-right aui-btn">
+            <span id="check_pro"></span>
+        </a>
+    </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript">
+	var backbar;
+	var refreshCheckPro;
+	apiready = function(){
+		var header = $api.byId('header');
+		$api.fixStatusBar(header); 
+		backbar = function(){
+			//关闭当前window，使用默认动画
+			api.closeWin();
+		}
+		refreshCheckPro=function(applyStatus){
+			/*0未申请，1申请中，2审核通过，3审核不通过*/
+			if(applyStatus==1){
+				$('#check_pro').text('申请中');
+				$('#check_pro').addClass('check-pro1');
+				$('#check_pro').removeClass('check-pro2');
+				$('#check_pro').removeClass('check-pro3');
+			}
+			else if(applyStatus==2){
+				$('#check_pro').text('审核通过');
+				$('#check_pro').addClass('check-pro2');
+				$('#check_pro').removeClass('check-pro1');
+				$('#check_pro').removeClass('check-pro3');
+			}
+			else if(applyStatus==3){
+				$('#check_pro').text('审核不通过');
+				$('#check_pro').addClass('check-pro3');
+				$('#check_pro').removeClass('check-pro1');
+				$('#check_pro').removeClass('check-pro2');
+			}
+		}
+		
+		var headerBar = $api.dom('header').offsetHeight;
+        api.openFrame({
+            name: 'personalinfo_frm',
+            url: 'personalinfo_frm.html',
+            bounces: false,
+		    scrollToTop:true,
+            rect: { // 推荐使用Margin布局，用于适配屏幕的动态变化
+                marginTop: headerBar, // main页面距离win顶部的高度
+                marginBottom: 0, // main页面距离win底部的高度
+                w: 'auto' // main页面的宽度 自适应屏幕宽度
+            }
+        });
+	};
+</script>
+</html>

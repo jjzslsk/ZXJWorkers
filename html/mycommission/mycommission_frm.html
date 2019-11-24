@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+	    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	    <title>我的佣金frm</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	    <style>
+	    	html,body{height: 100%;background-color: #f7f7f7}
+	    	.head-info{height: calc(32px + 2rem);position: fixed;top:0;width: 100%;z-index: 99}
+	    	.head-info .total-comm{padding: 5px 8%;text-align: left;background-color: #f7f7f7;height:40px;}
+			.team-list{padding-top: calc(32px + 2.4rem);font-size: 0.6rem;}
+			.list-item{padding: 8px 10px;border-bottom: 1px solid #DDDDDD;}
+			.list-item .item-source{width: 20%;text-align: center;}
+			.list-item .item-time{width: 60%;text-align: center;padding: 0 8px;}
+			.list-item .item-money{width: 20%;text-align: center;}
+			.list-item .item-money.font-color1{color:#f30505;}
+			.list-item .item-money.font-color2{color:#11ce7c;}
+			
+			
+	    </style>
+	</head>
+	<body>
+		<div id="commission_id">
+			<template>
+			<div class="head-info">
+				<div class="total-comm" >佣金合计：¥{{totalCommission}}</div>
+				<div class="list-item horizontal team-commission-head-gradient">
+					<div class="item-source">来源</div>
+					<div class="item-time">加入时间</div>
+					<div class="item-money">收/支</div>
+				</div>
+			</div>
+			<div class="team-list">
+				<div class="list-item horizontal" v-for="teamItem in dataList">
+					<div class="item-source">{{teamItem.MEMO}}</div>
+					<div class="item-time">{{splitTime(teamItem.THIRE_CALL_DATE)}}</div>
+					<div class="item-money" :class="moneyItemColor(teamItem.THIRE_CONFIRM_AMOUNT)">{{filterMoney(teamItem.THIRE_CONFIRM_AMOUNT)}}</div>
+				</div>
+			</div>
+			</template>
+		</div>
+		<div id="more_hint" class="more-data"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	
+	<script type="text/javascript">
+	
+		var startNum=0;//起始位置
+		var pageSize=30;//每页的数量
+		var commissionVm;
+		apiready = function(){
+			var userId = $api.getStorage("userid");//用户id
+			
+			//请求获取数据
+			var getMyCommissionHttpsData = function(isRefresh){
+				if(isRefresh){
+					startNum=0;
+				}else{
+					startNum=startNum+pageSize;
+				}
+				var param = "CLIENT_ID=" + userId+"&MODE=YJ&START_NUM="+startNum+"&PAGE_SIZE="+pageSize;
+				_httpsPlatformClass('getClientOrdersList',param,
+					function(ret){
+						api.hideProgress();
+						if(isRefresh){
+							api.refreshHeaderLoadDone();
+						}
+						if(ret.code == 0 || ret.code == '0') {
+							var resultMsg =  checkIsJsonObj(ret.msg);
+							if(resultMsg!=null) {
+								var resultList = checkIsJsonObj(resultMsg.msg);
+								var msgList = resultList!=null ? resultList:[];
+								if(isRefresh){
+									commissionVm.refreshData(msgList);
+								}else{
+									commissionVm.appendData(msgList);
+								}
+							} else{
+								if(isRefresh){
+									commissionVm.refreshData([]);
+								}else{
+									commissionVm.appendData([]);
+								}
+							}
+						} else{
+							showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+						}
+					},
+					function(err){
+						api.hideProgress();
+					}
+				);
+			};
+			commissionVm = new Vue({
+				el:'#commission_id',
+				data:{
+					dataList:[],
+					totalCommission:0
+				},
+				methods:{
+					refreshData:function(data){
+						this.calCommission(data);
+						this.dataList=data;
+						this.nextTick(data);
+					},
+					appendData:function(data){
+						this.calCommission(data);
+						this.dataList=this.dataList.concat(data);
+						this.nextTick(data);
+					},
+					calCommission:function(data){
+						var totalCommission=this.totalCommission;
+						for(var index in data){
+							if(data[index].THIRE_CONFIRM_AMOUNT>0) {
+								//只累加收入的金额
+								totalCommission=Number(totalCommission)+Number(data[index].THIRE_CONFIRM_AMOUNT);
+							}
+						}
+						this.totalCommission=_toFixed(totalCommission,2);
+					},
+					nextTick:function(data){
+						var ret = data.length>pageSize?true:false;
+						pullupHint('more_hint',ret);
+						if(!ret && startNum>pageSize){
+							startNum=startNum-pageSize;
+						}
+						this.$nextTick(function(){
+							api.parseTapmode();
+							api.hideProgress();
+						})
+					},
+					splitTime:function(str){
+						//截取时间
+						if(str==undefined || str==null || str==''){
+							return '';
+						}else{
+							var arr = str.split(" ")
+							return arr[0]
+						}
+					},
+					filterMoney:function(money){
+						//处理金额，把负数转正数显示
+						return Math.abs(money);
+					},
+					moneyItemColor:function(money){
+						//处理收/支的字体颜色
+						if(money<0){
+							return 'font-color2';
+						}else{
+							return 'font-color1';
+						}
+					}
+				}
+			});
+			api.showProgress();
+			getMyCommissionHttpsData(true);
+//			//下拉刷新
+			api.setRefreshHeaderInfo({
+			    loadingImg: '',
+			    bgColor: '#ccc',
+			    textColor: '#fff',
+			    textDown: '下拉刷新...',
+			    textUp: '松开刷新...'
+			}, function(ret, err) {
+			    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+			    getMyCommissionHttpsData(true);
+			});
+			//监听距离底部距离,实现上拉加载更多
+			api.addEventListener({
+			    name:'scrolltobottom',
+			    extra:{
+			        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+			    }
+			}, function(ret, err){
+				getMyCommissionHttpsData(false);
+			});
+	}
+	</script>
+</html>

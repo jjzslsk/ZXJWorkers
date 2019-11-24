@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>日志详情win</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	
+	<style>
+	/*2.25rem*/
+/*		#footer_id{background-color: #CECECE;}*/
+		.footer-fun{padding: 0 10px;}
+		.footer-fun .edit-item{width: 55%;height: 2.25rem;line-height: 2.25rem;padding: 0.35rem 0;}
+		.footer-fun .edit-item input{background-color: #f1f1f1;height: 1.55rem;padding: 0 8px;border-radius: 20px;}
+		
+		.footer-fun .praise-item,.footer-fun .eva-item,.footer-fun .forwarding-item{height: 2.25rem;line-height: 2.25rem;width: 12%;margin-left: 3%;}
+		.footer-fun .praise-item span,.footer-fun .eva-item span,.footer-fun .forwarding-item span{position: absolute;font-size: 10px;top: -5px;}
+		
+		.sel-item{color:#11ce7c;}
+		
+	</style>
+	
+</head>
+<body>
+	<header id="header" class="aui-bar aui-bar-nav this-bg-theme">
+        <a class="aui-pull-left" tapmode="hover" onclick="backbar()">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title" id="cf_title">日志详情</div>
+    </header>
+    <footer class="aui-bar aui-bar-tab footer-btn" id="footer_id" >
+     	<div class="footer-fun horizontal">
+     		<div class="edit-item" tapmode="hover" onclick="evaEditItemClick()">
+     			<input id="eva_input" type="text" placeholder="写评论" maxlength="500" readonly="" />
+     		</div>
+     		<div class="praise-item" tapmode="hover" onclick="praiseClick()"><i class="aui-iconfont aui-icon-laud"></i><span id="praise_num">0</span></div>
+     		<div class="eva-item" tapmode="hover" onclick="evaClick()"><i class="aui-iconfont aui-icon-comment"></i><span id="eva_num">0</span></div>
+     		<div class="forwarding-item" tapmode="hover" onclick="forwardingClick()"><i class="aui-iconfont aui-icon-forward"></i><span id="forwarding_num">0</span></div>
+     	</div>
+    </footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript">
+	var backbar,evaEditItemClick,praiseClick,evaClick,forwardingClick;
+	var zanFlag= false;//是否已点赞
+	apiready = function(){
+		var header = $api.byId('header');
+		$api.fixStatusBar(header); 
+		backbar = function(){
+			//关闭当前window，使用默认动画
+			api.closeWin();
+		}
+		
+        var UIChatBox;
+        evaEditItemClick=function(){
+	    	//输入框模块
+	    	if(UIChatBox==undefined || UIChatBox==null || UIChatBox==''){
+	    	 	UIChatBox = api.require('UIChatBox');
+	    	}
+			UIChatBox.open({
+				placeholder : '',
+				autoFocus:true,//（可选项）输入框是否自动获取焦点，并弹出键盘; 默认值：false
+				maxRows : 4,//（可选项）输入框显示的最大行数（高度自适应;默认值：4
+				texts : {//（可选项）聊天输入框模块可配置的文本
+					sendBtn : {//（可选项）JSON对象；发送按钮文字内容，在 iOS 平台上对键盘内按钮无效
+						title : '发送'//（可选项）字符串类型；按钮常态的标题，默认：'发送';
+					}
+				},
+				styles : { 
+					topDivider:{//(可选项)顶部分割线配置
+					    width:3, //(可选项)顶部分割线的粗细，默认：0 
+					    color:'#000'//(可选项)顶部分割线的颜色；默认：#000 ;支持图片设置(fs:// & widget://)
+				    },
+					inputBar:{//（可选项）JSON对象；输入区域（输入框及两侧按钮）整体样式    
+						borderColor:'#d9d9d9',//（可选项）字符串类型；输入框区域上下边框的颜色，支持 rgb，rgba，#；默认：'#d9d9d9'
+						bgColor:'#f1f1f1',//（可选项）字符串类型；输入框区域的整体背景色，支持 rgb，rgba，#；默认：'#f2f2f2'
+						textColor:'#00000',//（可选项）字符串类型；输入文字的颜色；默认：#000
+					    textSize:16,//（可选项）数字类型；默认：16
+					    textMarginLeft:5//（可选项）数字类型；光标距离左边框的距离，默认：5
+					},
+					inputBox:{//（可选项）JSON对象；输入框样式
+						 borderColor: '#B3B3B3',//（可选项）字符串类型；输入框的边框颜色，支持 rgb，rgba，#；默认：'#B3B3B3'
+				         bgColor: '#ffffff',//（可选项）字符串类型；输入框的背景色，支持 rgb，rgba，#；默认：'#f2f2f2'
+				         boardBgColor: '#FFFFFF',//（可选项）字符串类型；面板的背景色(表情面板，附加面板)，支持 rgb，rgba，#；默认：'#f2f2f2'
+				         topMargin:10,//（可选项）数字类型；输入框距离顶部的边距；默认：10
+				         borderCorner:5,//(可选项)数字类型；默认：5
+				    	 leftIcon:{//(可选项)JSON对象，输入框左侧图标  本参数仅支持android
+				         	size:20,//(可选项)数字类型；icon的大小；默认：20
+				         	path:''//字符串类型；icon的路径；支持widget:// fs://
+				         }
+					},
+					sendBtn : {//（可选项）JSON对象；发送按钮样式，本参数对 iOS 平台上的键盘内发送按钮无效
+						bg : '#4cc518',//（可选项）字符串类型；发送按钮背景颜色，支持 rgb、rgba、#、img；默认：#4cc518
+						titleColor : '#ffffff', //（可选项）字符串类型；发送按钮标题颜色；默认：#ffffff
+						activeBg : '#46a91e',//（可选项）字符串类型；发送按钮背景颜色，支持 rgb、rgba、#、img；默认：无
+						titleSize : 14//（可选项）数字类型；发送按钮标题字体大小；默认：13
+					}
+				},
+				isShowSendBtn:false,//（可选项）表情键盘上的发送按钮是否显示 注意:本参数对 iOS 平台上的键盘内发送按钮无效 ，该参数仅支持iOS;默认：true
+				isClose:true,//（可选项）点击空白区域是否关闭整个模块(包括键盘);默认：false
+			}, function(ret, err) {
+				if (ret) {
+					if(ret.eventType=='send'){
+						if(ret.msg==undefined || ret.msg==null || ret.msg==''){
+							api.toast({ msg: '请输入信息',duration: 2000, location: 'middle'});
+						}else{
+							api.execScript({
+								name : 'circlefriendsdetail_win',
+								frameName : 'circlefriendsdetail_frm',
+								script : 'submitEvaClick('+JSON.stringify(ret)+')'
+							});
+							UIChatBox.close();
+						}
+						
+					}
+				}
+			});
+        	UIChatBox.addEventListener({
+			    target: 'inputBar',
+			    name: 'move'
+			}, function(evRet, evErr) {
+			    if (evRet && evRet.panelHeight==0) {
+			    	UIChatBox.close();
+			    }
+			});
+        	
+        }
+        
+        function upPraiseItemType(isSelPraise){
+        	if(isSelPraise){
+        	 	$('.praise-item').addClass('sel-item');
+        	}else{
+        		$('.praise-item').removeClass('sel-item');
+        	}
+        }
+        
+		//点赞
+		praiseClick=function(){
+			api.execScript({
+				name : 'circlefriendsdetail_win',
+				frameName : 'circlefriendsdetail_frm',
+				script : 'praiseClick()'
+			});
+		}
+		//评价
+		evaClick=function(){
+			api.execScript({
+				name : 'circlefriendsdetail_win',
+				frameName : 'circlefriendsdetail_frm',
+				script : 'evaClick()'
+			});
+		}
+		//转发
+		forwardingClick=function(){
+			api.execScript({
+				name : 'circlefriendsdetail_win',
+				frameName : 'circlefriendsdetail_frm',
+				script : 'forwardingClick()'
+			});
+		}
+		
+		
+		
+		var headerBar = $api.dom('header').offsetHeight;
+		var footerBar = $api.dom('footer').offsetHeight;
+		var pageParam = api.pageParam;
+		var dataInfo=pageParam.cfDetail;
+		$('#praise_num').text(dataInfo.DZ_NUM==undefined ? 0:dataInfo.DZ_NUM);
+		$('#eva_num').text(dataInfo.HF_NUM==undefined ? 0:dataInfo.HF_NUM);
+		$('#forwarding_num').text(dataInfo.NO_NUM==undefined ? 0:dataInfo.NO_NUM);
+		if(dataInfo.ZAN_FLAG!=undefined && (dataInfo.ZAN_FLAG==1 || dataInfo.ZAN_FLAG=='1')){
+			zanFlag=true;
+		}
+        upPraiseItemType(zanFlag);
+//		var title=pageParam.cfDetail.CRETAE_DATE==undefined ? '朋友圈详情':pageParam.cfDetail.CRETAE_DATE;
+//		$('#cf_title').text(title);
+        api.openFrame({
+            name: 'circlefriendsdetail_frm',
+            url: 'circlefriendsdetail_frm.html',
+            bounces: false,
+		    scrollToTop:true,
+            rect: { // 推荐使用Margin布局，用于适配屏幕的动态变化
+                marginTop: headerBar, // 距离win顶部的高度
+                marginBottom: footerBar, //距离win底部的高度
+                w: 'auto' // main页面的宽度 自适应屏幕宽度
+            },
+            pageParam:pageParam
+        });
+        
+        
+        //监听提交评论成功
+		api.addEventListener({
+		    name: 'eva_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					var evaNum=$('#eva_num').text();
+					if(evaNum==undefined || evaNum==null || evaNum==''){
+						evaNum=0;
+					}
+					evaNum=Number(evaNum)+1;
+					$('#eva_num').text(evaNum);
+				}
+			}
+		});
+		
+		//监听点赞成功
+		api.addEventListener({
+		    name: 'like_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					var praiseNum=$('#praise_num').text();
+					if(praiseNum==undefined || praiseNum==null || praiseNum==''){
+						praiseNum=0;
+					}
+					if(zanFlag){
+						if(Number(praiseNum)>0){
+							praiseNum=Number(praiseNum)-1;
+						}
+						zanFlag=false;
+					}else{
+						praiseNum=Number(praiseNum)+1;
+						zanFlag=true;
+					}
+					$('#praise_num').text(praiseNum);
+					upPraiseItemType(zanFlag);
+				}
+			}
+		});
+        
+        
+        
+	};
+</script>
+</html>

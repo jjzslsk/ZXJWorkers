@@ -1,0 +1,833 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>装小匠(工人端)首页win</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/iconfont.css"/>
+		<style>
+			html, body {
+				height: 100%;
+			}
+			.aui-bar-tab .aui-active .icon-vicinity_iconnot:before,
+			.aui-bar-tab .aui-active .icon-Mall:before,
+			.aui-bar-tab .aui-active .icon-school_iconnot:before,
+			.aui-bar-tab .aui-active .icon-Management_iconnot:before,
+			.aui-bar-tab .aui-active .icon-Mine_iconnot:before{color: #FFFFFF;}
+			.aui-bar-tab .aui-active i{background-color:#2fc588;border-radius: 50%;color: #FFFFFF;padding: 0.2rem }
+		
+			/*.msg-tip{width:10px;height: 10px;border-radius: 50%;background-color: #d61414;position: absolute;top: 10px;right: calc(50% - 15px);z-index: 99}*/
+			.msg-tip{width:1rem;height: 1rem;line-height:1rem;text-align:center;font-size:0.5rem;border-radius: 50%;background-color: #d61414;position: absolute;top: 3px;right: 5px;z-index: 99;}
+			.tip-hide{display:none;}
+			.me-tip{width:10px;height: 10px;line-height:10px;border-radius: 50%;background-color: #d61414;position: absolute;top: 3px;z-index: 99;}
+			
+		</style>
+	</head>
+	<body>
+		<div id="wrap-main" class="flex-wrap flex-vertical">
+			<header id="header" class="taui-bar aui-bar-nav this-bg-theme">
+				<a class="aui-pull-left aui-btn">
+					 <i id="set_up" class="aui-iconfont aui-icon-gear tip-hide" tapmode="hover" onclick="setUpClick()" style="font-size: 1.2rem;margin-left: 5px"></i>
+				</a>
+				<div class="aui-title" id="title_text">装小匠(工人端)</div>
+				<a class="aui-pull-right aui-btn" tapmode="hover" onclick="msgClick()">
+					<i class="aui-iconfont aui-icon-comment" style="font-size: 1.2rem;margin-right: 5px"></i>
+					<span id="msg_tip" class="msg-tip tip-hide"></span>
+				</a>
+			</header>
+			<div id="main" class="flex-con"></div>
+			<footer class="aui-bar aui-bar-tab bar-btm-footer" id="footer">
+				<div class="aui-bar-tab-item aui-active" tapmode>
+					<i class="aui-iconfont icon-vicinity_iconnot"></i>
+					<div class="aui-bar-tab-label">
+						订单大厅
+					</div>
+				</div>
+				<div id="shop_tab" class="aui-bar-tab-item" tapmode>
+					<i class="aui-iconfont icon-Mall"></i>
+					<div class="aui-bar-tab-label">
+						商城
+					</div>
+				</div>
+				<div id="school_tab" class="aui-bar-tab-item" tapmode>
+					<i class="aui-iconfont icon-school_iconnot"></i>
+					<div class="aui-bar-tab-label">
+						装修学堂
+					</div>
+				</div>
+				<div id="tubesite_tab" class="aui-bar-tab-item" tapmode>
+					<i class="aui-iconfont icon-Management_iconnot"></i>
+					<div class="aui-bar-tab-label">
+						管工地
+					</div>
+				</div>
+				<div class="aui-bar-tab-item" tapmode>
+					<i class="aui-iconfont icon-Mine_iconnot"></i>
+					<div class="aui-bar-tab-label">
+						我的
+					</div>
+					<span id="me_tip" class="me-tip tip-hide"></span>
+				</div>
+			</footer>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/aui/aui_tab.js" ></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/md5/base64.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	<script type="text/javascript" src="../../script/mywebsocket.js"></script>
+	<script type="text/javascript" src="../../script/custom/ajpush.js"></script>
+	<script type="text/javascript">
+		var tab;
+		var setUpClick,msgClick;
+		var randomSwitchBtn;//切换页面方法
+		var setTitleText;//设置头部文字方法
+		var msgShowTip;//右上角消息提示
+		var create_ws,getWebSocketState,sendChat,openLocation,sendLocation,closeWebSocket;
+		var countTimeValCreatWs,countTimeValLocation;
+		var nearorderIsShow=false,zxjShopIsShow=false;//商城页签是否显示过
+		var startPlayNotice;//播放收到信息通知声音
+		var isShowShop=false;//是否显示商城跳转页面(系统执行判断)
+		var isShowWorkerSchool=false;//是否显示装修学堂(手动修改此值)
+		var isShowtubesite=false;//是否显示管工地(手动修改此值)
+		var getWorkCountHttps;
+		apiready = function() {
+			var header = $api.byId('header');
+			$api.fixStatusBar(header); 
+			
+			var refreshDataPage01=function(){
+				if(nearorderIsShow){
+					api.execScript({
+						name : 'main_win',
+						frameName : 'nearorder_frm',
+						script : 'refreshPageData()'
+					});
+				}
+			}
+			
+			
+			setTitleText=function(position){
+				if(isShowShop){
+					if(position==0){
+						$('#title_text').text('订单大厅');
+						refreshDataPage01();
+						showSetUpIcon(false);
+					}
+					else if(position==1){
+						$('#title_text').text('商城');
+						showSetUpIcon(false);
+						zxjShopIsShow=true;
+						api.execScript({
+							name : 'main_win',
+							frameName : 'zxjshop_frm',
+							script : 'showJumpDialog()'
+						});
+					}
+					else if(position==2 && isShowWorkerSchool){
+						$('#title_text').text('装修学堂');
+						showSetUpIcon(false);
+					}
+					else if(position==2 && !isShowWorkerSchool && isShowtubesite){
+						$('#title_text').text('管工地');
+						showSetUpIcon(false);
+					}
+					else if(position==2 && !isShowWorkerSchool && !isShowtubesite){
+						$('#title_text').text('我的');
+						showSetUpIcon(true);
+					}
+					else if(position==3 && isShowWorkerSchool && isShowtubesite){
+						$('#title_text').text('管工地');
+						showSetUpIcon(false);
+					}
+					else if(position==3 && (!isShowWorkerSchool || !isShowtubesite)){
+						$('#title_text').text('我的');
+						showSetUpIcon(true);
+					}
+					else if(position==4){
+						$('#title_text').text('我的');
+						showSetUpIcon(true);
+					}
+					else{
+						$('#title_text').text('装小匠(工人端)');
+						showSetUpIcon(false);
+					}
+				}else{
+					if(position==0){
+						$('#title_text').text('订单大厅');
+						refreshDataPage01();
+						showSetUpIcon(false);
+					}
+					else if(position==1 && isShowWorkerSchool){
+						$('#title_text').text('装修学堂');
+						showSetUpIcon(false);
+					}
+					else if(position==1 && !isShowWorkerSchool && isShowtubesite){
+						$('#title_text').text('管工地');
+						showSetUpIcon(false);
+					}
+					else if(position==1 && !isShowWorkerSchool && !isShowtubesite){
+						$('#title_text').text('我的');
+						showSetUpIcon(true);
+					}
+					else if(position==2 && isShowWorkerSchool && isShowtubesite){
+						$('#title_text').text('管工地');
+						showSetUpIcon(false);
+					}
+					else if(position==2 && (!isShowWorkerSchool || !isShowtubesite)){
+						$('#title_text').text('我的');
+						showSetUpIcon(true);
+					}
+					else if(position==3){
+						$('#title_text').text('我的');
+						showSetUpIcon(true);
+					}
+					else{
+						$('#title_text').text('装小匠(工人端)');
+						showSetUpIcon(false);
+					}
+				}
+				
+				nearorderIsShow=true;
+			}
+			
+			
+			
+			//是否显示设置图标
+			function showSetUpIcon(isShow){
+				if(isShow){
+					$('#set_up').removeClass('tip-hide');
+				} else{
+					$('#set_up').addClass('tip-hide');
+				}
+			}
+			
+			//是否显示消息提醒红点
+			msgShowTip = function(count){
+				if(count>0){
+					$('#msg_tip').removeClass('tip-hide');
+					var contentTemp = count>99 ? '99..':count;
+					$('#msg_tip').text(contentTemp);
+				} else{
+					$('#msg_tip').text('');
+					$('#msg_tip').addClass('tip-hide');
+				}
+		
+			}
+			
+			setUpClick=function(){
+				//点击设置事件
+				api.openWin({
+					name : 'setup_win',
+					url : 'widget://html/setup/setup_win.html',
+					slidBackEnabled:true,
+			        delay:300
+				});
+			},
+			
+			msgClick=function(){
+				//点击消息
+				if(checkLoginState(true)) {
+					msgShowTip(false)
+					api.openWin({
+						name : 'chatmsg_win',
+						url : 'widget://html/chat/chatmsg_win.html',
+						slidBackEnabled:true,
+				        delay:300
+					});
+				}
+			};
+			
+			//监听物理返回键
+			var backSecond = 0;
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				var curSecond = new Date().getSeconds();
+				if (Math.abs(curSecond - backSecond) > 2) {
+					backSecond = curSecond;
+					api.toast({
+						msg : '再按一次退出' + api.appName,
+						duration : 2000,
+						location : 'bottom'
+					});
+				} else {
+					api.closeWidget({
+						silent : true
+					});
+				}
+			});
+//			var frames = [{
+//				name : 'nearorder_frm',
+//				url : 'nearorder_frm.html',
+//				bounces : true,
+//				pageParam:{
+//					fromAction:0,
+//					searchKey:''
+//				}
+//			}, {
+//				name : 'zxjshop_frm',
+//				url : 'zxjshop_frm.html',
+//				bounces : true
+//			}, {
+//				name : 'workerschool_frm',
+//				url : 'workerschool_frm.html',
+//				bounces : true
+//			}, {
+//				name : 'tubesite_frm',
+//				url : 'tubesite_frm.html',
+//				bounces : true
+//			}, {
+//				name : 'me_frm',
+//				url : 'me_frm.html',
+//				bgColor:'#2fc588',
+//				bounces : true
+//			}];
+			
+			
+			var initFrames=function(){
+				var frames=[];
+				frames.push({
+					name : 'nearorder_frm',
+					url : 'nearorder_frm.html',
+					bounces : true,
+					pageParam:{
+						fromAction:0,
+						searchKey:''
+					}
+				});
+				var systemType = api.systemType;
+				if (systemType == 'android') {
+					//同步返回结果：
+					var installed = api.appInstalled({
+					    sync: true,
+					    appBundle: 'com.tencent.mm'
+					});
+					if (installed) {
+					    //应用已安装
+					    isShowShop=true;
+					    frames.push({
+							name : 'zxjshop_frm',
+							url : 'zxjshop_frm.html',
+							bounces : true
+						});
+					}else{
+						$("#shop_tab").remove();
+					}
+				}
+				else if(systemType == 'ios'){
+					var installed = api.appInstalled({
+					    sync: true,
+					    appBundle: 'wechat'
+					});
+					if (installed) {
+					    //应用已安装
+					    isShowShop=true;
+					    frames.push({
+							name : 'zxjshop_frm',
+							url : 'zxjshop_frm.html',
+							bounces : true
+						});
+					}else{
+						$("#shop_tab").remove();
+					}
+				}else{
+					$("#shop_tab").remove();
+				}
+				
+				if(isShowWorkerSchool){
+					frames.push({
+						name : 'workerschool_frm',
+						url : 'workerschool_frm.html',
+						bounces : true
+					});
+				}else{
+					$("#school_tab").remove();
+				}
+				if(isShowtubesite){
+					frames.push({
+						name : 'tubesite_frm',
+						url : 'tubesite_frm.html',
+						bounces : true
+					});
+				}else{
+					$("#tubesite_tab").remove();
+				}
+				frames.push({
+					name : 'me_frm',
+					url : 'me_frm.html',
+					bgColor:'#2fc588',
+					bounces : true
+				});
+				
+				//切换页面
+				tab = new auiTab({
+					element : document.getElementById("footer"), //element:,容器
+					index : 1, //默认选中
+					repeatClick : false //是否允许重复点击，
+				}, function(ret) {
+					var position = ret.index - 1;
+					randomSwitchBtn(position);
+				});
+				
+				return frames;
+			};
+			
+//			//切换页面
+//			tab = new auiTab({
+//				element : document.getElementById("footer"), //element:,容器
+//				index : 1, //默认选中
+//				repeatClick : false //是否允许重复点击，
+//			}, function(ret) {
+//				var position = ret.index - 1;
+//				randomSwitchBtn(position);
+//			});
+			var headerHeight = $api.dom('header').offsetHeight;
+			var main = $api.dom('#main').offsetHeight;
+			var footer = $api.dom('footer').offsetHeight;
+			var mainH = main - footer;
+			api.openFrameGroup({
+				name : 'main_group',
+				scrollEnabled : true,
+				rect : {
+					x : 0,
+					y : headerHeight,
+					w : api.winWidth,
+					h : mainH
+				},
+				index : 0,
+				preload : 1, //默认值：1.预加载的 frame 个数，默认加载当前页后面一个
+				frames : initFrames()
+			}, function(ret, err) {
+				tab.setActive(ret.index + 1);
+				setTitleText(ret.index)
+			});
+			randomSwitchBtn = function(index) {
+				api.setFrameGroupIndex({
+					name : 'main_group',
+					index : index
+				});
+			}
+			
+			
+			getWorkCountHttps=function(){
+				if(!checkCurLoginClientLevel(false)){
+					if(!$("#me_tip").hasClass("tip-hide")){
+						$('#me_tip').addClass('tip-hide');
+					}
+					return;
+				};
+				var userId=$api.getStorage("userid");
+				var param='userId='+userId;
+				_getHttpsData('/worker/getWorkCount',param,
+					function(res){
+						if(res.status){
+							var data=res.data;
+							//invite:邀约订单 bidding:报价 my_order:待开工 at_work:施工中 uncompleted:竣工待确认 confirm_completed:竣工已确认  竣工:completed
+							var personalData=data.invite==undefined ? 0:data.invite;//邀约订单
+							var workerOffer=data.bidding==undefined ? 0:data.bidding;//报价
+							var waitStart=data.my_order==undefined ? 0:data.my_order;//待开工
+							var construction=data.at_work==undefined ? 0:data.at_work;//施工中 
+							var compNotConf=data.uncompleted==undefined ? 0:data.uncompleted;//竣工待确认
+							var compConf=data.confirm_completed==undefined ? 0:data.confirm_completed;//竣工已确认
+//							var complete=data.completed==undefined ? 0:data.completed;//竣工
+						
+							var totalNum=Number(personalData)+Number(workerOffer)+Number(waitStart)+Number(construction)+Number(compNotConf)+Number(compConf);
+							
+							if(totalNum>0){
+								//是否显示设置图标
+								if($("#me_tip").hasClass("tip-hide")){
+									$('#me_tip').removeClass('tip-hide');
+								}
+							}else{
+								if(!$("#me_tip").hasClass("tip-hide")){
+									$('#me_tip').addClass('tip-hide');
+								}
+							}
+						
+						} else{
+							
+						}
+					},
+					function(err){}
+				);
+			};
+			
+			/////////////////////////webSocket start/////////////////////////
+			var _ws=false;
+			var wsIsSuccess=false;
+			var wsMsg='连接尚未建立'
+			//连接websocket状态回调
+			function createWebSocketFun(isSuccess,msg){
+				wsIsSuccess=isSuccess;
+				wsMsg=msg;
+				if(isSuccess){
+//					if(countTimeValCreatWs!=undefined){
+//						clearInterval(countTimeValCreatWs);
+//					}
+					openLocation();
+				} else{
+//					countTimeValCreatWs = setInterval(function() {
+//						//如果webSocoet创建连接失败，则每隔30秒创建一次
+//						clearInterval(countTimeValCreatWs);
+//						create_ws();
+//					}, 5000);
+					if(countTimeValLocation!=undefined){
+						clearInterval(countTimeValLocation);
+					}
+					countTimeValCreatWs=setTimeout(function(){
+						clearTimeout(countTimeValCreatWs);
+						// create_ws();
+					}, 5000 )
+				}
+			}
+			
+			//获取websocket状态
+			getWebSocketState = function(){
+				//发送websocket状态的广播到需要的页面
+				api.sendEvent({
+				    name: 'ws_state_send_event',
+				    extra: {
+				        isSuccess:wsIsSuccess,
+				        msg:wsMsg
+				    }
+				});
+			}
+			getWorkCountHttps();
+			var countUpChatVal;
+			//聊天信息接收打包
+			var chatMsgPack=function(data){
+				var userId=$api.getStorage("userid");
+				var avatar = $api.getStorage("avatar");//用户头像
+				
+		        var sendType = data.type;//1文字，2图片
+				var textMessage = data.textMessage;//接收到的消息
+				var fromuserId = data.userId;//发送人id
+				var fromusername = data.fromusername;//发送人名称
+				var fromuserAva = '../../image/icon/me/head.png';
+				var touserId = data.touserId;//接收人id
+				var toUserName = data.toUserName;//接收人名称
+				var time = data.time;//发送时间
+				
+				if(data.data!=undefined){
+					var otherInfo = JSON.parse(data.data);
+					fromuserAva=otherInfo.avatar;
+				}
+				var sendObj = {};
+				if(fromuserId==userId) {
+					sendObj.personType ='myPary';
+					sendObj.personAva = avatar;
+					sendObj.personName = fromusername;
+				} else{
+					sendObj.personType ='otherPary';
+					sendObj.personAva = fromuserAva;
+					sendObj.personName = fromusername;
+				}
+				if ((sendType == 2 || sendType == '2' )&& textMessage != undefined && textMessage.length > 0) {
+		        	textMessage = JSON.parse(textMessage);
+		          	sendObj.textContent = '';
+		          	sendObj.imgListContent = textMessage;
+		        } else {
+		          	sendObj.textContent = textMessage;
+		          	sendObj.imgListContent = [];
+		        }
+				sendObj.sendTime = time;
+				
+				var receiveJson = readRecordChatCacheByFileName(fromuserId);//获取与该用户在本地的聊天记录
+				var otherPayInfo = getChatOtherPayInfo(receiveJson);//获取到聊天对方的用户信息
+				var orderIdTemp='';//缓存中的订单id
+				var unreadCountTemp=1;//未读数量
+				if(otherPayInfo==null){
+					unreadCountTemp=1;
+				}else{
+					orderIdTemp=otherPayInfo.orderId==undefined ? '':otherPayInfo.orderId;
+					var unreadCount = otherPayInfo.unreadCount;//获取缓存中的未读数量
+					if(unreadCount==undefined || unreadCount==null || unreadCount==''){
+						unreadCountTemp=1;
+					}else{
+						unreadCountTemp=Number(unreadCount)+1;
+					}
+				}
+				var readReList = getChatListfilter(receiveJson);//获取到聊天缓存列表
+				readReList.push(sendObj);//加入到聊天缓存列表
+				//重新把聊天记录写入缓存
+				writeRecordChatByPackag(orderIdTemp,fromuserId,fromusername,fromuserAva,unreadCountTemp,readReList);
+				if(countUpChatVal!=undefined){
+					clearInterval(countUpChatVal);
+				}
+				countUpChatVal=setTimeout(function(){
+					clearTimeout(countUpChatVal);
+					upChatMsgTabBage();
+					startPlayNotice();
+				}, 500)
+				
+			}
+			
+			/**
+			 创建服务连接
+			 */
+			create_ws = function() {
+				if(!checkLoginState(false)) return;
+				var userId=$api.getStorage("userid");
+				if (!_ws || _ws.status!=1) {
+					_ws = msgsocket(webSocketAgreement,webSocketUrl, webSocketPort, webSocketPath, userId,createWebSocketFun)
+					_ws.init();
+					_ws.ready();
+					_ws.call = function(result) {
+						var data = JSON.parse(result);
+						var messageType = data.messageType;//1代表上线 2代表下线 3代表在线名单(获取离线未接收信息unreceivedMessage) 4代表普通消息5定位
+//						var onlineUsers = obj.onlineUsers;//在线用户id列表
+						if(messageType==3){
+							if(data.unreceivedMessage!=undefined && data.unreceivedMessage.length>0){
+//								有为接收的消息
+								var unreceivedMessage = data.unreceivedMessage;
+								
+								for(var index in unreceivedMessage){
+									chatMsgPack(unreceivedMessage[index]);
+								}
+							}
+						}
+						else if(messageType==4){
+							chatMsgPack(data);
+						}
+
+						//接收到信息，进行广播通知各个需要的页面
+						api.sendEvent({
+						    name: 'chatMsg_send_event',
+						    extra: {
+						        message:result
+						    }
+						});
+					}
+				}
+			};
+			create_ws();
+			
+			//发送消息
+			sendChat = function(param) {
+				//发送的消息
+				var data=param.data;
+				var sendParam=param.sendParam;
+				if (_ws) {
+					_ws.send(JSON.stringify(sendParam),function(isSend){
+						var rerParam={};
+						rerParam.isSuccess=isSend;
+						rerParam.msg='连接正常';
+						rerParam.data=data;
+						api.execScript({
+						    name: 'chat_win',
+						    frameName: 'chat_frm',
+						    script: 'sendChatCal('+JSON.stringify(rerParam)+')'
+						});
+					});
+				} else{
+					var rerParam={};
+					rerParam.isSuccess=false;
+					rerParam.msg='连接尚未建立';
+					rerParam.data=data;
+					api.execScript({
+					    name: 'chat_win',
+					    frameName: 'chat_frm',
+					    script: 'sendChatCal('+JSON.stringify(rerParam)+')'
+					});
+				}
+			}
+			
+			//发送定位
+			sendLocation = function(){
+				var userId=$api.getStorage("userid");
+				var nickname = $api.getStorage("nickname");//昵称;
+				var avatar = $api.getStorage("avatar");//用户头像
+				var sex = $api.getStorage("sex");//性别
+				var sexName = sex==0 ? '女':'男';//性别名称
+				var age = $api.getStorage("age");
+				var workerGoodReputation = $api.getStorage("workerGoodReputation");//好评
+				var clientClassId = $api.getStorage("clientClassId");//用户类型
+				
+				var data={};
+				data.userId=userId;
+				data.nickname=nickname;
+				data.avatar=avatar;
+				data.sex=sex;
+				data.sexName=sexName;
+				data.age=age;
+				data.workerGoodReputation=workerGoodReputation;
+				data.clientClassId=clientClassId;
+				
+				var sendParam={};
+				sendParam.userId=userId;//用户id
+				sendParam.toUserId='location';
+				sendParam.longitude=$api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");//当前经度
+				sendParam.latitude=$api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");//当前纬度
+				sendParam.data=data;
+				if(_ws){
+					if(_ws.status==0){
+						//如果断开了重新连接
+						// create_ws();
+					}
+					_ws.send(JSON.stringify(sendParam),function(isSend){
+						if(isSend){
+							//已经发送
+						}
+					});
+				}else{
+					// create_ws();
+				}
+			}
+			
+			
+			closeWebSocket=function(){
+				if(_ws){
+					_ws.close();
+				}
+				if(countTimeValLocation!=undefined){
+					clearInterval(countTimeValLocation);
+				}
+			}
+			
+			openLocation=function(){
+				var onlineModel = getOnlineModel()==undefined ? false:getOnlineModel();//是否开启了定位
+				
+				if(onlineModel==1){
+					//用户开启了上线定位，定时发送位置
+					if(!checkCurLoginClientLevel(false)){
+						//检测是否为工人权限，如果不是则关闭上线
+						forcedOfflineModel();
+						if(countTimeValLocation!=undefined){
+							clearInterval(countTimeValLocation);
+						}
+						return;
+					};
+					//定时，每隔30秒发送一次定位
+					if(checkLocPer()) {
+						if(countTimeValLocation!=undefined){
+							clearInterval(countTimeValLocation);
+						}
+						countTimeValLocation = setInterval(function() {
+							//如果webSocoet创建连接失败，则每隔30秒创建一次
+							startLocation(function(ret){
+								sendLocation();
+							},function(action,err){
+								if(countTimeValLocation!=undefined){
+									clearInterval(countTimeValLocation);
+								}
+//								forcedOfflineModel();
+							});
+						}, 5000);
+					}else{
+						if(countTimeValLocation!=undefined){
+							clearInterval(countTimeValLocation);
+						}
+//						forcedOfflineModel();
+					}
+					
+				} else{
+					//用户未开启定位或者关闭定位
+					if(countTimeValLocation!=undefined){
+						clearInterval(countTimeValLocation);
+					}
+				}
+			}
+			
+			//播放收到信息通知声音
+			startPlayNotice=function(){
+				var isPay = getPlayNoticeStor();
+				if(isPay!=undefined && isPay==1){
+					api.startPlay({
+					    path: 'widget://res/audio/msg_notice.mp3'
+					}, function(ret, err) {
+					    if (ret) {
+	//						alert('播放完成');
+					    } else {
+	//						alert(JSON.stringify(err));
+					    }
+					});
+				}
+			};
+			
+			api.addEventListener({
+			    name:'viewappear'
+			}, function(ret, err){        
+			    setPlayNoticeStor(1);
+			});
+			
+			/////////////////////////webSocket end///////////////////////////
+			
+			//监听登录成功
+			api.addEventListener({
+			    name: 'loginsend_event'
+			}, function(ret, err) {
+				if(ret){
+					if(ret.value.loginSuccess){
+						//登录成功
+						// create_ws();
+						initAjpush();
+					}
+				}
+			});
+			
+			
+			//监听退出当前登录
+			api.addEventListener({
+			    name: 'back_curlogin_send_event'
+			}, function(ret, err) {
+				if(ret){
+					if(ret.value.backSuccess){
+						//退出登录成功
+						closeWebSocket();
+					}
+				}
+			});
+			
+			api.addEventListener({
+			    name:'resume'
+			}, function(ret, err){   
+			    //应用从后台到前台
+			    againLoginByUserId(function(againIsSuc){
+			    	getWorkCountHttps();
+			    });
+		   		checkUpAppVersion();
+		   		if(checkLocPer()){
+			   		startLocation(function(ret){
+			   			api.execScript({
+							name : 'main_win',
+							frameName : 'nearorder_frm',
+							script : 'refreshDataList()'
+						});
+			   		},function(action,err){
+			   		
+			   		});
+		   		}
+			    if(_ws){
+					if(_ws.status==0){
+						//如果断开了重新连接
+						// create_ws();
+					}
+				} else{
+					// create_ws();
+				}
+				ajpushIsPushStopped();
+				ajpushOnResume();
+				ajpushClearBadge();
+			});
+			
+			api.addEventListener({
+				name:'pause'
+			}, function(ret,err) {
+				//应用从前台到后台
+			   	ajpushOnPause();
+			   	ajpushSetBadge();
+			})
+			
+			initAjpush();
+			showGuideDialog();//显示指导图
+		}
+	</script>
+</html>

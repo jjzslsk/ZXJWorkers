@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>订单大厅frm</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/mylist.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/nearorder/nearorder.css" />
+		<style>
+    		.justify {max-width: 60%;}
+	    	.wx-group{padding:0 0 8px 0;text-align: center}
+	    	.wx-group span{background-color: #f7b700;color: #FFFFFF;padding: 3px 10px;border-radius: 20px;font-size: 0.7rem}   	
+    		.tip-hide{display:none;}
+    		.search-area{margin-bottom: 0.3rem}
+    		.area-hide{display:none;}
+    		.copy-icon{background-color:#FFFFFF;width: 0.8em;height: 0.8em;border:1px solid #CECECE;border-radius: 2px;margin-left: 5px;}
+    		.copy-icon02{background-color:#FFFFFF;width: 0.8em;height: 0.8em;border:1px solid #CECECE;border-radius: 2px;position: absolute;margin-left: -0.6em;margin-top: 0.1em;z-index: 98}
+    		
+    	</style>
+	</head>
+	<body class="body-bg" ontouchstart="" onmouseover="">
+		<div class="float-head-bar">
+			<ul class="list">
+				<li class="head-h">
+					<div id="area_id" class="justify" tapmode="hover" onclick="areaAddressClick()">
+						<span id="state_title">区域</span><i class="aui-iconfont aui-icon-down"></i>
+					</div>
+					<div class="justify-content">
+						<div class="search-area" tapmode="hover" onclick="searchClick()">
+							<span class="search search-hint" id="search_btn">请输入单号/工种/工作地点</span>
+							<span class="search-icon"><i class="aui-iconfont aui-icon-search"></i></span>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div id="main_list" class="main-list">
+			<!--订单大厅-->
+			<template v-if="wxGroupInfo!=''"><div class="wx-group"><span>{{wxGroupInfo}}</span></div></template>
+			<template>
+			<div class="list-item click-item-ser" v-for="nearItem in nearOrderList" tapmode="hover" @click="itemNearClick(nearItem)">
+				
+				<!--item标题-->
+				<div class="item-titlebar horizontal">
+					<div class="title horizontal" @click.stop @touchstart="gotouchstart(nearItem.order_number)" @touchmove="gotouchmove" @touchend="gotouchend">
+						<div>{{nearItem.order_number}}</div><div><span class="copy-icon"></span><span class="copy-icon02"></span></div>
+					</div>
+					<div class="time">
+						{{timeStampToDate(nearItem.creat_time)}}
+					</div>
+				</div>
+				<!--中间内容-->
+				<div class="info">
+					<template v-if="nearItem.classify!=undefined && nearItem.classify.length>0">
+					<div class="info-item horizontal">
+						<div class="row-col horizontal">
+							<div class="row-col-item-l">
+								<span class="row-col-item-title" style="color: #000">所需工种:</span>
+							</div>
+						</div>
+					</div>
+					<div>
+						<span v-for="typeItem in nearItem.classify" class="worker-type-item" style="border:1px solid #000;color: #000">{{typeItem.name}}</span>
+			        </div>
+			        </template>
+					<div class="info-item horizontal">
+						<div class="row-col horizontal" v-if="filterShowContent(nearItem.send_wages)">
+							<div class="row-col-item-l">
+								<span class="row-col-item-title">工&emsp;&emsp;资:</span>
+							</div>
+							<div class="row-col-item-r">
+								<span class="money">{{nearItem.send_wages}}</span><span class="unit" v-if="nearItem.send_wages!=undefined && nearItem.send_wages!=null && nearItem.send_wages!=''">{{nearItem.send_unit}}</span>
+							</div>
+						</div>
+						<div class="row-col horizontal" v-if="filterShowContent(nearItem.plan_start_date)">
+							<div class="row-col-item-l">
+								<span class="row-col-item-title"  style="color: #000">开工时间:</span>
+							</div>
+							<div class="row-col-item-r">
+								<span style="white-space:nowrap; width: 55px">{{timeStampToDate(nearItem.plan_start_date)}}</span>
+							</div>
+						</div>
+					</div>
+					<div class="info-item horizontal">
+						<div class="row-col horizontal" v-if="filterShowContent(nearItem.plan_end_day)">
+							<div class="row-col-item-l">
+								<span class="row-col-item-title" style="color: #000">工作天数:</span>
+							</div>
+							<div class="row-col-item-r">
+								<span>{{nearItem.plan_end_day}}天</span>
+							</div>
+						</div>
+						<div class="row-col horizontal" v-if="filterShowContent(nearItem.plan_people_num)">
+							<div class="row-col-item-l">
+								<span class="row-col-item-title" style="color: #000">需要人数:</span>
+							</div>
+							<div class="row-col-item-r">
+								<span>{{nearItem.plan_people_num}}人</span>
+							</div>
+						</div>
+					</div>
+					<div class="info-item horizontal" v-if="filterShowContent(nearItem.work_address)">
+						<div class="info-item-l" style="color: #000">
+							工作地点:
+						</div>
+						<div class="info-item-r">
+							{{nearItem.work_address}}
+						</div>
+					</div>
+					<div class="info-item horizontal" v-if="filterShowContent(nearItem.send_memo_team)">
+						<div class="info-item-l" style="color: #000">
+							其他说明:
+						</div>
+						<div class="info-item-r">
+							{{nearItem.send_memo_team}}
+						</div>
+					</div>
+					<div class="info-item horizontal"  v-if="filterShowContent(nearItem.send_memo)">
+						<div class="info-item-l" style="color: #000">
+							说&emsp;&emsp;明:
+						</div>
+						<div class="info-item-r">
+							{{nearItem.send_memo}}
+						</div>
+					</div>
+				</div>
+				<div class="aui-row aui-row-padded" v-if="nearItem.scenePic!=undefined && nearItem.scenePic.length>0">
+					<div class="aui-col-xs-2" v-for="(imgItem,imgIndex) in nearItem.scenePic" v-if="imgIndex<6">
+						<div class="att-img">
+							<img v-lazy="imgItem.url"/>
+						</div>
+					</div>
+				</div>
+				<div class="more-item horizontal">
+					<div class="title">
+						立即查看...
+					</div>
+					<div class="arow-r">
+						<i class="aui-iconfont aui-icon-right"></i>
+					</div>
+				</div>
+			</div>
+			</template>
+		</div>
+		<div id="more_hint" class="more-data"></div>
+		<div class="invite-order-btn" tapmode="hover" onclick="inviteOrderClick()">
+			<span>邀约订单</span>
+			<span id="invite_num" class="tip tip-hide"></span>
+		</div>
+	</body> 
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/aui/aui_tab.js" ></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	<script type="text/javascript">
+	
+		var indexPage=0;//页码
+		var pageNum=20;//每页的数量
+		var refreshPageData;//刷新页面数据
+		var refreshDataList;
+		var areaAddressClick,chooseLocationCal,searchClick,inviteOrderClick,startSearch;
+		var goHtml;
+		var listVm;
+		var initAreaInfo;
+		var curCityCode;//当前城市编码
+		var curLng,curLat;//当前经度,当前纬度
+		var fromAction=0;//来自哪。0全部，1搜索
+		var searchKey='';
+		apiready = function() {
+			
+			var pageParam = api.pageParam;//页面提交过来的参数
+			fromAction=pageParam.fromAction;
+			searchKey=pageParam.searchKey;
+			
+			initAreaInfo=function(){
+				var curCityCodeTemp = $api.getStorage("curCityCode");
+				curCityCode = curCityCodeTemp==undefined ? defCurCityCode:curCityCodeTemp;
+				var curCityNameCo = $api.getStorage("curCityNameCo");
+				if(fromAction==1){
+					$('#area_id').addClass('area-hide');
+				}else{
+					$('#area_id').removeClass('area-hide');
+					if(curCityCodeTemp==undefined || curCityCodeTemp==null || curCityCodeTemp==''){
+						$('#state_title').text('定位失败');
+					} else{
+						$('#state_title').text(curCityNameCo);
+					}
+				}
+			}
+			
+			//手动选择当前城市回调
+			chooseLocationCal=function(){
+				initAreaInfo();
+			};
+			//手动选择当前城市
+			areaAddressClick = function() {
+				//区域地址选择
+				api.openWin({
+					name : 'location_win',
+					url : 'widget://html/location/location_win.html',
+					slidBackEnabled:true,
+					pageParam:{
+			        	winName:'main_win',//当前win名称
+			        	frmName:'nearorder_frm',//当前frm名称
+			        	funCal:'chooseLocationCal()'//回调名称
+			        },
+			        delay:300
+				});
+				
+			};
+			
+			searchClick = function(){
+				api.closeWin({name: 'search_win'})
+				api.openWin({
+					name : 'search_win',
+					url : 'widget://html/search/search_win.html',
+					slidBackEnabled:true,
+			        pageParam:{
+			        	action:0,
+						searchKey:$('#search_btn').text()=='请输入单号/工种/工作地点'? '':$('#search_btn').text(),
+//			        	winName:'main_win',//当前win名称
+//			        	frmName:'nearorder_frm',//当前frm名称
+//			        	funCal:'startSearch'//回调名称
+			        },
+					delay:300,
+					allowEdit:true
+				});
+			}
+			
+			//邀约订单
+			inviteOrderClick = function(){
+				if(!checkCurLoginClientLevel(true)) return;
+				api.openWin({
+					name : 'inviteorder_win',
+					url : 'widget://html/myorder/inviteorder_win.html',
+					slidBackEnabled:true,
+					pageParam:{
+						state:0,
+						title:'邀约订单'
+					},
+					delay:300
+				});	
+			}
+			//跳转到详情页面
+			goHtml = function(param){
+				api.openWin({
+					name : 'orderdetail_win',
+					url : 'widget://html/myorder/orderdetail_win.html',
+					pageParam:{
+						orderTypeAction:0,//订单类型：0发布需求订单；1邀约订单
+						curStepsIndex:0,//当前订单步骤:0发布需求/立即预约；1报价；2待开工；3施工中；4竣工待确认；5竣工已确认；6竣工
+						orderId:param.work_demaed_id,
+						sendPersonId:param.send_client_id,
+						sendPersonName:'',
+						workStatus:param.work_status
+					},
+					slidBackEnabled:true,
+					delay:300
+				});
+				
+			}; 
+			
+			//刷新页面数据
+			refreshPageData = function(){
+				api.refreshHeaderLoading();
+			}
+			
+			//请求获取数据
+			var getDataHttps=function(isRefresh){
+				if(isRefresh){
+					indexPage=0;
+				}else{
+					indexPage++;
+				}
+				var param='longitude='+curLng+'&latitude='+curLat+'&pageIndex='+indexPage+'&pageSize='+pageNum+'&orgId='+curCityCode;
+				_getHttpsData('/worker/getNearOrder',param,
+					function(res){
+						api.hideProgress();
+						if(isRefresh){api.refreshHeaderLoadDone();}
+						if(res.status){
+							if(isRefresh){
+								listVm.refreshData(res.data);
+							}else{
+								listVm.appendData(res.data);
+							}
+						} else{
+							if(indexPage>0){
+								indexPage--;
+							}
+							api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+						}
+					},
+					function(err){
+						api.hideProgress();
+						if(isRefresh){api.refreshHeaderLoadDone();}
+						if(indexPage>0){
+							indexPage--;
+						}
+					}
+				);
+			}
+			
+			//搜索获取数据
+			var getSearchDataHttps=function(isRefresh){
+				if(isRefresh){
+					indexPage=0;
+				}else{
+					indexPage++;
+				}
+				var param='longitude='+curLng+'&latitude='+curLat+'&searchText='+searchKey+'&pageIndex='+indexPage+'&pageSize='+pageNum+'&orgId='+curCityCode;
+				_getHttpsData('/worker/getNearOrderSearch',param,
+					function(res){
+						api.hideProgress();
+						if(isRefresh){api.refreshHeaderLoadDone();}
+						if(res.status){
+							if(isRefresh){
+								listVm.refreshData(res.data);
+							}else{
+								listVm.appendData(res.data);
+							}
+						} else{
+							if(indexPage>0){
+								indexPage--;
+							}
+							api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+						}
+					},
+					function(err){
+						api.hideProgress();
+						if(isRefresh){api.refreshHeaderLoadDone();}
+						if(indexPage>0){
+							indexPage--;
+						}
+					}
+				);
+			}
+			
+			//刷新邀约订单数量
+			var refreshOrderNum=function(){
+				if(!checkCurLoginClientLevel(false)) return;
+				var userId=$api.getStorage("userid");
+				var param='userId='+userId+'&status=0';
+				_getHttpsData('/worker/getBelongMyOrderTotal',param,
+					function(res){
+						api.hideProgress();
+						if(res.status){
+							var total=res.data.total;
+							if(total>0 && total<100){
+								$('#invite_num').text(total);
+								$('#invite_num').removeClass('tip-hide');
+							}
+							else if(total>99){
+								$('#invite_num').text('99...');
+								$('#invite_num').removeClass('tip-hide');
+							} else{
+								$('#invite_num').text('');
+								if (!$('#invite_num').is('.tip-hide')) {
+									$('#invite_num').addClass('tip-hide');
+								}
+							}
+						} else{
+							api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+						}
+					},
+					function(err){
+						api.hideProgress();
+					}
+				);
+			}
+		
+			startSearch=function(){
+				if(fromAction==1){
+					if(searchKey.length>0){
+						$('#search_btn').removeClass('search-hint');
+						$('#search_btn').text(searchKey);
+					} else{
+						$('#search_btn').addClass('search-hint');
+						$('#search_btn').text('请输入单号/工种/工作地点');
+					}
+					api.showProgress();
+					if(searchKey.length>0){
+						//刷新搜索
+						getSearchDataHttps(true);
+					}else{
+						//属性数据
+						getDataHttps(true);
+					}
+					
+				}
+			};
+			
+			var timeOutEvent=0;//定时器 
+			// 图片懒加载配置
+			Vue.use(VueLazyload, {
+				preLoad: 1, // 预加载高度比例
+				error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+				loading: '../../image/placeholder_loading.png', // 预加载图片
+				attempt: 1, // 尝试加载图片数量
+				observer: true,
+				observerOptions: {
+				rootMargin: '0px',
+				threshold: 0.1}
+			});
+			
+			listVm = new Vue({
+				el : '#main_list',
+				data : {
+					wxGroupInfo:'请加微信:18878995310入群，更多资源共享',
+					nearOrderList : [],//订单大厅数据
+				},
+				methods : {
+					refreshData:function(data){
+						//刷新订单大厅数据
+						isFirstNear=false;
+						for(var index in data){
+							data[index].classify=checkIsJsonObj(data[index].classify);
+						}
+						this.nearOrderList=data;
+						this.nextTick(data);
+					},
+					appendData:function(data){
+						//追加订单大厅数据
+						if(data==undefined) return;
+						for(var index in data){
+							data[index].classify=checkIsJsonObj(data[index].classify);
+						}
+						this.nearOrderList=this.nearOrderList.concat(data);
+						this.nextTick(data);
+					},
+					nextTick:function(data){
+						var ret = data!=undefined && data.length>=pageNum?true:false;
+						pullupHint('more_hint',ret);
+//						if(!ret && indexPage>0){
+//							indexPage--;
+//						}
+						this.$nextTick(function(){
+							api.parseTapmode();
+							api.hideProgress();
+						})
+					},
+					gotouchstart:function(data){
+					   clearTimeout(timeOutEvent);//清除定时器
+					   timeOutEvent = 0;
+					   timeOutEvent = setTimeout(function(){
+					        //执行长按要执行的内容，
+							clipBoardCopyMsg(data,function(isSuccsee){
+								if(isSuccsee){
+									api.toast({ msg: '单号复制成功',duration: 2000, location: 'middle'});
+								}
+							})
+					    },600);//这里设置定时
+					},
+			        //手释放，如果在500毫秒内就释放，则取消长按事件，此时可以执行onclick应该执行的事件
+					gotouchend:function(){
+					    clearTimeout(timeOutEvent);
+					     if(timeOutEvent!=0){
+					        //这里写要执行的内容（尤如onclick事件）
+					    }
+					},
+					//如果手指有移动，则取消所有事件，此时说明用户只是要移动而不是长按 
+					gotouchmove:function(){
+					    clearTimeout(timeOutEvent);//清除定时器
+					    timeOutEvent = 0;
+					},
+					filterShowContent:function(data){
+						//过滤显示的信息内容
+						if(data==undefined || data==null || data==''){
+							return false;
+						}else{
+							return true;
+						}
+					},
+					timeStampToDate:function(timeStamp){
+						//时间戳转日期
+						return getLocalTime(timeStamp);
+					},
+					itemNearClick:function(data){
+						//订单大厅 
+						goHtml(data);
+					}
+				}
+			});
+			
+			refreshDataList=function(){
+				api.showProgress();
+				curLng = $api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");
+				curLat = $api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");
+				initAreaInfo();
+				getDataHttps(true);
+			};
+			
+			if(fromAction==1){
+				//搜索
+				curLng = $api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");
+				curLat = $api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");
+				initAreaInfo();
+				api.showProgress();
+				startSearch();
+			}else{
+				//开始定位
+				if(checkLocPer()){
+					startLocation(function(ret){
+						refreshDataList();
+					},function(action,err){
+						refreshDataList();
+					});
+				}else{
+					refreshDataList();
+				}
+				
+			}
+			
+			refreshOrderNum();
+			upUserRealNamePro();//检查更新实名验证进度
+			//下拉刷新
+			api.setRefreshHeaderInfo({
+			    loadingImg: '',
+			    bgColor: '#ccc',
+			    textColor: '#fff',
+			    textDown: '下拉刷新...',
+			    textUp: '松开刷新...'
+			}, function(ret, err) {
+			    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+				if(searchKey.length>0){
+					//刷新搜索
+					getSearchDataHttps(true);
+					refreshOrderNum();
+				}else{
+					//属性数据
+					getDataHttps(true);
+				}
+			});
+			//监听距离底部距离,实现上拉加载更多
+			api.addEventListener({
+			    name:'scrolltobottom',
+			    extra:{
+			        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+			    }
+			}, function(ret, err){
+				if(searchKey.length>0){
+					//刷新搜索
+					getSearchDataHttps(false);
+				}else{
+					//属性数据
+					getDataHttps(false);
+				}
+			});
+			
+			//监听抢单成功
+			api.addEventListener({
+			    name: 'detailOrder_send_event'
+			}, function(ret, err) {
+				if(ret){
+					if(ret.value.detailOrderSuccess){
+						//抢单成功
+						api.refreshHeaderLoading();
+						refreshOrderNum();
+					}
+				}
+			});
+			
+			//监听登录成功
+			api.addEventListener({
+			    name: 'loginsend_event'
+			}, function(ret, err) {
+				if(ret){
+					if(ret.value.loginSuccess){
+						//登录成功
+						refreshOrderNum();
+					}
+				}
+			});
+			
+			//监听退出当前登录
+			api.addEventListener({
+			    name: 'back_curlogin_send_event'
+			}, function(ret, err) {
+				if(ret){
+					if(ret.value.backSuccess){
+						//退出登录成功
+						$('#invite_num').text('');
+						if (!$('#invite_num').is('.tip-hide')) {
+							$('#invite_num').addClass('tip-hide');
+						}
+					}
+				}
+			});
+			
+			//监听验证成功
+			api.addEventListener({
+			    name: 'refresh_certification_event'
+			}, function(ret, err) {
+				if(ret){
+					if(ret.value.isRefreshData){
+						refreshOrderNum();
+					}
+				}
+			});
+			
+			//监听极光推动有消息过来
+			api.addEventListener({
+			    name: 'ajpush_push_event'
+			}, function(ret, err) {
+				if(ret){
+					if(ret.value.isRefresh){
+						refreshOrderNum();
+					}
+				}
+			});
+			
+		}
+		
+	</script>
+</html>

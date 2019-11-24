@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/mywallet/mywallet.css"></head>
+    <style>
+    	html,body{height: 100%;background-color: #ffffff}
+    	
+    	.temp-hint{padding: 8px 10px;}
+    	.scan-qr-code{text-align: center;}
+    	.scan-qr-code .code-title{font-size: 1.2rem;font-weight: bold;margin-top: 10px;}
+    	.scan-qr-code img{margin: 0 auto;}
+    	
+    </style>
+</head>
+<body>
+	<div class="temp-hint">
+		<div>2020年1月1日前，请前往装小匠公众号或者装小匠商城小程序进行提现。对此给您造成不便请多多包涵，我们将会尽快完善，谢谢。</div>
+		<div class="scan-qr-code">
+			<div class="code-title">扫一扫公众号</div>
+			<img src="../../image/qrcode/public_qr_code.jpg" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+			<div class="code-title">扫一扫小程序</div>
+			<img src="../../image/qrcode/small_pro_qr_code.jpg" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+		</div>
+	</div>
+	<!--<div id="main_id">
+		<template>
+		<div class="horizontal wd-tu-item">
+			<div class="title">{{modelTitle.typeText}}:</div>
+			<div class="type">请选择{{modelTitle.typeText}}</div>
+			<div class="icon"><i class="aui-iconfont aui-icon-right"></i></div>
+		</div>
+		<div class="wd-tu-item">
+			<div class="title">{{modelTitle.amountText}}:</div>
+			<div class="horizontal amount-item">
+				<div class="amount-unit">¥</div>
+				<div class="amount"><input type="number" maxlength="5" placeholder="" v-model="moneyInput"/></div>
+			</div>
+		</div>
+		<div class="amount-hint">{{modelTitle.promptText}}{{modelTitle.balance}}</div>
+		<div class="horizontal pay-agreement">
+			<div v-if="isAgree" class="radio-agree check" tapmode="hover" @click="agreeClick"> <i class="aui-iconfont aui-icon-correct"></i></div>
+			<div v-else class="radio-agree" tapmode="hover" @click="agreeClick"></div>
+			<span class="agre-text">同意《支付协议》</span>
+		</div>
+		<div class="submit-btn" tapmode="hover" @click="submitClick">{{submitText}}</div>
+		</template>
+	</div>-->
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+//	var mainVm;
+//	apiready = function(){
+//		var pageParam = api.pageParam;//页面提交过来的参数
+//		var action=pageParam.action;//0余额充值;1余额提现;2保证金提现
+//		var balanceNum=pageParam.balanceNum;//余额
+//		
+//		//充值页面文字内容
+//		var topUpData={
+//			typeText:'充值方式',
+//			amountText:'充值金额',
+//			promptText:'该卡本次最多可充值¥',
+//			balance:'20000'
+//		};
+//		
+//		//提现页面文字内容
+//		var withDrwaData={
+//			typeText:'提现到',
+//			amountText:'提现金额',
+//			promptText:'该卡最多可提现¥',
+//			balance:'0.00'
+//		};
+//		
+//		//保证金提现页面文字内容
+//		var withDrwaMarginData={
+//			typeText:'退回到',
+//			amountText:'退回金额',
+//			promptText:'该卡最多可退回¥',
+//			balance:'0.00'
+//		};
+//
+//		mainVm=new Vue({
+//			el:'#main_id',
+//			data:{
+//				modelTitle:{},
+//				moneyInput:'',
+//				isAgree:false,
+//				submitText:'确定'
+//			},
+//			methods:{
+//				initData:function(data,balanceNum){
+//					if(action==0){
+//						this.submitText='确定充值'
+//					} else{
+//						this.submitText='确定提现'
+//						data.balance=balanceNum;
+//					}
+//					this.modelTitle=data;
+//				},
+//				agreeClick:function(){
+//					this.isAgree=!this.isAgree;
+//				},
+//				submitClick:function(){
+//					//提交
+//					var moneyInput=this.moneyInput;
+//					var isAgree=this.isAgree;
+//					var balance=this.modelTitle.balance;
+//					if(action==0){
+//						//确定充值
+//						if(moneyInput==undefined || moneyInput==null || moneyInput==''){
+//							api.toast({ msg: '请输入充值金额',duration: 2000, location: 'middle'});
+//						}
+//						else if(Number(moneyInput)==0){
+//							api.toast({ msg: '充值金额必须大于0',duration: 2000, location: 'middle'});
+//						}
+//						else if(Number(moneyInput)>Number(balance)){
+//							api.toast({ msg: '充值金额不能超过最大限制¥'+balance,duration: 2000, location: 'middle'});
+//						}
+//						else if(!isAgree){
+//							api.toast({ msg: '未同意《支付协议》',duration:2000, location: 'middle'});
+//						}
+//						else{
+//							api.toast({ msg: '开发中...',duration:2000, location: 'middle'});
+//						}
+//						
+//						
+//					} else{
+//						//确定提现
+//						if(moneyInput==undefined || moneyInput==null || moneyInput==''){
+//							api.toast({ msg: '请输入提现金额',duration: 2000, location: 'middle'});
+//						}
+//						else if(Number(moneyInput)==0){
+//							api.toast({ msg: '提现金额必须大于0',duration: 2000, location: 'middle'});
+//						}
+//						else if(Number(moneyInput)>Number(balance)){
+//							api.toast({ msg: '余额不足',duration: 2000, location: 'middle'});
+//						}
+//						else if(!isAgree){
+//							api.toast({ msg: '未同意《支付协议》',duration:2000, location: 'middle'});
+//						}
+//						else{
+//							api.toast({ msg: '开发中...',duration:2000, location: 'middle'});
+//						}
+//					}
+//				}
+//			}
+//		});
+//		
+//		if(action==0){
+//			//确定充值
+//			mainVm.initData(topUpData,balanceNum);
+//		}
+//		else if(action==1){
+//			//确定提现
+//			mainVm.initData(withDrwaData,balanceNum);
+//		}else{
+//			//确定提现
+//			mainVm.initData(withDrwaMarginData,balanceNum);
+//		}
+//		
+//	};
+</script>
+</html>

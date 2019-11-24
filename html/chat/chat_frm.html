@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>聊一聊frm</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/chat/chat.css" />
+		<style>
+			html, body {height: 100%}
+			.loading {height: 30px;line-height: 30px;padding-left: calc(50% - 16px - 26px);font-size: 13px;position: absolute;top: 0;}
+			.loading img {float: left;width: 16px;height: 16px;margin-top: 7px}
+			.history-list {position: absolute;bottom: 100%;}
+			.loading-hide {display: none;}
+			.chat-text-emo{min-width: 60px;}
+			.chat-text-emo span {float: left;font-size: 16px}
+			.chat-text-emo img {margin: 2px 0;float: left}
+			.tip-err{width:100%;position: fixed;top: 0;background-color: rgba(0,0,0,.6);padding: 3px 10px;z-index: 99}
+			.tip-err span{overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;color:#FFFFFF;font-size: 0.8em;text-align: center;}
+			.tip-err-hide{display:none;}
+		</style>
+	</head>
+	<body>
+		<div id="chat_list">
+			<div class="tip-err tip-err-hide" id="tips_err"><span id="err_msg"></span></div>
+			<!--把加载下一页的历史聊天数据暂时放在这里,用户计算高度-->
+			<div id="history_list" class="history-list" ref="element" >
+				<div class="aui-chat" id="chatContainer">
+					<template >
+						<div v-for="chatItem in tempHistoryList">
+							<div class="aui-chat-header">
+								{{timeCalShow(chatItem.sendTime)}}
+							</div>
+							<div class="aui-chat-item" :class="chatItem.personType=='otherPary' ? 'aui-chat-left':'aui-chat-right'">
+								<div class="aui-chat-media">
+									<img :src="chatItem.personAva" data-src="../../image/icon/me/head.png"  onerror="src='../../image/icon/me/head.png'"/>
+								</div>
+								<div class="aui-chat-inner">
+									<div class="aui-chat-name">
+										{{chatItem.personName}} <!--<span class="aui-label aui-label-warning">2.0</span>-->
+									</div>
+									<div class="aui-chat-content">
+										<div class="aui-chat-arrow"></div>
+										<div class="chat-text-emo" v-html="checkTextIsEmotion(chatItem.textContent)"></div>
+										<img class="chat-img" v-for="imgItem in chatItem.imgListContent" :src="imgItem" />
+									</div>
+									<!--<div class="aui-chat-status aui-chat-status-refresh">
+									<i class="aui-iconfont aui-icon-correct aui-text-success"></i>
+									</div>-->
+								</div>
+							</div>
+						</div>
+					</template>
+				</div>
+			</div>
+			<!--<div id="loading" class="loading"><img src="../../image/gif/loading.gif" />正在加载...-->
+			<div id="loading" class="loading"><img src="../../image/gif/loading.gif" class="loading-hide" />加载完毕
+			</div>
+			<!--对方信息-->
+			<div class="aui-chat" id="chatContainer">
+				<template >
+					<div v-for="chatItem in chatDataList">
+						<div class="aui-chat-header">
+							{{timeCalShow(chatItem.sendTime)}}
+						</div>
+						<div  class="aui-chat-item" :class="chatItem.personType=='otherPary' ? 'aui-chat-left':'aui-chat-right'">
+							<div class="aui-chat-media">
+								<img :src="chatItem.personAva" data-src="../../image/icon/me/head.png"  onerror="src='../../image/icon/me/head.png'"/>
+							</div>
+							<div class="aui-chat-inner">
+								<div class="aui-chat-name">
+									{{chatItem.personName}} <!--<span class="aui-label aui-label-warning">2.0</span>-->
+								</div>
+								<div class="aui-chat-content">
+									<div class="aui-chat-arrow"></div>
+									<div class="chat-text-emo" v-html="checkTextIsEmotion(chatItem.textContent)"></div>
+									<img class="chat-img" v-for="imgItem in chatItem.imgListContent" :src="imgItem" />
+								</div>
+								<!--<div class="aui-chat-status aui-chat-status-refresh">
+								<i class="aui-iconfont aui-icon-correct aui-text-success"></i>
+								</div>-->
+							</div>
+						</div>
+					</div>
+				</template>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+	<script type="text/javascript" src="../../script/jquery/jquery320min.js"></script>
+	<!--<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>-->
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/md5/base64.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	<script type="text/javascript" src="../../script/mywebsocket.js"></script>
+	<script type="text/javascript">
+//		var _ws=false;
+		var orderId='';//工单id
+		var userId = '';
+		var userPhone='';
+		var nickname='';
+		var avatar='';
+		var sex='',sexName='';
+		var otherPayId = '';
+		//对方id
+		var otherPayName = '';
+		//对方的名字
+		var otherPayAva = '../../image/icon/me/head.png';
+		
+		var tempScrollTop = 30;
+		//记录滑动位置，用来判断画面是正在向上滑还是向下滑
+		var isRequest = false;
+		var isAlreadyHistory=false;//是否已经获取了历史记录数据
+		var lastTime = ''//上一条聊天信息时间
+		//是否已经在请求
+		var chatVm;
+		var uploadImgList;
+		function sendCententOther(data,isWriteRecord,isHistoryData) {
+			//发送消息
+			var sendType = data.type;//1文字，2图片
+			var textMessage = data.textMessage;//接收到的消息
+			var fromuserId = data.userId;//发送人id
+			var fromusername = data.fromusername;//发送人名称
+			var touserId = data.touserId;//接收人id
+			var toUserName = data.toUserName;//接收人名称
+			var time = data.time;//发送时间
+			if(otherPayId!=fromuserId){
+				//不是本聊天窗口的消息过滤掉
+				return null;
+			}
+			var sendObj = {};
+			if(fromuserId==userId) {
+				sendObj.personType ='myPary';
+				sendObj.personAva = avatar;
+				sendObj.personName = fromusername;
+			} else{
+				var fromuserAva = '../../image/icon/me/head.png';
+				if(data.data!=undefined){
+					var otherInfo = JSON.parse(data.data);
+					fromuserAva=otherInfo.avatar;
+				}
+				otherPayAva=fromuserAva;
+				sendObj.personType ='otherPary';
+				sendObj.personAva = fromuserAva;
+				sendObj.personName = fromusername;
+			}
+			if ((sendType == 2 || sendType == '2') && textMessage != undefined && textMessage.length > 0) {
+	        	textMessage = JSON.parse(textMessage);
+	          	sendObj.textContent = '';
+	          	sendObj.imgListContent = textMessage;
+	        } else {
+	          	sendObj.textContent = textMessage;
+	          	sendObj.imgListContent = [];
+	        }
+			sendObj.sendTime = time;
+			if(isHistoryData){
+				//封装的历史数据
+				return sendObj;
+			}else{
+				//不是历史数据,对方新发来的消息
+				chatVm.appendData(sendObj,isWriteRecord);
+				upChatUnreadCount(fromuserId);
+			}
+			
+			
+		};
+		function sendCentent(data) {
+			//发送消息
+			if(data.imgList!=undefined && data.imgList.length>0){
+				uploadImgList(userId,'chat_pic','chat_pic',data.imgList,function(isPass,imgUrlList){
+					if(isPass){
+						var sendObj = {};
+						sendObj.personType = 'myPary';
+						sendObj.personAva = avatar;
+						sendObj.personName = nickname;
+						sendObj.type = 2;//type:1文字，2 图片
+						sendObj.textContent = data.text;
+						sendObj.imgListContent = imgUrlList;
+						sendObj.sendTime = getCurrentDate('yyyy-MM-dd hh:mm:ss');
+						chatVm.sendMsg(sendObj);
+					}
+				});
+			}else{
+				var sendObj = {};
+				sendObj.personType = 'myPary';
+				sendObj.personAva = avatar;
+				sendObj.personName = nickname;
+				sendObj.type = 1;//type:1文字，2 图片
+				sendObj.textContent = data.text;
+				sendObj.imgListContent = data.imgList;
+				sendObj.sendTime = getCurrentDate('yyyy-MM-dd hh:mm:ss');
+				chatVm.sendMsg(sendObj);
+			}
+			
+			
+		};
+		//成功发送消息回调
+		function sendChatCal(param){
+			var isSuccess = param.isSuccess;
+			var msg = param.msg;
+			var data= param.data;
+			if(isSuccess){
+				chatVm.appendData(data,true);
+			} else{
+				api.toast({ msg: msg,duration: 2000, location: 'middle'});
+			}
+		}
+		var countValSend;
+		var isScroolDown = true;
+		var pageDown;
+		//表情包列表数据
+		var emotionList;
+		apiready = function() {
+			userId = $api.getStorage("userid");
+			userPhone = $api.getStorage("clientPhone");
+			nickname = $api.getStorage("nickname")==undefined ? '游客':$api.getStorage("nickname");//用户昵称;
+			avatar = $api.getStorage("avatar");//用户头像
+			sex = $api.getStorage("sex");//性别
+			sexName = sex==0 ? '女':'男';//性别名称
+			
+			var pageParam = api.pageParam;//页面提交过来的参数
+			orderId=pageParam.orderId;
+			otherPayId=pageParam.sendPersonId;//创建需求人id
+			otherPayName=pageParam.sendPersonName==undefined || pageParam.sendPersonName==null || pageParam.sendPersonName=='' ? '游客':pageParam.sendPersonName;//创建需求人名称
+			
+			pageDown = function() {
+				countValSend = setInterval(function() {
+					clearInterval(countValSend);
+					//滚动到底部
+					window.scrollTo(0, document.body.scrollHeight)
+				}, 200);
+			}
+			
+			//连接websocket状态回调
+			function chatWebSocketFun(isSuccess,msg){
+				if(isSuccess){
+					chatVm.closeTipsErr();
+				}else{
+					chatVm.showTipErr('提示:'+msg);
+				}
+			}
+			
+			function getOtherPersonAva(msgList){
+				var resOtherPersonAva='../../image/icon/me/head.png';
+				for(var i=msgList.length-1;i>=0;i--){
+					if(msgList[i].personType=='otherPary'){
+						resOtherPersonAva=msgList[i].personAva;
+						break;
+					}
+				}
+				return resOtherPersonAva;
+			}
+			
+			
+			function getHistoryDataList(){
+				if(isAlreadyHistory) return;
+				var param={};
+				param.userId=userId;
+				param.toUserId=otherPayId;
+				api.showProgress({title: '加载历史数据'});
+				_postHttpsData2('/getImRecord',param,
+					function(res){
+						api.hideProgress();
+						if(res.status){
+							var dataList = res.data;
+							var hisDataListTemp=[];
+							for(var index in dataList){
+								var hisDataOjb = sendCententOther(dataList[index],false,true);
+								if(hisDataOjb!=undefined && hisDataOjb!=null && hisDataOjb!=''){
+									hisDataListTemp.push(hisDataOjb);
+								}
+							}
+							chatVm.historyData(hisDataListTemp);
+						} else{
+							api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+						}
+					},
+					function(err){
+						api.hideProgress();
+					}
+				);
+			}
+
+			
+			/**
+			 *上传图片
+			 *imgList 图片
+			 */
+			uploadImgList = function(attFkId,attFkName,attName,imgList, funCal) {
+				if (imgList.length > 0) {
+					//检测压缩图片
+					api.showProgress({
+						title : '压缩图片'
+					});
+					batchCompressList(attFkName, attName, imgList, function(attNameList, attFkNameList, imgArray) {
+						if(imgArray.length>0) {
+							var param = {};
+							param.attUser = userId;
+							param.attFkId = attFkId;
+							param.attName = attNameList;
+							param.attFkName = attFkNameList;
+							param.attNoWater = '1';
+							api.showProgress({
+								title : '上传图片'
+							});
+							uploadFileHttps(param, imgArray, function(ret) {
+								api.hideProgress();
+								if (ret.status) {
+									if (funCal != undefined && typeof funCal === "function") {
+										var imgListRes = ret.pic;
+										var imgListTemp=[];
+										for(var index in imgListRes){
+											imgListTemp.push(imgListRes[index].pic)
+										}
+										funCal(true,imgListTemp);
+									}
+								} else {
+									if (funCal != undefined && typeof funCal === "function") {
+										funCal(false,null);
+									}
+									showSingleAuiDialog('上传图片失败(' + ret.code + ')', ret.msg);
+								}
+							}, function(err) {
+								api.hideProgress();
+								funCal(false,null);
+							});
+						}else{
+							if (funCal != undefined && typeof funCal === "function") {
+								funCal(true);
+							}
+						}
+						
+					});
+				} else {
+					if (funCal != undefined && typeof funCal === "function") {
+						funCal(true);
+					}
+				}
+			};
+			
+			//获取表情包数据
+			var getEmotionData = function() {
+				$.getJSON("../../res/img/emotion/emotion.json", function(data) {
+					emotionList = data;
+					chatVm = new Vue({
+						el : '#chat_list',
+						data : {
+							tempHistoryList : [], //临时存放对方历史信息列表
+							chatDataList : [],//对话信息列表
+						},
+						watch : {
+							chatDataList : function() {
+								this.$nextTick(function() {
+									//////方法
+									if (isScroolDown) {
+										pageDown();
+									}
+								});
+							}
+						},
+						methods : {
+							initData : function(data) {
+								//初始化聊天窗口数据
+								isScroolDown = true;
+								this.chatDataList = data;
+								otherPayAva = getOtherPersonAva(data);
+								this.nextTick(true);
+							},
+							sendMsg:function(data){
+								//发送消息
+//								this.appendData(data);
+								var userInfo={};
+								userInfo.userId=userId;
+								userInfo.nickname=nickname;
+								userInfo.avatar=avatar;
+								userInfo.sex=sex;
+								userInfo.sexName=sexName;
+
+								var sendParam={};
+								sendParam.type=data.type;//1文字，2图片
+								sendParam.message=data.type==2 ? data.imgListContent:data.textContent;//信息
+								sendParam.userName=nickname;//用户名称
+								sendParam.userId=userId;//用户id
+								sendParam.toUserId=otherPayId;//接收人id（写用户id，给所有人就all）
+								sendParam.toUserName=otherPayName;//接收人名称
+								sendParam.data=userInfo;
+								
+								
+								var param={};
+								param.data=data;
+								param.sendParam=sendParam;
+								
+								api.execScript({
+								    name: 'main_win',
+								    script: 'sendChat('+JSON.stringify(param)+')'
+								});
+							},
+							appendData:function(data,isWriteRecord) {
+								//追加数据
+								isScroolDown = true;
+								this.chatDataList.push(data);
+								this.nextTick(true);
+								//是否写入缓存文件(因为有些是已经在main_win已经写入了)
+								if(isWriteRecord){
+									writeRecordChatByPackag(orderId,otherPayId,otherPayName,otherPayAva,0,this.chatDataList);
+								}
+							},
+							historyData : function(dataObj) {
+								//查看历史数据
+								if (dataObj == undefined || dataObj == null || dataObj.length == 0 || isAlreadyHistory) {
+									if (!$('#loading img').is('.loading-hide')) {
+										$('#loading img').addClass('loading-hide');
+									}
+									$('#loading').text('已没有更多记录');
+									return;
+								}
+								isAlreadyHistory=true;
+								isScroolDown = false;
+								//首先把临时存放的对话历史信息列表放到对话列表列表中
+								var chatDataList = this.chatDataList;
+								this.chatDataList = this.tempHistoryList.concat(chatDataList);
+								//判断临时对话历史区域是否添加有history-list css,如果没有则添加。用户在头部以上占位
+								if (!$('#history_list').is('.history-list')) {
+									$('#history_list').addClass('history-list');
+								}
+								//临时存放对方历史信息列表，然后再把新加载的对话记录存放进来
+								this.tempHistoryList = [];
+								var tempHistoryList = this.tempHistoryList;
+								this.tempHistoryList = dataObj.concat(tempHistoryList);
+								this.$nextTick(function() {
+									//界面渲染完毕，计算element高度，也就是临时存放历史对话记录区域
+									var heightCss = window.getComputedStyle(this.$refs.element).height;
+									// 如:100px
+									var reg = new RegExp("px", "g");
+									heightCss = heightCss.replace(reg, "");
+									//去除临时存放历史对话记录区域的history-lis，让他显示回来到界面
+									$('#history_list').removeClass('history-list');
+									if (Number(heightCss) > 30) {
+										//如果临时存放炉石对话记录区域高度高于30px,则页面自动向下滚动Number(heightCss)-30
+										window.scrollTo(0, Number(heightCss) - 30);
+									}
+									isRequest = false;
+								})
+							},
+							checkTextIsEmotion : function(emoMsg) {
+								//检查是否有表情字符，有则转成表情图片
+								emoMsg = '<span>' + emoMsg;
+								var emoPath, transMsg;
+								var reg = /\[(.*?)\]/gm;
+								transMsg = emoMsg.replace(reg, function(match) {
+									for (var i = 0, len = emotionList.length; i < len; i++) {
+										if (emotionList[i].text === match) {
+											emoPath = '../../res/img/emotion/' + emotionList[i].name + '.png';
+											return '</span><img style="vertical-align:middle;" width="20" height="20" src="' + emoPath + '" /><span>'
+										}
+									}
+									return match;
+								});
+								return transMsg+ '</span>';
+							},
+							timeCalShow:function(time){
+								//计算时间显示
+								if(time==undefined || time==null || time==''){
+									return '';
+								} else{
+									if(lastTime==undefined || lastTime==null || lastTime==''){
+										lastTime=time; 
+										return getTimeText(time);
+									}else{
+										var resDf = timeDifference(lastTime,time);
+										lastTime=time; 
+										if(resDf!=undefined && Number(resDf)<5){
+											return '';
+										}
+										else if(resDf==undefined || resDf==null || resDf==''){
+											return getTimeText(time);
+										}
+										else if(Number(resDf)>=5){
+											//两条信息时间相隔超过5分钟就显示一个时间
+											return getTimeText(time);
+										}else{
+											return '';
+										}
+									}
+								}
+							},
+							nextTick : function(isScroolDown) {
+								this.$nextTick(function() {
+								})
+							},
+							closeTipsErr:function(){
+								//关闭提示
+								if (!$('#tips_err').is('.tip-err-hide')) {
+									$('#tips_err').addClass('tip-err-hide');
+								}
+								$('#err_msg').text('');
+							},
+							showTipErr:function(errMsg){
+								$('#tips_err').removeClass('tip-err-hide');
+								$('#err_msg').text(errMsg);
+							}
+						}
+					});
+					var recordJson = readRecordChatCacheByFileName(otherPayId);
+					var recordData = getChatListfilter(recordJson);
+					chatVm.initData(recordData);
+					//监听滑动
+					window.addEventListener("scroll", function(event) {
+						var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+						if (scrollTop < 30 && scrollTop < tempScrollTop && !isRequest) {
+							//页面下拉并且还没有发起请求的时候可以进来请求数据
+//							isRequest = true;
+							getHistoryDataList();
+						}
+						tempScrollTop = scrollTop;
+					});
+					
+					api.execScript({
+					    name: 'main_win',
+					    script: 'getWebSocketState()'
+					});
+					
+				})
+			};
+			getEmotionData();
+			
+			
+			
+			//监听websocket的状态
+			api.addEventListener({
+			    name: 'ws_state_send_event'
+			}, function(ret, err) {
+				if(ret){
+					var isSuccess = ret.value.isSuccess;
+					var msg = ret.value.msg;
+					chatWebSocketFun(isSuccess,msg);
+				}
+			});
+			
+			
+			//监听websocket的接收信息
+			api.addEventListener({
+			    name: 'chatMsg_send_event'
+			}, function(ret, err) {
+				if(ret){
+					var message = ret.value.message;
+					var obj = JSON.parse(message);
+					var messageType = obj.messageType;//1代表上线 2代表下线 3代表在线名单 4代表普通消息5定位
+					
+					if(messageType==1){
+						//代表上线
+//						var onlineUsers = obj.onlineUsers;//在线用户id列表
+					}
+					else if(messageType==2){
+						//代表下线
+//						var onlineUsers = obj.onlineUsers;//在线用户id列表
+					}
+					else if(messageType==3){
+						//代表在线名单
+//						var onlineUsers = obj.onlineUsers;//在线用户id列表
+						
+					}
+					else if(messageType==4){
+						//普通消息
+						sendCententOther(obj,false,false);
+					}
+					
+					
+				}
+			});
+		};
+	</script>
+</html>

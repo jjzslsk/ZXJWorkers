@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>我要推广frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7;}
+    	.carousel-area{background-color: #d1c0a6;padding: 15px;text-align: center;font-size: 1rem;font-weight: bold;color:#000000;}
+    	
+    	.activity-area{height: 10rem;padding: 15px;}
+    	.activity-area .activity-item-l{width: calc(30% - 5px);}
+    	.activity-area .activity-item-l .activity-item01{background-color: #f6b37f;color: #FFFFFF;text-align: center;height: calc(10rem - 30px);padding-top:calc(4rem - 15px);}
+    	.activity-area .activity-item-r{width: calc(70% + 5px);padding-left:5px;background-color: #78fdd0;}
+    	.activity-area .activity-item-r .activity-item-row01{height: calc(5rem - 15px - 2px);margin-bottom: 4px;}
+    	.activity-area .activity-item-r .activity-item-row01 .activity-item02{width: calc(50% - 2px);background-color: #add597;color: #FFFFFF;margin-right: 2px;text-align: center;height: 100%;padding-top:calc(2rem - 15px - 4px);}
+    	.activity-area .activity-item-r .activity-item-row01 .activity-item03{width: calc(50% - 2px);background-color: #89abd9;color: #FFFFFF;margin-left: 2px;text-align: center;height: 100%;padding-top:calc(2rem - 15px - 4px);}
+    	.activity-area .activity-item-r .activity-item-row02{height: calc(5rem - 15px - 2px);}
+    	.activity-area .activity-item-r .activity-item-row02 .activity-item04{width:calc(33.3% - 2px);background-color: #00b8ee;color: #FFFFFF;margin-right: 2px;text-align: center;height: 100%;padding-top:calc(2rem - 15px - 4px);}
+    	.activity-area .activity-item-r .activity-item-row02 .activity-item05{width:calc(33.3% - 4px);background-color: #0168b7;color: #FFFFFF;margin: 0 2px;text-align: center;height: 100%;padding-top:calc(2rem - 15px - 4px);}
+    	.activity-area .activity-item-r .activity-item-row02 .activity-item06{width:calc(33.3% - 2px);background-color: #aaaaaa;color: #FFFFFF;margin-left: 2px;text-align: center;height: 100%;padding-top:calc(2rem - 15px - 4px);}
+    	
+    	.info-edit-area{margin: 20px;}
+    	.info-edit-area .info-edit-item{margin-top: 10px}
+    	.info-edit-area .info-edit-item .title{width: 5em;color:#000000;font-weight: bold;}
+    	.info-edit-area .info-edit-item .choose-res{width: calc(100% - 5em);background-color: #f1f1f1;border-radius: 8px;padding: 0 10px;}
+    	.info-edit-area .info-edit-item .choose-res .res-info{color:#000000;width: calc(100% - 1em)}
+    	.info-edit-area .info-edit-item .choose-res .res-info.text-weight{font-weight: bold;}
+    	.def-phd{color:#aab2bd;font-size: 0.7rem;margin-top: 3px;}
+    	.info-edit-area .info-edit-item .choose-res .res-icon{color:#000000;font-weight: bold;width: 1em;}
+   
+    	.info-edit-area .info-edit-item .price-deit{width: calc(60% - 6.5em);background-color: #f1f1f1;border-radius: 8px;padding: 0 10px;}
+    	.info-edit-area .info-edit-item .res-unit-text{width: 3em;text-align: right;}
+    	.info-edit-area .info-edit-item .choose-unit{width: calc(40% - 10px - 1.5em);background-color: #f1f1f1;border-radius: 8px;padding: 0 10px;margin-left: 10px;}
+    	.info-edit-area .info-edit-item .choose-unit .res-unit{width: calc(100% - 1.2em);}
+    	.info-edit-area .info-edit-item .choose-unit .res-icon{color:#000000;font-weight: bold;width: 1em;text-align: right;}
+
+    	.info-edit-area .info-edit-item .choose-res input,.info-edit-area .info-edit-item .price-deit input{height: auto;padding-top: 3px;}
+    	
+    	.activity-details{margin: 20px;}
+    	.activity-details .details-title{color:#000000;font-weight:bold;font-size:18px;}
+    	.activity-details .details-item{color:#999999;line-height:30px}
+    	
+    	.att-area{margin: 20px 20px 0 20px;padding-bottom: 20px;border-bottom: 1px solid #DDDDDD;}
+    	.att-area .att-item{width: 33.3%;}
+    	/*.att-area .att-item .att-item-subtitle{color:#999999;font-size: 0.6rem;}*/
+    	.att-area .att-item .att-item-imgtitle img{margin: 0 auto;}
+    	.att-area .att-item .att-content{margin-top: 10px;}
+    	.att-area .att-item .att-remark{color:#999999;font-size: 0.5rem;padding: 0 20%;}
+    	
+    	.att-img {width: 60%;height: 0px;padding-bottom: 60%;position: relative;margin: 0 20%;bottom: 0}
+		.att-img img {width: 100%;height: 100%;position: absolute;border-radius: 10px}
+		.att-img .del-tip {width: 1.5rem;height: 1.5rem;line-height: 1.5rem;text-align: center;border-radius: 50%;background-color: #d61414;color: #FFFFFF;position: absolute;z-index: 99;right: -0.5rem;top: -0.5rem;}
+		.add-img{background: #EEEEEE;border-radius: 10px;border: 1px dashed #DDDDDD;}
+		.add-img i{position: absolute;top:calc(40% - 0.8rem);left:calc(50% - 0.8rem);font-size: 1.6rem;}
+		
+		.cur-address-area{margin: 8px 20px;}
+		.cur-address-area .item-icon{width: 1.5rem;text-align: left;margin-top: 4px;}
+		.cur-address-area .item-icon i{font-size: 1rem;}
+		.cur-address-area .item-content{width: calc(100% - 1.5rem);border-bottom: 1px solid #DDDDDD;padding: 8px 0}
+		.cur-address-area .item-content .content{width: calc(100% - 1.5rem);}
+		.cur-address-area .item-content .item-icon-arw-r{width: 1.5rem;text-align: right;}
+		.cur-address-area .item-content .item-icon-arw-ri{font-size: 1rem;}
+
+		
+		
+    </style>
+</head>
+<body>
+	<div id="promote_id">
+		<template>
+		<div class="price-explain">
+			<img src="../../image/promote_price.png" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'"/>
+		</div>
+		<div class="info-edit-area">
+			<div class="info-edit-item horizontal">
+				<div class="title">位置选择</div>
+				<div class="choose-res horizontal" tapmode="hover" @click="choosePromoteNum">
+					<div class="res-info text-weight" v-if="promoteNumNameCur.length>0">{{promoteNumNameCur}}</div>
+					<div class="res-info def-phd" v-else>请选择</div>
+					
+					<div class="res-icon"><i class="aui-iconfont aui-icon-down"></i></div>
+				</div>
+			</div>
+			<div class="info-edit-item horizontal">
+				<div class="title">公司名称</div>
+				<div class="choose-res">
+					<input type="text" maxlength="500" placeholder="请输入公司名称" v-model="companyName" />
+				</div>
+			</div>
+			<div class="info-edit-item horizontal">
+				<div class="title">活动名称</div>
+				<div class="choose-res">
+					<input type="text" maxlength="500" placeholder="请输入活动名称" v-model="promoteName" />
+				</div>
+			</div>
+			<div class="info-edit-item horizontal">
+				<div class="title">开始时间</div>
+				<div id="start_date" class="choose-res horizontal" tapmode="hover">
+					<div class="res-info" v-if="startDate.length>0">{{startDate}}</div>
+					<div class="res-info def-phd" v-else>请选择</div>
+					<div class="res-icon"><i class="aui-iconfont aui-icon-down"></i></div>
+				</div>
+			</div>
+			<div class="info-edit-item horizontal">
+				<div class="title">价格</div>
+				<div class="price-deit">
+					<input type="number" maxlength="12" placeholder="请输入价格" v-model="promotePrice" @input="priceOninput"/>
+				</div>
+				<div class="res-unit-text">单位</div>
+				<div class="choose-unit horizontal" tapmode="hover" @click="choosePriveUnit">
+					<div class="res-unit" v-if="priceUnit!=undefined && priceUnit.length>0">{{priceUnit}}</div>
+					<div class="res-unit def-phd" v-else>请选择</div>
+					<div class="res-icon"><i class="aui-iconfont aui-icon-down"></i></div>
+				</div>
+			</div>
+		</div>
+		<div class="att-area horizontal">
+			<div class="att-item">
+				<!--<div class="att-item-title">首页图片</div>
+				<div class="att-item-subtitle">(轮播图和推广图)</div>-->
+				<div class="att-item-imgtitle">
+					<img src="../../image/icon/mypromote/promote_title1.png" tapmode="hover" @click="previewImg(detailImgUrl)"/>
+				</div>
+				<div class="att-content">
+					<div class="att-img" v-if="indexImgUrl!=undefined && indexImgUrl!=null && indexImgUrl!=''">
+						<span class="del-tip" tapmode="hover" @click="attDataDel(0)">—</span>
+						<img :src="indexImgUrl" tapmode="hover" @click="previewImg(indexImgUrl)"/>
+					</div>
+					<div class="att-img add-img" v-else tapmode="hover" @click="addAttDataClick(0)">
+						<i class="aui-iconfont aui-icon-plus"></i>
+					</div>
+				</div>
+				<div class="att-remark">尺寸请参考上方模块区域的规格</div>
+			</div>
+			<div class="att-item">
+				<!--<div class="att-item-title">详情图片</div>
+				<div class="att-item-subtitle">(轮播图和推广图点击后的图片)</div>-->
+				<div class="att-item-imgtitle">
+					<img src="../../image/icon/mypromote/promote_title2.png" tapmode="hover" @click="previewImg(detailImgUrl)"/>
+				</div>
+				<div class="att-content">
+					<div class="att-img" v-if="detailImgUrl!=undefined && detailImgUrl!=null && detailImgUrl!=''">
+						<span class="del-tip" tapmode="hover" @click="attDataDel(1)">—</span>
+						<img :src="detailImgUrl" tapmode="hover" @click="previewImg(detailImgUrl)"/>
+					</div>
+					<div class="att-img add-img" v-else tapmode="hover" @click="addAttDataClick(1)">
+						<i class="aui-iconfont aui-icon-plus"></i>
+					</div>
+				</div>
+				<div class="att-remark"><div>图片比例0.7:1</div><div>推荐尺寸700*1000像素</div></div>
+			</div>
+			<div class="att-item">
+				<!--<div class="att-item-title">优选服务图片</div>
+				<div class="att-item-subtitle">(点击优选服务更多出现的首张图片)</div>-->
+				<div class="att-item-imgtitle">
+					<img src="../../image/icon/mypromote/promote_title3.png" tapmode="hover" @click="previewImg(detailImgUrl)"/>
+				</div>
+				<div class="att-content">
+					<div class="att-img" v-if="optimalChooseImgUrl!=undefined && optimalChooseImgUrl!=null && optimalChooseImgUrl!=''">
+						<span class="del-tip" tapmode="hover" @click="attDataDel(2)">—</span>
+						<img :src="optimalChooseImgUrl" tapmode="hover" @click="previewImg(optimalChooseImgUrl)"/>
+					</div>
+					<div class="att-img add-img" v-else tapmode="hover" @click="addAttDataClick(2)">
+						<i class="aui-iconfont aui-icon-plus"></i>
+					</div>
+				</div>
+				<div class="att-remark"><div>图片比例0.75:1</div><div>推荐尺寸120*90像素</div></div>
+			</div>
+		</div>
+		<!--当前所在位置-->
+		<div class="cur-address-area horizontal" tapmode="hover" @click="chooseCurAddressClick">
+			<div class="item-icon"><i class="aui-iconfont aui-icon-location"></i></div>
+			<div class="horizontal item-content">
+				<div class="content" v-if="curAddress.length>0">{{curAddress}}</div>
+				<div class="content" v-else>所在位置</div>
+				<div class="item-icon-arw-r"><i class="aui-iconfont aui-icon-right"></i></div>
+			</div>
+		</div>
+		
+		<div class="submit-btn-bor" tapmode="hover" @click="submitClick">提交审核</div>
+		<div class="activity-details">
+			<div class="details-title">活动细节：</div>
+			<div class="details-item" v-for="detailItem in activityDetails">{{detailItem}}</div>
+		</div>
+		</template>
+	</div>
+</body>
+
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/picker/datepicker.js"></script>
+<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+
+<script type="text/javascript">
+	var promoteVm;
+	var addressChooseRes;
+	
+	var locLng='',locLat='',locAddress='';
+	apiready = function(){
+		var userId = $api.getStorage("userid");//用户id
+		
+		var uploadFile=function(attFkId,indexImgUrl,detailImgUrl,optimalChooseImgUrl){
+			var imgArray=[];
+			var param={};
+			param.clientId=userId;
+			param.attUser=userId;
+			param.attFkId=attFkId;
+			param.attNoWater='1';//1没有水印
+			api.showProgress({title: '压缩首页图'});
+			checkCompressImg(indexImgUrl,function(imgPathPos){
+				var attFkName=[];
+				var attName=[];
+				if(imgPathPos!=null){
+					imgArray.push(imgPathPos);
+					attFkName.push('activity_pic');
+					attName.push('activity_pic_index.jpg');
+				}
+ 			    api.showProgress({title: '压缩详情图'});
+ 			    checkCompressImg(detailImgUrl,function(imgPathRev){
+	 			    if(imgPathRev!=null){
+						imgArray.push(imgPathRev);
+						attFkName.push('activity_pic');
+						attName.push('activity_pic_detail.jpg');
+					}
+					
+					api.showProgress({title: '压缩优选服务图'});
+	 			    checkCompressImg(optimalChooseImgUrl,function(optimalChoosePath){
+		 			    if(optimalChoosePath!=null){
+							imgArray.push(optimalChoosePath);
+							attFkName.push('activity_pic');
+							attName.push('activity_pic_optimal.jpg');
+						}
+						if(imgArray.length>0){
+							//开始上传
+		 			    	param.attFkName=attFkName;
+		 			    	param.attName=attName;
+		 			    	api.showProgress({title: '上传图片'});
+		 			    	uploadFileHttps(param,imgArray,
+								function(ret){
+									api.hideProgress();
+									if(ret.status){
+										showSingleAuiDialog('提示',ret.msg);
+									} else{
+										showSingleAuiDialog('上传图片失败('+ret.code+')', ret.msg);
+									}
+								},
+								function(err){
+									api.hideProgress();
+								}
+							);
+						}
+					});
+				});
+			});
+			
+		}
+		
+		
+		var submitDataHttps=function(promote,companyName,promoteName,startDate,promotePrice,amountUnit,indexImgUrl,detailImgUrl,optimalChooseImgUrl,lng,lat,address){
+			var param = '';
+			_getHttpsData('/utils/getPK',param,
+				function(ret){
+					if(ret.status){
+						var keyStr = ret.data;
+						var curCityCode = $api.getStorage("curCityCode")==undefined ? defCurCityCode: $api.getStorage("curCityCode");
+						
+						var param ="TABLE=WORK_ACTIVITY&AJAX_PK_FIELDS=W_ACT_ID&AJAX_OPERATE_FIELDS=*&AJAX_MODE=AJAX_MODE_OPERATE&key=zxj_repertory&FLAG=0&CLIENT_CLASS_ID=1908221100043420&W_ACT_ID="
+						+keyStr+"&POSITION_NO="+promote+"&COMPANY_NAME="+companyName+"&TITLE="+promoteName+"&ACT_PRICE="+promotePrice+"&CLIENT_ID="+userId
+						+"&START_ACT_DATE="+startDate+"&AMOUNT_UNIT="+amountUnit+"&ADDRESS="+address+"&LNG="+lng+"&LAT="+lat+"&BAIDU_MAP_NO="+curCityCode;
+						
+						api.showProgress({title: '提交信息'});
+						_httpsPlatformClass('',param,
+							function(ret){
+								if(ret.code == 0 || ret.code == '0') {
+									uploadFile(keyStr,indexImgUrl,detailImgUrl,optimalChooseImgUrl);
+								} else{
+									api.hideProgress();
+									showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+								}
+							},
+							function(err){
+								api.hideProgress();
+							},true
+						);
+						
+					}else{
+						showSingleAuiDialog('提交失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+				}
+			);
+		
+		};
+		
+		addressChooseRes=function(res){
+			promoteVm.curAddress=res.address;
+			promoteVm.curLng=res.lon;
+			promoteVm.curlat=res.lat;
+		}
+	
+		//位置列表
+		var promoteNums=['轮播1','轮播2','轮播3','轮播4','轮播5','轮播6','推广1','推广2','推广3','推广4','推广5','推广6','普通推广'];
+		//单位列表
+		var priceUnits=['元/台','元/平方','元/个','元/天','元/间','元/套','元/副','元/张','元/次','元/米','元/块'];
+	
+		promoteVm = new Vue({
+			el:'#promote_id',
+			data:{
+				promoteNumNameCur:'',//推广选择结果名称
+				companyName:'',//公司名称
+				promoteName:'',//活动名称
+				startDate:'',//开始时间
+				promotePrice:'',//价格
+				priceUnit:'',//单位
+				other:'',
+				indexImgUrl:'',
+				detailImgUrl:'',
+				optimalChooseImgUrl:'',
+				curAddress:'',//当前所在位置
+				curLng:'',
+				curlat:'',
+				activityDetails:[
+					'1.活动流程：上传图片资料、提交审核、客服通知交费、进入活动推广期。',
+					'2.上传的图片，请尽量根据推荐尺寸规格参数设计。',
+					'3.申请活动后24h内，将会有客服联系您，请您注意信息或电话接听。',
+					'4.如有问题，可以直接进入客服中心，咨询装小匠客服或者拨打'+phoneService+'。',
+					'5.本活动最终解释权归装小匠网络科技有限公司所有。'
+				]
+			},
+			methods:{
+				choosePromoteNum:function(){
+					api.actionSheet({
+						cancelTitle : '取消',
+						buttons : promoteNums
+					}, function(ret, err) {
+						var index = ret.buttonIndex;
+						if(index<=promoteNums.length){
+							promoteVm.promoteNumNameCur=promoteNums[index-1];//推广选择结果名称
+						}
+					});
+				},
+				initChoosePicker:function(){
+					initDatePicker('#start_date','date',function(ret){
+						promoteVm.startDate = ret;
+					},'mypromote_frm',true);
+				},
+				priceOninput:function(){
+					this.promotePrice = (this.promotePrice.match(/^\d*(\.?\d{0,2})/g)[0]) || null;
+				},
+				choosePriveUnit:function(){
+					api.actionSheet({
+						cancelTitle : '取消',
+						buttons : priceUnits
+					}, function(ret, err) {
+						var index = ret.buttonIndex;
+						if(index<=priceUnits.length){
+							promoteVm.priceUnit=priceUnits[index-1];//选择单位
+						}
+					});
+				},
+				attDataDel:function(action){
+					//删除图片
+					if(action==0){
+						this.indexImgUrl='';
+					}else if(action==1){
+						this.detailImgUrl='';
+					}else if(action==2){
+						this.optimalChooseImgUrl='';
+					}
+				},
+				previewImg:function(imgUrl){
+					//预览附件
+					var imgList=[];
+					imgList.push(imgUrl);
+					api.openWin({
+						name : 'previewpicture_win',
+						url : 'widget://html/previewpicture/previewpicture_win.html',
+						pageParam : {
+							position : 0,
+							imgList : imgList
+						},
+						slidBackEnabled : false,
+						delay : 300
+					});
+				},
+				appendAttData:function(action,pathObj) {
+					if(action==0){
+						this.indexImgUrl=pathObj;
+					}else if(action==1){
+						this.detailImgUrl=pathObj;
+					}else if(action==2){
+						this.optimalChooseImgUrl=pathObj;
+					}
+				},
+				addAttDataClick:function(action){
+					//添加图片
+					chooseCameraSheet(function(ret,isVideo) {
+						promoteVm.appendAttData(action,ret);
+					}, 1, '完成');
+				},
+				chooseCurAddressClick:function(){
+					//选择所在位置
+					api.openWin({
+						name : 'searchnearby_win',
+						url : 'widget://html/circlefriends/searchnearby_win.html',
+						slidBackEnabled : false,
+						delay : 300,
+						pageParam:{
+							winName:'mypromote_win',
+							frmName:'mypromote_frm',
+							funCalRes:'addressChooseRes'
+						}
+					});
+					
+				},
+				submitClick:function(){
+					
+					var promoteNumNameCur=this.promoteNumNameCur;//推广选择结果名称
+					var companyName=this.companyName;//活动名称
+					var promoteName=this.promoteName;//活动名称
+					var startDate=this.startDate;//开始时间
+					var promotePrice=this.promotePrice;//价格
+					var priceUnit=this.priceUnit;//价格
+					var indexImgUrl=this.indexImgUrl;//首页图片
+					var detailImgUrl=this.detailImgUrl;//详情图片
+					var optimalChooseImgUrl=this.optimalChooseImgUrl;//优选图片
+					var curAddress=this.curAddress;//地址
+					var curLng=this.curLng;
+					var curlat=this.curlat;
+					
+					if(promoteNumNameCur==undefined || promoteNumNameCur==null || promoteNumNameCur==''){
+						api.toast({msg : '请选择推广位置',duration : 2000,location : 'middle'});
+					}
+					else if(companyName==undefined || companyName==null || companyName==''){
+						api.toast({msg : '请填写公司名称',duration : 2000,location : 'middle'});
+					}
+					else if(promoteName==undefined || promoteName==null || promoteName==''){
+						api.toast({msg : '请填写活动名称',duration : 2000,location : 'middle'});
+					}
+					else if(startDate==undefined || startDate==null || startDate==''){
+						api.toast({msg : '请选择开始时间',duration : 2000,location : 'middle'});
+					}
+					else if(promotePrice==undefined || promotePrice==null || promotePrice==''){
+						api.toast({msg : '请填写价格',duration : 2000,location : 'middle'});
+					}
+					else if(Number(promotePrice)<=0){
+						api.toast({msg : '价格不能小于0',duration : 2000,location : 'middle'});
+					}
+					else if(priceUnit==undefined || priceUnit==null || priceUnit==''){
+						api.toast({msg : '请选择单位',duration : 2000,location : 'middle'});
+					}
+					else if(indexImgUrl==undefined || indexImgUrl==null || indexImgUrl==''){
+						api.toast({msg : '请上传首页图片',duration : 2000,location : 'middle'});
+					}
+					else if(detailImgUrl==undefined || detailImgUrl==null || detailImgUrl==''){
+						api.toast({msg : '请上传详情图片',duration : 2000,location : 'middle'});
+					}
+					else if(optimalChooseImgUrl==undefined || optimalChooseImgUrl==null || optimalChooseImgUrl==''){
+						api.toast({msg : '请上传优选服务图片',duration : 2000,location : 'middle'});
+					}
+					else if((curAddress==undefined || curAddress==null || curAddress=='') && (locAddress==undefined || locAddress==null || locAddress=='')){
+						api.toast({msg : '定位失败,请选择地址',duration : 2000,location : 'middle'});
+					}
+					else{
+						var lng=curLng=='' ? locLng:curLng;
+						var lat=curlat=='' ? locLat:curlat;
+						var address=curAddress=='' ? locAddress:curAddress;
+						submitDataHttps(promoteNumNameCur,companyName,promoteName,startDate,promotePrice,priceUnit,indexImgUrl,detailImgUrl,optimalChooseImgUrl,lng,lat,address);
+					}
+				
+					
+				}
+			}
+			
+		});
+		
+		promoteVm.initChoosePicker();
+		if(checkLocPer()){
+			startLocation(function(ret){
+				locLng = $api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");
+				locLat = $api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");
+				locAddress = $api.getStorage("curAddress")==undefined ? '':$api.getStorage("curAddress");//当前地址
+			},function(action,err){
+				locLng = $api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");
+				locLat = $api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");
+				locAddress = $api.getStorage("curAddress")==undefined ? '':$api.getStorage("curAddress");//当前地址
+			});
+		}else{
+			locLng = $api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");
+			locLat = $api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");
+			locAddress = $api.getStorage("curAddress")==undefined ? '':$api.getStorage("curAddress");//当前地址
+		}
+		
+	};
+</script>
+</html>

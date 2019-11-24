@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>投诉建议frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f1f1f1}
+    	.somsugges-area .edit-item{background-color: #FFFFFF;padding: 8px 10px;}
+    	.somsugges-area .edit-item textarea{height: 25vh;width: 100%;}
+    	.somsugges-area .sel-pro-res{text-align: right;padding: 8px 10px;color: #0000FF;text-decoration:underline;}
+    	.somsugges-area .tips {box-sizing: border-box;padding: 20px;font-size: 0.8em;margin-top: 20px;line-height: 20px;}
+    
+    </style>
+</head>
+<body>
+	<div id="comsugges_id">
+		<template>
+		<div class="somsugges-area">
+			<div class="edit-item">
+				<textarea type="text" placeholder="请留下您的宝贵意见或建议，我们将努力改进。并留下您的联系方式，方便我们联系您" maxlength="500" v-model="content"></textarea>
+			</div>
+			<div class="sel-pro-res" tapmode="hover" @click="selProRes">点击查看处理结果</div>
+			<div class="submit-btn-bor" tapmode="hover" @click="commitSuggest">提交</div>
+			<div class='tips'>
+			    <div>您可以通过留言方式留下意见与建议</div>
+			    <div>也可以通过以下方式：</div>
+			    <div>免费服务热线：<span tapmode="hover" @click="phoneClick('4008798980')">400-8798-980</span></div>
+			    <div tapmode="hover" @click="qqClick('2809712409')">QQ专线：2809712409</div>
+			    <div>邮箱：2809712409@qq.com</div>
+			</div>
+		</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var comsuggesVm;
+	apiready = function(){
+		
+		var userId = $api.getStorage("userid");//用户id
+		comsuggesVm = new Vue({
+			el:'#comsugges_id',
+			data:{
+				content:''
+			},
+			methods:{
+				selProRes:function(){
+					//查询处理结果
+					api.openWin({
+						name : 'comsuggesprores_win',
+						url : 'widget://html/comsugges/comsuggesprores_win.html',
+						slidBackEnabled:true,
+						delay:300
+					});
+				},
+				phoneClick:function(phoneNumber){
+					//拨打电话
+					var permissionNameObj={phone:'电话'};
+					var permissionList=['phone'];
+					if(!checkAppPermission(permissionNameObj,permissionList)) return;
+					//拨打电话
+					if(phoneNumber.length>0){
+						api.call({
+						    type: 'tel_prompt',
+						    number: phoneNumber
+						});
+					}
+				},
+				qqClick:function(qqNumber){
+					//QQ
+					var systemType = api.systemType;  // 比如： ios
+					if(systemType=='ios'){
+		 				api.openApp({
+		                    iosUrl:"mqq://im/chat?chat_type=wpa&uin="+qqNumber+"&version=1&src_type=web",
+		                    uri:"mqqwpa://im/chat?chat_type=wpa&uin="+qqNumber
+		                },function(ret, err){
+		                    if(ret){
+		                    	
+		                    }else{
+		                      api.toast({msg : '您还没安装QQ客户端'});
+		                    }
+		                });
+			        }else{
+			        	api.openApp({
+		                    uri:"mqqwpa://im/chat?chat_type=wpa&uin="+qqNumber
+		                },function(ret, err){
+		                    if(ret){
+		                    }else{
+		                      api.toast({msg : '您还没安装QQ客户端'});
+		                    }
+		                });
+			        }
+				},
+				commitSuggest:function(){
+					//提交信息
+					var content = this.content;
+				    if (content == undefined || content == null || content=='') {
+				    	api.toast({ msg: '请输入投诉建议内容',duration: 2000, location: 'middle'});
+				     	return;
+				    }
+				    var param = 'CLIENT_ID=' + userId + '&CONTENT=' + content + '&SOURCE_TYPE=工人端APP';
+					api.showProgress();
+					_httpsPlatformClass('adviceSave',param,
+						function(ret){
+							api.hideProgress();
+							if(ret.code == 0 || ret.code == '0') {
+								var resultMsg =  checkIsJsonObj(ret.msg);
+								showSingleAuiDialog('提示',resultMsg.msg,'确定',function(diallogRet){
+									api.closeWin();
+								});
+							} else{
+								showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+							}
+						},
+						function(err){
+							api.hideProgress();
+						}
+					);
+				
+				}
+			}
+			
+		});
+		api.parseTapmode();
+	};
+</script>
+</html>

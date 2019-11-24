@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>修改绑定的手机号frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #F7F7F7}
+    	.info-area{padding: 8px 10px;background-color: #FFFFFF;}
+    	.info-area .input-area{height:2rem;line-height: 2rem;border-bottom: 1px solid #DDDDDD;}
+		.info-area .input-area .input-item{width:100%;}
+		.info-area .input-area .input-item input{height: 2rem;width: 100%;outline:none;}
+		
+		.info-area .input-area .input-item-code{width: calc(100% - 9em);}
+		.info-area .input-area .check-code {width: 9em;text-align: right;}
+		.info-area .input-area .check-code span{border-radius: 5px;height: 29px;line-height: 29px;max-height: 29px;padding: 0 1em;}
+		.info-area .input-area .check-code .code-hint01{color:#2fc588;border: 1px solid #2fc588;}
+		.info-area .input-area .check-code .code-hint02{color:#cecece;border: 1px solid #cecece;}
+		.info-area .input-area .input-item-code input{line-height: 2em;width: 100%;outline:none;}
+    	
+    	.submit-up{ margin: 30px 10%;width: 80%;padding: 8px 10px;text-align: center;border-radius: 20px;}
+
+    </style>
+</head>
+<body>
+	<div id="info_id">
+		<template>
+		<div class="info-area">
+			<!--短信验证码登录-->
+			<div class="horizontal input-area">
+				<div class="input-item"><input type="tel" placeholder="请输入新手机号" maxlength="11" v-bind:readonly="phoneIsRed" v-model="newPhone"/></div>
+			</div>
+			<div class="horizontal input-area item-pwd">
+				<div class="input-item-code"><input type="number" placeholder="请输入验证码" oninput="if(value.length>4)value=value.slice(0,4)"  v-model="code"/></div>
+				<div class="check-code" tapmode="hover" @click="checkCodeClick"><span :class="codeIsClick ? 'code-hint01' : 'code-hint02'">{{codeHint}}</span></div>
+			</div>
+			
+		</div>
+		<div class="submit-up submit-gradient-bg-footer" tapmode="hover" @click="upPhoneClick">确认修改</div>
+		</template>
+		
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var countCodeValStart;
+	var infoVm;
+	var userId='';
+	apiready = function(){
+		userId = $api.getStorage("userid");//用户id
+		infoVm = new Vue({
+			el:'#info_id',
+			data:{
+				newPhone:'',
+				code:'',
+				codeHint:'获取验证码',
+				codeIsClick:false,//获取验证码按钮是否允许点击
+				phoneIsRed:false//是否设置手机输入框为只读模式
+			},
+			watch:{
+				'newPhone': function() {
+					var resPhone = checkPhone(this.newPhone);
+					this.codeIsClick=resPhone;
+			  	}
+			},
+			methods:{
+				startCountDown:function(){
+					//开始计时
+					var timeNum=30;//设定30秒时间
+					this.codeIsClick=false;
+					this.phoneIsRed=true;
+					this.codeHint='重新获取'+timeNum;
+					//点击获取验证码
+					countCodeValStart = setInterval(function() {
+						timeNum--;
+						infoVm.codeHint='重新获取'+timeNum;
+						// 你倒计时显示的地方元素
+						if(timeNum==0){
+							infoVm.codeIsClick=true;
+							infoVm.phoneIsRed=false;
+							infoVm.codeHint='重新获取';
+							clearInterval(countCodeValStart);
+						}
+					}, 1000);
+				},
+				checkCodeClick:function(){
+					//点击获取短信验证码
+					if(!this.codeIsClick) return;
+					var param = 'phone='+this.newPhone+'&type=4'; //type:1注册，2登录，3修改密码，4信息变更
+					_getHttpsData('/user/getSmsVerify',param,
+						function(res){
+							if(res.status){
+								infoVm.startCountDown();
+							}else{
+								api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+							}
+						},
+						function(err){
+						
+						}
+					);
+				},
+				upPhoneClick:function(){
+					//确认修改
+					var newPhone=this.newPhone;
+					var code=this.code;
+					if(newPhone==undefined || newPhone==null || newPhone==''){
+						showSingleAuiDialog('提示','请输入新的手机号');
+					}
+					else if(!checkPhone(newPhone)){
+						showSingleAuiDialog('提示','请输入正确的手机号');
+					}
+					else if(code==undefined || code==null || code==''){
+						showSingleAuiDialog('提示','请输入验证码');
+					}
+					else if(code.length<4){
+						showSingleAuiDialog('提示','请输入正确的4位数验证码');
+					}
+					else{
+//						var param="clientId="+userId+"&updateType=4&clientPhone="+newPhone+"&verifyCode="+code;
+						
+						var param={};
+						param.clientId=userId;
+						param.updateType=4;
+						param.clientPhone=newPhone;
+						param.verifyCode=code;
+						
+						api.showProgress();
+						_postHttpsData('/user/updateUserInfo',param,
+							function(ret){
+								api.hideProgress();
+								if(ret.status){
+									setClientPhoneStor(newPhone);
+									showSingleAuiDialog('提示',ret.msg,'确定',function(ret){
+										api.sendEvent({
+										    name: 'upPhone_send_event',
+										    extra: {
+										        upPhoneSuccess: true,
+										    }
+										});
+										api.closeWin();
+									});
+								}else{
+									api.toast({ msg: ret.msg+'('+ret.code+')',duration: 2000, location: 'bottom'});
+								}
+							},
+							function(err){
+								api.hideProgress();
+							}
+						);
+					}
+				}
+			}
+		});
+		
+		api.parseTapmode();
+		
+		api.addEventListener({
+			name : 'viewdisappear'
+		}, function(ret, err) {
+			//关闭当前window，使用默认动画
+			if(countCodeValStart!=undefined){
+				clearInterval(countCodeValStart);
+			}
+		});
+		
+	};
+</script>
+</html>

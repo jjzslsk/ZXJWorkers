@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>我的钱包frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/mywallet/mywallet.css"></head>
+	
+	<style>
+		.wallet-area{padding: 30px 20px;}
+		.acount-card{border-radius: 10px;color:#FFFFFF;padding: 20px 10px;}
+    	.acount-card .acount-balance-area{margin-top: 10px;}
+    	.title-area .title{font-size: 0.8rem;font-weight: bold}
+    	.title-area .hint{font-size: 0.6rem}
+    	.acount-card .acount-balance-area .acount-balance{width: calc(100% - 6rem)}
+    	.acount-card .acount-balance-area .acount-balance .balance-unit{margin-right: 5px;}
+    	.acount-card .acount-balance-area .acount-balance .balance{font-size: 1.3rem}
+    	.acount-card .acount-balance-area .pay-btn{width: 6rem;text-align: center;}
+    	.acount-card .acount-balance-area .pay-btn span{border: 1px solid #FFFFFF;padding: 3px 1rem;text-align: center;border-radius: 10px;}
+	
+		.security-item{margin-top: 20px;border-radius: 10px;padding: 15px 10px;background-color: #FFFFFF;border: 1px solid #DDDDDD}
+		.security-item .security-title{width: 60%}
+		.security-item .security-money{width: 40%;text-align: right;padding-right: 1rem}
+		
+	</style>
+	
+</head>
+<body>
+	<div class="wallet-area">
+		<div class="acount-card this-bg-theme">
+			<div class="title-area"><span class="title">账户余额</span></div>
+			<div class="acount-balance-area horizontal">
+				<div class="acount-balance"><span class="balance-unit">¥</span><span class="balance" id="balance_num">0.00</span></div>
+				<div class="pay-btn"><span tapmode="hover" onclick="withdrawalClick()">提现</span></div>
+			</div>
+		</div>
+		
+		 <div class="security-item horizontal" tapmode="hover" onclick="gotoSecurity()">
+		 	<div class="security-title">保证金</div>
+		 	<div class="security-money aui-list-item-arrow"><span>¥</span><span id="margin_num">0.00</span></div>
+	    </div>
+    </div>
+	
+	<!--<div class="wallet-info">
+		<div class="balance-hint">账户余额</div>
+		<div class="balance"><span class="balance-unit">¥</span><span id="balance_num" class="balance-num">0.00</span></div>
+		<div class="balance-hint" style="padding-top: 10px">保证金</div>
+		<div class="balance"><span class="balance-unit">¥</span><span id="margin_num" class="balance-num">0.00</span></div>
+		<div class="withdrawal" tapmode="hover" onclick="withdrawalClick()">提现</div>
+	</div>-->
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	
+	var topUpClick,withdrawalClick,gotoSecurity;
+	apiready = function(){
+		//点击充值按钮
+		topUpClick=function(){
+			var balanceNum = $('#balance_num').text();
+			api.openWin({
+				name : 'withdrawtopup_win',
+				url : 'widget://html/mywallet/withdrawtopup_win.html',
+				pageParam:{
+					action:0,
+					title:'余额充值',
+					balanceNum:balanceNum
+				},
+				slidBackEnabled:false,
+				delay:300
+			});		
+		}	
+		
+		//点击提现按钮
+		withdrawalClick=function(){
+			var balanceNum = $('#balance_num').text();
+			api.openWin({
+				name : 'withdrawtopup_win',
+				url : 'widget://html/mywallet/withdrawtopup_win.html',
+				pageParam:{
+					action:1,
+					title:'余额提现',
+					balanceNum:balanceNum
+				},
+				slidBackEnabled:false,
+				delay:300
+			});		
+		}
+		
+		gotoSecurity = function(){
+			api.openWin({
+		        name: 'securityagre_win',
+		        url: 'widget://html/agreement/securityagre_win.html',
+		        delay:300
+	        });
+		}
+		
+		var userId = $api.getStorage("userid");//用户id
+		var httpsWalletData=function(){
+			api.showProgress();
+			var openId=$api.getStorage("openId");//openId
+			var pwd=$api.getStorage("pwd");//登录密码
+			if(pwd==undefined || pwd==null || pwd==''){
+				pwd='123456';
+			}
+			var param;
+			if(openId!=undefined && openId!='undefined' && openId!=null && openId!=''){
+				param = 'clientId=' + userId + '&openId=' + openId +'&from=2';
+			}else{
+				param = 'clientId=' + userId + '&password='+pwd+'&from=2';
+			}
+			_getHttpsData('/member/getBalance',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						$('#balance_num').text(ret.data==undefined || ret.data.financeDues==undefined ? 0:ret.data.financeDues);
+						$('#margin_num').text(ret.data==undefined || ret.data.margin==undefined ? 0:ret.data.margin);
+					}else{
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		}
+		httpsWalletData();
+		api.parseTapmode();
+		
+		//缴纳保证金成功
+		api.addEventListener({
+		    name: 'payMargin_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					httpsWalletData();
+				}
+			}
+		});
+		
+	};
+</script>
+</html>

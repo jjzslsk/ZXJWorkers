@@ -1,0 +1,63 @@
+html, body {height: 100%;background-color: #f7f7f7}
+.view-box-shadow{box-shadow:0px 2px 2px #DDDDDD;}
+.aui-grid [class*=aui-col-xs-4] {padding: 3px 0;}
+.lable-item{width: 80%;padding: 3px 10px;border-radius: 20px;background: #ededed;}
+.lable-item.acvity{background: #2fc588;color: #FFFFFF}
+
+.statistical-num{color: #999999; font-size: 0.6em;}
+.statistical-num span{color: #ff5404;}
+
+.eve-talk{padding: 0 10px 8px 10px;margin-top: 6px;}
+.eve-talk .talk-title{height: 40px;line-height: 40px;max-height: 40px;}
+.eve-talk .talk-title{color: #000000;font-weight: bold;width: calc(100%- 0.8em -20px)}
+.eve-talk .talk-title .more{position: absolute;bottom: 0.1em;right: 0;color: #999999;}
+.eve-talk .talk-title .more span{font-size: 0.8em;}
+.eve-talk .talk-img-list .talk-img-item{width: 33.3%;padding: 0 5px;height: 60%;min-height:60%;}
+.eve-talk .talk-img-list .talk-img-item .content-info{background-color: #FFFFFF;border-radius: 5px;box-shadow:1px 1px 2px #DDDDDD;}
+.eve-talk .talk-img-list .talk-img-item .content-info:not(.noclick):active { background-color: #f4f4f4;}
+.eve-talk .talk-img-list .talk-img-item .content-info .img-info{position: relative;height: 0px;padding-bottom: 70%;}
+.eve-talk .talk-img-list .talk-img-item .content-info .img-info img{width: 100%;height: 100%;position: absolute;border-top-left-radius: 5px;border-top-right-radius: 5px;}
+.eve-talk .talk-img-list .talk-img-item .content-info .content{padding: 5px 8px;}
+.eve-talk .talk-img-list .talk-img-item .content-info .content .content-title{color: #000000; font-size: 0.8em; font-weight: bold}
+
+.hot-degree{position: absolute;z-index: 99;;color:#FFFFFF;width: 1rem;height:1rem;line-height: 1rem;text-align: center;font-size: 0.6rem;font-weight: bold;border-top-left-radius: 5px;border-bottom-right-radius: 5px;}
+.hot-degree-bg01{background-color: #ff0f04}
+.hot-degree-bg02{background-color: #ffad03}
+
+.tab-list-area{padding: 0 10px 8px 10px;margin-top: 6px}
+.aui-tab {background-color:rgba(255,255,255,0)}
+.aui-tab-item {border-bottom: 0;}
+.aui-tab-item.aui-active { color: #59bb88; border-bottom:0}
+.aui-tab-item.aui-active .tab-active-line{background-color: #59bb88;width: 20%;height: 2px;position: absolute;bottom: 0.5rem;left:40%}
+.tab-list-area .tab-card-item{background-color: #FFFFFF;border-radius: 3px;margin-bottom: 10px;padding: 8px;box-shadow:1px 1px 2px #DDDDDD;}
+.tab-list-area .tab-card-item .img-text .img-area{width: 25%}
+.tab-list-area .tab-card-item .img-text .text-area{width: 75%;margin-left: 8px}
+.tab-list-area .tab-card-item .img-text .text-area .title{color: #000000;font-weight: bold}
+.tab-list-area .tab-card-item .img-text .text-area .content{color: #000000;font-size: 0.8em;}
+
+.tab-list-area .tab-card-item .card-type{background: #f6f6f6;width:fit-content;width:-webkit-fit-content;width:-moz-fit-content;margin-top: 5px;padding: 3px 20px 3px 5px;border-radius: 3px;font-size: 0.8em}
+.tab-list-area .tab-card-item .card-type .title-icon{background-color: #1dbf84;padding: 0 0.4em;border-radius: 3px;color:#FFFFFF}
+.tab-list-area .tab-card-item .card-type .type-name{margin-left: 3px;color: #000000;font-weight: bold}
+
+.item-bottom-btn .eva-num,
+.item-bottom-btn .give-like-num,
+.item-bottom-btn .share-num{height: 0.7rem;line-height: 0.7rem;position: relative;width: 33.3%;text-align: center;margin:10px 0 5px 0}
+
+.item-bottom-btn .eva-num,
+.item-bottom-btn .give-like-num{border-right: 1px solid #DDDDDD}
+
+.item-bottom-btn .eva-num i,
+.item-bottom-btn .give-like-num i,
+.item-bottom-btn .share-num i{position: absolute;margin-left: -0.7rem}
+
+.bottom-list-area{padding: 0 10px;margin-top: 6px;height: 40px;line-height: 40px;}
+
+.bottom-list-area .btm-img-view{padding-top: 5px}
+.bottom-list-area .btm-img-view img{width: 30px;height: 30px}
+.bottom-list-area .btm-title-name{padding-left: 5px;width: calc(100% - 30px - 30%)}
+.bottom-list-area .btm-time{width: 30%;text-align: right;color:#999999}
+
+.bottom-list-area .btm-card-item{background-color: #FFFFFF;border-radius: 3px;margin-bottom: 10px;padding: 8px;box-shadow:1px 1px 2px #DDDDDD;}
+.bottom-list-area .btm-card-item .btm-card-title{}
+.bottom-list-area .btm-card-item .btm-card-img{}
+.bottom-list-area .btm-card-item .btm-card-img img{}

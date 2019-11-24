@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>添加地址frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #F7F7F7}
+    	.address-info{padding-top: 10px;}
+    	.info-item{padding: 8px 10px;background-color: #FFFFFF;}
+    	.info-item.v-line{border-bottom: 1px solid #DDDDDD;}
+    	.info-item .title{width: 5em;}
+    	.info-item .content{width: calc(100% - 5em)}
+    	.info-item .content input{height: 1rem;}
+    	
+    	.info-item .content .text{width: calc(100% - 1rem)}
+    	.info-item .content .text.hint-color{color:#aab2bd}
+    	.info-item .content .item-icon{width: 1rem}
+    	.info-item .content .item-icon i{font-size: 0.8rem}
+    	
+    	.radio-def{width: 1.2rem;height: 1.2rem;line-height:1.2rem;border-radius: 50%;background-color: #ffffff; border: solid 1px #dddddd;text-align: center;background-clip: padding-box; color: #FFFFFF;font-weight: bold;}
+		.radio-def.check{background-color: #2fc588; border: solid 1px #2fc588}
+		
+		.submit-btn{margin: 30px 20px;text-align: center;padding: 8px 10px;border-radius: 20px;}
+    	
+    </style>
+</head>
+<body>
+	<div id="address_info" class="address-info">
+		<template>
+		<div class="info-item v-line horizontal">
+			<div class="title">收货人:</div>
+			<div class="content">
+				<input type="text" maxlength="15" placeholder="请输入收货人姓名(最多15字)" v-model="userName"/>
+			</div>
+		</div>
+		<div class="info-item v-line horizontal">
+			<div class="title">联系电话:</div>
+			<div class="content">
+				<input type="tel" maxlength="11" placeholder="请输入手机号码" v-model="phone"/>
+			</div>
+		</div>
+		<div class="info-item v-line horizontal">
+			<div class="title">所在地区:</div>
+			<div class="content horizontal" tapmode="hover" @click="chooseAddresss">
+				<div class="text" v-if="address!=undefined && address.length>0">{{address}}</div>
+				<div class="text hint-color" v-else>请输入省、市、区</div>
+				<div class="item-icon"><i class="aui-iconfont aui-icon-right"></i></div>
+			</div>
+		</div>
+		<div class="info-item v-line horizontal">
+			<div class="title">详细地址:</div>
+			<div class="content">
+				<input type="text" maxlength="60" placeholder="请输入详细地址(最多60字)" v-model="addressDetail"/>
+			</div>
+		</div>
+		<div class="info-item v-line horizontal">
+			<div class="title">邮编:</div>
+			<div class="content">
+				<input type="tel" maxlength="6" placeholder="请输入6位邮编(选填)" v-model="postcode"/>
+			</div>
+		</div>
+		<div class="info-item horizontal">
+			<div class="title">设置默认:</div>
+			<div class="content" tapmode="hover" @click="setDefClick">
+				<div class="radio-def check" v-if="isSetDef"><i class="aui-iconfont aui-icon-correct"></i></div>
+				<div class="radio-def" v-else></div>
+			</div>
+		</div>
+		<div class="submit-btn submit-gradient-bg-footer" tapmode="hover" @click="submitClick">确定添加</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../res/data/citypicker.js"></script>
+<script type="text/javascript" src="../../script/picker/pickermin.js"></script>
+<script type="text/javascript" src="../../script/picker/addresspicker.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var action=0;//0为添加地址；1修改地址
+	var clientAddressId='';//收货地址id
+	var addressVm;
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		action = pageParam.action;//0新增地址；1修改地址
+		
+		addressVm = new Vue({
+			el:'#address_info',
+			data:{
+				userName:'',//收货人姓名
+				phone:'',//联系电话
+				provinces:'',//省份
+				city:'',//城市
+				address:'',//所在地址（省、市、区）
+				addressDetail:'',//详细地址
+				postcode:'',//邮政编码
+				isSetDef:false//是否设置默认
+			},
+			methods:{
+				initData:function(userName,phone,provinces,city,address,addressDetail,postcode,isSetDef){
+					//初始化数据
+					this.userName=userName;
+					this.phone=phone;
+					this.provinces=provinces;
+					this.city=city;
+					this.address=address;
+					this.addressDetail=addressDetail;
+					this.postcode=postcode;
+					this.isSetDef=isSetDef==1 ? true:false;
+				},
+				chooseAddresss:function(){
+					//选择所在地区
+					shopAddressPicker(getAreaListPicker(), function(addressObj1, addressObj2, addressObj3, fullAddress) {
+						//addressObj3.id;
+						addressVm.provinces = addressObj1.text;
+						addressVm.city = addressObj2.text;
+						addressVm.address = fullAddress;
+					});
+				},
+				setDefClick:function(){
+					this.isSetDef=!this.isSetDef;
+				},
+				submitClick:function(){
+					//确定添加
+					var userName = this.userName;
+					var phone = this.phone;
+					var provinces = this.provinces;
+					var city = this.city;
+					var address = this.address;
+					var addressDetail = this.addressDetail;
+					var postcode = this.postcode;
+					var isSetDef = this.isSetDef;
+					
+					if(userName==undefined || userName==null || userName==''){
+						api.toast({ msg: '请输入收货人',duration: 2000, location: 'middle'});
+					}
+					else if(phone==undefined || phone==null || phone==''){
+						api.toast({ msg: '请输入联系号码',duration: 2000, location: 'middle'});
+					}
+					else if(!checkPhone(phone)){
+						api.toast({ msg: '手机号格式错误',duration: 2000, location: 'middle'});
+					}
+					else if(addressDetail==undefined || addressDetail==null || addressDetail==''){
+						api.toast({ msg: '请输入详细地址',duration: 2000, location: 'middle'});
+					} else{
+						var param = {};
+						if(action==1){
+							//修改地址
+        					param.clientAddressId = clientAddressId;
+						}
+						var userId = $api.getStorage("userid");//用户id
+						param.clientId = userId;
+					    param.clientName = userName;
+					    param.clientPhone = phone;
+					    param.clientCity = provinces + city;
+					    param.clientAddress = address + addressDetail;
+					    param.clientMailbox = postcode;
+					    param.defaultFlag = isSetDef==true ? 1:0;
+						
+						api.showProgress();
+						_postHttpsData('/member/saveAddress',param,
+							function(ret){
+								api.hideProgress();
+								if(ret.status){
+									showSingleAuiDialog('提示', ret.msg,'确定',function(ret){
+										api.execScript({
+											name : 'myaddress_win',
+											frameName : 'myaddress_frm',
+											script : 'refreshDataCal()'
+										});
+										api.closeWin();
+									});
+								}else{
+									showSingleAuiDialog('提示', ret.msg+'('+ret.code+')');
+								}
+							},
+							function(err){
+								api.hideProgress();
+							}
+						);
+						
+					}
+					
+				}
+			}
+		});
+		
+		if (action == 1) {
+			//编辑地址
+			var addressInfo = pageParam.data;//地址信息
+			clientAddressId=addressInfo.clientAddressId;
+			
+			var clientAddress = addressInfo.clientAddress;
+	        var reg = /.+?(省|市|自治区|自治州|县|区)/g;
+	        var tempAddress = clientAddress.match(reg);
+	        var address = tempAddress[0] + tempAddress[1] + tempAddress[2];
+          	var addressDetail = clientAddress.substring(address.length, clientAddress.length);
+			
+            var userName = addressInfo.clientName == undefined ? '' : addressInfo.clientName;
+            var phone = addressInfo.clientPhone == undefined ? '' : addressInfo.clientPhone;
+            var address = address == undefined ? '' : address;
+            var addressDetail = addressDetail == undefined ? '' : addressDetail;
+            var postcode = addressInfo.clientMailbox == undefined ? '' : addressInfo.clientMailbox;
+            var isSetDef = addressInfo.defaultFlag == undefined ? 0 : addressInfo.defaultFlag;
+            
+            addressVm.initData(userName,phone,tempAddress[0],tempAddress[1],address,addressDetail,postcode,isSetDef);
+            
+            
+		}
+		
+		
+	};
+</script>
+</html>

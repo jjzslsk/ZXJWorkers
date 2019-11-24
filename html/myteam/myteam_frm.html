@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+	    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	    <title>我的团队frm</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+		<style>
+			html,body{height: 100%;background-color: #f7f7f7}
+			.team-commission-head-gradient{position: fixed;top:0;width: 100%;z-index: 99}
+			.team-list{margin-top: calc(16px + 1rem)}
+			.list-item{padding: 8px 10px;border-bottom: 1px solid #DDDDDD;}
+			.list-item .team-name{width: 60%;padding-right: 8px;}
+			.list-item .time{width: 40%}
+			
+		</style>
+	</head>
+	<body>
+		<div id="team_id">
+			<template>
+			<div class="list-item horizontal team-commission-head-gradient">
+				<div class="team-name">团队</div>
+				<div class="time">加入时间</div>
+			</div>
+			<div class="team-list">
+				<div class="list-item horizontal" v-for="teamItem in dataList">
+					<div class="team-name">{{nameHide(teamItem.CLIENT_ACCOUNT)}}</div>
+					<div class="time">{{splitTime(teamItem.CLIENT_REG_DATE)}}</div>
+				</div>
+			</div>
+			</template>
+		</div>
+		<div id="more_hint" class="more-data"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	<script type="text/javascript">
+		
+		var teamVm;
+		apiready = function(){
+			var userId = $api.getStorage("userid");//用户id
+			
+			//检查是否是json对象，如果不是就转换成json对象并返回
+			var checkIsJsonObj=function(data){
+			 	if (typeof data == 'object' && data) {
+	              //如果是json对象,不用做处理
+	              return data;
+	            } else {
+	            	//如果是json字符串，则需要处理成json对象
+	              if (data!=undefined && data != null && data != '') {
+	              	 var obj = eval('(' + data + ')');
+	              	  return obj;
+	              } else{
+	              	return null;
+	              }
+	            }
+			};
+			
+			//请求获取数据
+			var getMyTeamHttpsData = function(){
+				var param = "CLIENT_ID=" + userId;
+				_httpsPlatformClass('getClientTeamList',param,
+					function(ret){
+						api.hideProgress();
+						if(ret.code == 0 || ret.code == '0') {
+							var resultMsg =  checkIsJsonObj(ret.msg);
+							if(resultMsg!=null) {
+								var resultList = checkIsJsonObj(resultMsg.msg);
+								var msgList = resultList!=null ? resultList:[];
+								teamVm.refreshData(msgList);
+							} else{
+								teamVm.refreshData([]);
+							}
+						} else{
+							showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+						}
+					},
+					function(err){
+						api.hideProgress();
+					}
+				);
+			};
+			teamVm = new Vue({
+				el:'#team_id',
+				data:{
+					dataList:[]
+				},
+				methods:{
+					refreshData:function(data){
+						this.dataList=data;
+						this.nextTick(data);
+					},
+					appendData:function(data){
+						this.dataList=this.dataList.concat(data);
+						this.nextTick(data);
+					},
+					nextTick:function(data){
+//						var ret = data.length>pageNum?true:false;
+						pullupHint('more_hint',false);
+//						if(!ret && indexPage>0){
+//							indexPage--;
+//						}
+						this.$nextTick(function(){
+							api.parseTapmode();
+							api.hideProgress();
+						})
+					},
+					nameHide:function(str){
+						//隐藏团队名称中间字符
+						if(str==undefined || str==null || str==''){
+							return '';
+						}else{
+							if(str.length==2){
+								return str.substring(0,1)+'*';
+							}
+							else if(str.length>2){
+								var res=str.substring(0,1);
+								for(var i=0;i<str.length-2;i++){
+									res=res+'*';
+								}
+								return res+str.substring(str.length-1,str.length);
+							}
+							else{
+								return str;
+							}
+						}
+					},
+					splitTime:function(str){
+						//截取时间
+						if(str==undefined || str==null || str==''){
+							return '';
+						}else{
+							var arr = str.split(" ")
+							return arr[0]
+						}
+					}
+				}
+			});
+			api.showProgress();
+			getMyTeamHttpsData();
+			
+//			//下拉刷新
+//			api.setRefreshHeaderInfo({
+//			    loadingImg: '',
+//			    bgColor: '#ccc',
+//			    textColor: '#fff',
+//			    textDown: '下拉刷新...',
+//			    textUp: '松开刷新...'
+//			}, function(ret, err) {
+//			    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+//			    api.refreshHeaderLoadDone()
+//				
+//			});
+//			//监听距离底部距离,实现上拉加载更多
+//			api.addEventListener({
+//			    name:'scrolltobottom',
+//			    extra:{
+//			        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+//			    }
+//			}, function(ret, err){
+//				
+//			});
+			
+		
+		}
+	</script>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>修改登录密码frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #F7F7F7}
+    	.info-area{padding: 8px 10px;background-color: #FFFFFF;}
+    	.info-area .list-item{height: 2rem;line-height: 2rem;border-bottom: 1px solid #DDDDDD;}
+    	.info-area .list-item .title{width: 7em;}
+    	.info-area .list-item .content{width: calc(100% - 7em)}
+    	.info-area .list-item .content input{height: 2rem;width: 100%}
+    	.submit-up{ margin: 30px 10%;width: 80%;padding: 8px 10px;text-align: center;border-radius: 20px;}
+    	
+    </style>
+</head>
+<body>
+	<div id="info_id">
+		<template>
+		<div class="info-area">
+			<div class="list-item horizontal">
+				<div class="title">当前登录密码</div>
+				<div class="content"><input type="password" placeholder="请输入当前登录密码"  maxlength="18" v-model="oldPwd" /></div>
+			</div>
+			<div class="list-item horizontal">
+				<div class="title">新密码</div>
+				<div class="content"><input type="password" placeholder="请输入6-18位新密码"  maxlength="18" v-model="newPwd" /></div>
+			</div>
+			<div class="list-item horizontal">
+				<div class="title">确认新密码</div>
+				<div class="content"><input type="password" placeholder="请再次输入6-18位新密码"  maxlength="18" v-model="againNewPwd" /></div>
+			</div>
+		</div>
+		<div class="submit-up submit-gradient-bg-footer" @click="submitUpClick">确认修改</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var infoVm;
+	apiready = function(){
+		infoVm = new Vue({
+			el:'#info_id',
+			data:{
+				oldPwd:'',
+				newPwd:'',
+				againNewPwd:''
+			},
+			methods:{
+				submitUpClick:function(){
+					var oldPwd = this.oldPwd;
+					var newPwd = this.newPwd;
+					var againNewPwd = this.againNewPwd;
+					
+					if(oldPwd==undefined || oldPwd==null || oldPwd==''){
+						showSingleAuiDialog('提示','请输入当前登录密码')
+					}
+					else if(newPwd==undefined || newPwd==null || newPwd=='' || newPwd.length<6){
+						showSingleAuiDialog('提示','请输入6-18位新密码')
+					}
+					else if(oldPwd==newPwd){
+						showSingleAuiDialog('提示','新密码不能与原来的密码一样')
+					}
+					else if(againNewPwd==undefined || againNewPwd==null || againNewPwd=='' || againNewPwd.length<6){
+						showSingleAuiDialog('提示','请输入6-18位确认密码')
+					}
+					else if(newPwd!=againNewPwd){
+						showSingleAuiDialog('提示','输入的两次新密码不一致')
+					} else{
+						var clientPhone = $api.getStorage("clientPhone");//手机号
+						var param="phone="+clientPhone+"&oldPass="+oldPwd+"&newPass="+newPwd;
+						api.showProgress();
+						_getHttpsData('/user/changePass',param,
+							function(ret){
+								api.hideProgress();
+								if(ret.status){
+									setPwdStor(newPwd);
+									showSingleAuiDialog('更新提示',ret.msg,'确定',function(ret){
+										api.closeWin();
+									});
+								} else{
+									api.toast({ msg: ret.msg+'('+ret.code+')',duration: 2000, location: 'bottom'});
+								}
+							},
+							function(err){
+								api.hideProgress();
+							}
+						);
+						
+					}
+					
+				}
+			}
+		});
+		api.parseTapmode();
+	};
+</script>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>描述frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #FFFFFF}
+    	.info-content{padding: 8px 10px;}
+    </style>
+</head>
+<body>
+	<div id="info">
+		<template>
+			<div class="info-content">{{dataInfo}}</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript">
+	
+	var dataObj={
+		"decorateStrategy":"装小匠装修攻略频道，为你提供家居装修攻略，让网友交流海量装修攻略信息，分享海量装修攻略、知识等家居装修信息。",
+		"serviceGuarantee":"装小匠服务保障为用户提供了强有力的后盾保障服务,用户无须担心完工质量、工人无需担心工程款的问题,真正可以踏踏实实地装修。",
+		"newHomePack":"装小匠新家启装专区,收集整理精美的新房装修效果图,新房装修样板房装修图片,新房装修样板房设计效果图以及新房装修样板房装修搭配方法供广业主交流、选择。",
+		"cntCmt":"工程施工专题，为您提供工程施工相关的专业交流帖进行参与，欢迎您参与工程施工相关的专业交流讨论，更多工程施工相关内容请访问装小匠施工交流板块!",
+		'decorateInstallment':"装小匠“装修分期”板块，为广大家装用户提供低利率、高额度、长期限、纯信用的装修分期产品，信用卡办理等。提供一站式装修分期服务，让你的装修没有资金烦恼，省心入住自己的小窝。",
+		'hotNews':"最新的装修建材家居新闻，网罗最全面的家居新闻；让您足不出户就能了解最全的装修动态，一手掌握最新的建材家居新闻！一切尽在装小匠新闻热点！",
+		'knowledgeMaterial':"材料知识来自于装小匠平台内建设工程行业专业人士的经验分享及心得交流，了解更多其他材料知识、其他材料资讯及下载其他材料相关精品资料，请前往装小匠材料知识板块。",
+		'wholeHouseCustom':"装小匠全屋定制是一项家居设计及定制、安装等服务为一体的家居定制解决方案，全屋定制是家居企业在大规模生产的基础上，根据用户的设计要求来制造的消费者的专属家居。",
+		'calculator':"装小匠为您提供最精确全面的装修计算器,仅需花1分钟填写您的家装实际情况,即可免费获得精准家装报价!.为你在装修中提供帮助。"
+	};
+	var action='';
+	var infoVm;
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		action=pageParam.action;
+		infoVm = new Vue({
+			el:'#info',
+			data:{
+				dataInfo:''
+			},
+			methods:{
+				refreshData:function(data){
+					this.dataInfo=data
+				}
+			}
+		});
+		infoVm.refreshData(dataObj[action]);
+	};
+</script>
+</html>

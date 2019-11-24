@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>常见问题frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7}
+    	.questions-item{ padding: 8px 10px;}
+		.questions-item .questions-title {margin: 5px;text-align: center;font-size:35px;color: #000000;font-weight: bold;}
+    	
+    </style>
+</head>
+<body>
+	<div id="prom_id">
+		<template>
+		<div class="questions-item">
+			<div class="questions-title">{{title}}</div>
+			<div v-html="contentInfo"></div>
+		</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var promVm;
+	apiready = function(){
+	
+		var httpsData=function(){
+			var param = 'classNo=Article_APP_Question';
+			api.showProgress();
+			_getHttpsData('/worker/getHelp',param,
+				function(res){
+					api.hideProgress();
+					if(res.status){
+						var dataList=res.data;
+						promVm.refreshData(dataList[0].ARTICLE_TITLE,dataList[0].ARTICLE_NOTES);
+					} else{
+						api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+					}
+				},
+				function(err){
+					api.hideProgress();
+					api.refreshHeaderLoadDone();
+				}
+			);
+		}
+		
+		promVm=new Vue({
+			el:'#prom_id',
+			data:{
+				title:'',
+				contentInfo:''
+			},
+			methods:{
+				refreshData:function(title,content){
+					this.title=title;
+					this.contentInfo=content;
+				}
+			}
+		});
+		
+		httpsData();
+	};
+</script>
+</html>

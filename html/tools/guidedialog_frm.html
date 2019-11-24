@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>指导图dialog</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui_slide.css" />
+    <style>
+    	html,body{height: 100%;background:rgba(0,0,0,0);}
+    	.guide-dialog-bg{width: 100%;height: 100%;}
+    	.slide-area{}
+	    .aui-slide-node img {
+	        width: 100%;
+	        height: 100%;
+	        margin: 0 auto;
+	    }
+    </style>
+</head>
+<body>
+	<div class="guide-dialog-bg">
+		<div class="slide-area" id="aui-slide">
+	        <div class="aui-slide-wrap" >
+	            <div class="aui-slide-node bg-dark">
+	                <img src="../../image/guide/guide01.png" />
+	            </div>
+	            <div class="aui-slide-node bg-dark">
+	                <img src="../../image/guide/guide02.png" />
+	            </div>
+	            <div class="aui-slide-node bg-dark" onclick="closeDialog()">
+	                <img src="../../image/guide/guide03.png" />
+	            </div>
+	        </div>
+	        <div class="aui-slide-page-wrap"><!--分页容器--></div>
+	    </div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_slide.js"></script>
+<script type="text/javascript">
+	var closeDialog;
+	apiready = function(){
+		closeDialog=function(){
+			api.closeFrame();
+		}
+	
+		var frameWidth = api.frameWidth;  // 比如： 320
+		var frameHeight = api.frameHeight;  // 比如： 504
+		var slide3 = new auiSlide({
+	        container:document.getElementById("aui-slide"),
+	        "width":frameWidth,
+	        "height":frameHeight,
+	        "speed":500,
+	        "autoPlay": 7000, //自动播放
+	        "loop":false,//是否循环播放
+	        "pageShow":true,
+	        "pageStyle":'dot',
+	        'dotPosition':'center'
+	    })
+	    
+	};
+</script>
+</html>

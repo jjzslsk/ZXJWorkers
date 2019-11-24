@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>搜索附近地址win</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+
+	<style>
+		/*.aui-title{width: calc(100% - 4rem);}*/
+		.aui-bar-nav .aui-title {width: calc(100% - 4rem);left:2rem;right:2rem;}
+		.search-nearby-input{background-color: #f7f7f7;width: 95%;height: 1.65rem;line-height: 1.65rem;margin-top: 0.3rem;padding: 0.3rem 8px;border-radius: 20px;border:1px solid #CECECE;}
+		/*.search-nearby-input .search-near-icon{position: absolute; left:calc(2rem + 3px);top:0.3rem;}*/
+		/*.search-nearby-input .search-near-icon i{color:#DDDDDD;}*/
+		.search-nearby-input input{height: 1.05rem;margin-left: 1rem;}
+		.serach-btn{color:#FFFFFF;width: 2rem;text-align: center;}
+	</style>
+	
+</head>
+<body>
+	<header id="header" class="aui-bar aui-bar-nav this-bg-theme">
+        <a class="aui-pull-left" tapmode="hover" onclick="backbar()">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">
+        	<div class="search-nearby-input">
+        		<!--<div class="search-near-icon"><i class="aui-iconfont aui-icon-search"></i></div>-->
+        		<input id="search_naer" type="text" maxlength="200" placeholder="请输入搜索条件"/>
+        	</div>
+        </div>
+        <a class="aui-pull-right" tapmode="hover" onclick="serachClick()">
+            <span class="serach-btn">搜索</span>
+        </a>
+    </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript">
+	var backbar;
+	var serachClick;
+	var countTimeVal;
+	apiready = function(){
+		var header = $api.byId('header');
+		$api.fixStatusBar(header); 
+		backbar = function(){
+			//关闭当前window，使用默认动画
+			api.closeWin();
+		}
+		
+		serachClick=function(){
+			var searchKey = $("#search_naer").val();
+			var obj={};
+			obj.searchKey=searchKey;
+			api.execScript({
+				name : 'searchnearby_win',
+				frameName : 'searchnearby_frm',
+				script : 'searchnearbyStart('+JSON.stringify(obj)+')'
+			});
+		}
+		
+		var pageParam = api.pageParam;
+		var searchNearKey = $("#search_naer").val();
+		var headerBar = $api.dom('header').offsetHeight;
+		pageParam.searchKey=searchNearKey;
+        api.openFrame({
+            name: 'searchnearby_frm',
+            url: 'searchnearby_frm.html',
+            bounces: false,
+		    scrollToTop:true,
+            rect: { // 推荐使用Margin布局，用于适配屏幕的动态变化
+                marginTop: headerBar, // main页面距离win顶部的高度
+                marginBottom: 0, // main页面距离win底部的高度
+                w: 'auto' // main页面的宽度 自适应屏幕宽度
+            },
+			pageParam:pageParam,
+        });
+        
+        $("#search_naer").bind("input propertychange",function(event){
+	       if(countTimeVal!=undefined && countTimeVal!=null && countTimeVal!=''){
+	       		clearTimeout(countTimeVal);
+	       }
+	       countTimeVal=setTimeout(function(){
+				clearTimeout(countTimeVal);
+				var searchKey = $("#search_naer").val();
+				var obj={};
+				obj.searchKey=searchKey;
+				api.execScript({
+					name : 'searchnearby_win',
+					frameName : 'searchnearby_frm',
+					script : 'searchnearbyStart('+JSON.stringify(obj)+')'
+				});
+			}, 1000 )
+		});
+        
+	};
+</script>
+</html>

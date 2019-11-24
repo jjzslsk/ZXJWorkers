@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>匠工学堂frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/mylist.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/workschool/workschool.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/iconfont.css"/>
+	
+	<style>
+		html,body{height: 100%;background-color: #F7F7F7}
+		/*.ws-info-area{margin-top: 2.2rem;}*/
+		.ws-info-area{margin-top: 8px;}
+		.ws-info-area .ws-banner-img{width: 100%;}
+		.ws-info-area .ws-banner-img img{width: 100%;height: auto;}
+		.head-grid{margin-top: 8px;box-shadow:0 10px 10px -5px #DDDDDD;}
+		.ws-info-area .ws-activity{padding: 0 5px;margin-top: 10px;background-color: #FFFFFF;}
+		.ws-info-area .ws-activity .ws-activity-left{width: 50%;}
+		.ws-info-area .ws-activity .ws-activity-left .ws-activity01{width: 100%;}
+		.ws-info-area .ws-activity .ws-activity-left .ws-activity01 img{width: 100%;height: auto;}
+		.ws-info-area .ws-activity .ws-activity-right{width: 50%;}
+		
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-head{width: 100%;height: 49%;padding-left: 5px;}
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-head .ws-activity02{width: 49%;text-align: left;}
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-head .ws-activity02 img{width: 100%;}
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-head .phd-w{width: 2%;height: auto}
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-head .ws-activity03{width: 49%;}
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-head .ws-activity03 img{width: 100%;height: auto;}
+		
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-bottom{width: 100%;height: 49%;margin-top: 2%;padding-left: 5px;}
+		.ws-info-area .ws-activity .ws-activity-right .ws-activity-right-bottom img{width: 100%;height: auto;}
+		
+		.designer-area{}
+		.aui-list .aui-list-item {padding-left: 5px;}
+		.aui-list .aui-list-item-title { font-size: 1rem;color: #000000;font-weight: bold;}
+		.designer-ave{width: 80%;height: 0px;padding-bottom: 80%;position: relative;margin: 0 10%}
+		.designer-ave img{width: 100%;height: 100%;position: absolute;border-radius: 50%;}
+		
+		.effect-picture{background-color: #FFFFFF;}
+		.aui-tab{padding: 0 10px;}
+		.aui-tab-item {color: #999999; border-bottom: 0;}
+		.aui-tab-item.aui-active {color: #12ce7a;border-bottom: 1px solid #12ce7a;}
+		.effect-picture .recommend-list{padding: 8px 10px;}
+		.effect-picture .recommend-list .recommend-item{padding:8px 0;border-bottom: 1px solid #DDDDDD;}
+		.effect-picture .recommend-list .recommend-item .recommend-item-img{width: 100%;}
+		.effect-picture .recommend-list .recommend-item .recommend-item-img img{width: 100%;height: auto;border-radius: 8px;}
+		.effect-picture .recommend-list .recommend-item .recommend-item-info{color:#000000;font-weight: bold;padding: 8px 0;}
+		
+		.effect-picture .recommend-list .recommend-item .ws-card-footer{width: 100%;height: 2rem;line-height: 2rem;}
+		.effect-picture .recommend-list .recommend-item .ws-card-footer .company{width: 60%;}
+		.effect-picture .recommend-list .recommend-item .ws-card-footer .company img{width: 2rem;height: 2rem;border-radius: 50%;}
+		.effect-picture .recommend-list .recommend-item .ws-card-footer .company span{margin-left: 5px;}
+		.effect-picture .recommend-list .recommend-item .ws-card-footer .ws-ft-btns{width: 40%;color: #999999;}
+		.effect-picture .recommend-list .recommend-item .ws-card-footer .ws-ft-btns .item-btn{width: 50%;text-align: right;}
+		 
+		
+		.phd-height{min-height: 30px;background-color: #FFFFFF;}
+		
+	</style>
+	
+</head>
+<body ontouchstart="" onmouseover="">
+	<!--<div class="img-wrap">
+        <img src="http://www.zxj888.cn/photo/zxj_shop_icon/advertisingImg/course.png" alt="" />
+    </div>-->
+	<!--<div class="float-head-bar">
+		<div class="search-ws-area" tapmode="hover" onclick="searchClick()">
+			<span class="search-ws search-ws-hint" id="search_btn"><i class="aui-iconfont aui-icon-search"></i>请输入关键字查找</span>
+		</div>
+	</div>-->
+	<div id="grid_area" class="ws-info-area">
+		<!--广告图-->
+		<template>
+		<div class="ws-banner-img">
+			<img src="../../image/workerschool/ws_banner.jpg" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+		</div>
+		</template>
+		<!--模块入口-->
+		<template>
+		<div class="aui-grid head-grid">
+	        <div class="aui-row">
+	            <div class="aui-col-5 click-item-ser" v-for="headItem in dataList" tapmode="hover" @click="itemClick(headItem)">
+	                <div class="aui-iconfont">
+		                <span :class="headItem.icon">
+		                <span v-for="pathItem in headItem.pathNum" :class="'path'+pathItem"></span>
+		                </span>
+		            </div>
+	                <div class="aui-grid-label">{{headItem.title}}</div>
+	            </div>
+	        </div>
+	    </div>
+        </template>
+        <!--活动-->
+        <template>
+        <div class="ws-activity horizontal">
+        	<div class="ws-activity-left">
+        		<div class="ws-activity01" tapmode="hover" @click="activityItemClick(activityList[0])">
+        			<img :src="activityList[0].imgurl" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+        		</div>
+        	</div>
+        	<div class="ws-activity-right">
+        		<div class="ws-activity-right-head horizontal">
+        			<div class="ws-activity02" tapmode="hover" @click="activityItemClick(activityList[1])">
+        				<img :src="activityList[1].imgurl" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+        			</div>
+        			<div class="phd-w"></div>
+        			<div class="ws-activity03" tapmode="hover" @click="activityItemClick(activityList[2])">
+        				<img :src="activityList[2].imgurl" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+        			</div>
+        		</div>
+        		<div class="ws-activity-right-bottom"  tapmode="hover" @click="activityItemClick(activityList[3])">
+        			<img :src="activityList[3].imgurl" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+        		</div>
+        	</div>
+        </div>
+        </template>
+		<!--设计师-->
+		<template>
+		<div class="designer-area">
+			<div class="aui-list aui-list-in" style="border-top:0;">
+				 <div class="aui-list-item" style="border-bottom:0;">
+	                <div class="aui-list-item-inner aui-list-item-arrow" tapmode="hover" @click="designerMoreClick">
+	                    <div class="aui-list-item-title">设计师</div>
+	                    <div class="aui-list-item-right">更多</div>
+	                </div>
+	            </div>
+			</div>
+			<div class="aui-grid">
+		        <div class="aui-row">
+		            <div class="aui-col-xs-3 click-item-ser" v-for="designerIten in designerList" tapmode="hover" @click="designerItemClick(designerIten)">
+		                <div class="designer-ave"><img :src="designerIten.aveUrl" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" /></div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+		</template>
+		<!--效果图-->
+		<template>
+		<div class="effect-picture">
+			<div class="aui-list aui-list-in" style="border-top: 0">
+				 <div class="aui-list-item">
+	                <div class="aui-list-item-inner">
+	                    <div class="aui-list-item-title">效果图</div>
+	                </div>
+	            </div>
+			</div>
+			<div class="aui-tab" id="effect_tab">
+			    <div class="aui-tab-item aui-active">推荐</div>
+			    <div class="aui-tab-item">空间</div>
+			    <div class="aui-tab-item">户型</div>
+			    <div class="aui-tab-item">风格</div>
+			    <div class="aui-tab-item">公装</div>
+			</div>
+			<div class="recommend-list">
+				<div class="recommend-item" v-for="recommendItem in recommendList" tapmode="hover" @click="recommendItemClick(recommendItem)">
+					<div class="recommend-item-img">
+						<img :src="recommendItem.imgUrl" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+					</div>
+					<div class="recommend-item-info">{{recommendItem.info}}</div>
+		             <div class="ws-card-footer horizontal">
+		             	<div class="company horizontal">
+		             		<img :src="recommendItem.logo" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'"/>
+		             		<span>{{recommendItem.companyName}}</span>
+		             	</div>
+		             	<!--<div class="ws-ft-btns horizontal">
+			                <div class="item-btn"><i class="aui-iconfont aui-icon-star"></i>收藏</div>
+			                <div class="item-btn"><i class="aui-iconfont aui-icon-share"></i>分享</div>
+		                </div>-->
+		            </div>
+				</div>
+			</div>
+		</div>
+		</template>
+		<div class="phd-height"></div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_tab.js" ></script>
+<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript">
+	var headGridVm;
+	var searchClick;
+	var effectTab;
+	apiready = function(){
+		//搜索
+		searchClick=function(){
+			api.openWin({
+				name : 'search_win',
+				url : 'widget://html/search/search_win.html',
+				slidBackEnabled:true,
+				pageParam:{
+					action:1,
+					searchKey:$('#search_btn').text()=='请输入关键字查找'? '':$('#search_btn').text()
+		        },
+				delay:300
+			});
+		};
+		
+		//开始搜索
+		startSearch=function(searchObj){
+			searchKey=searchObj.searchKey;
+			if(searchKey.length>0){
+				$('#search_btn').removeClass('search-ws-hint');
+				$('#search_btn').text(searchKey);
+			} else{
+				$('#search_btn').addClass('search-ws-hint');
+				$('#search_btn').text('请输入关键字查找');
+			}
+		};
+		
+		var recommendListData01=[[
+			{id:'recommend01',imgUrl:'../../image/workerschool/recommend01.jpg',info:'现代新中式，简约大气，经典风！',logo:'../../image/workerschool/ws_shop_logo01.jpg',companyName:'广义装饰',isCollection:false},
+			{id:'recommend02',imgUrl:'../../image/workerschool/recommend03.jpg',info:'北欧风，为您增添活跃气氛',logo:'../../image/workerschool/ws_shop_logo02.jpg',companyName:'一文装饰',isCollection:false},
+			{id:'recommend03',imgUrl:'../../image/workerschool/recommend02.jpg',info:'中式家具，古典韵味，中式独特风格！',logo:'../../image/workerschool/ws_shop_logo03.jpg',companyName:'华文装饰',isCollection:false}
+		],[
+			{id:'recommend01',imgUrl:'../../image/workerschool/recommend01.jpg',info:'现代新中式，简约大气，经典风！',logo:'../../image/workerschool/ws_shop_logo03.jpg',companyName:'二文装饰',isCollection:false},
+			{id:'recommend02',imgUrl:'../../image/workerschool/recommend03.jpg',info:'北欧风，为您增添活跃气氛',logo:'../../image/workerschool/ws_shop_logo02.jpg',companyName:'华文装饰',isCollection:false},
+			{id:'recommend03',imgUrl:'../../image/workerschool/recommend02.jpg',info:'中式家具，古典韵味，中式独特风格！',logo:'../../image/workerschool/ws_shop_logo01.jpg',companyName:'一文装饰',isCollection:false}
+		],[
+			{id:'recommend01',imgUrl:'../../image/workerschool/recommend02.jpg',info:'现代新中式，简约大气，经典风！',logo:'../../image/workerschool/ws_shop_logo02.jpg',companyName:'华文装饰',isCollection:false},
+			{id:'recommend02',imgUrl:'../../image/workerschool/recommend03.jpg',info:'北欧风，为您增添活跃气氛',logo:'../../image/workerschool/ws_shop_logo03.jpg',companyName:'中鼎装饰',isCollection:false},
+			{id:'recommend03',imgUrl:'../../image/workerschool/recommend01.jpg',info:'中式家具，古典韵味，中式独特风格！',logo:'../../image/workerschool/ws_shop_logo01.jpg',companyName:'一文装饰',isCollection:false}
+		],[
+			{id:'recommend01',imgUrl:'../../image/workerschool/recommend03.jpg',info:'现代新中式，简约大气，经典风！',logo:'../../image/workerschool/ws_shop_logo01.jpg',companyName:'光明装饰',isCollection:false},
+			{id:'recommend02',imgUrl:'../../image/workerschool/recommend01.jpg',info:'北欧风，为您增添活跃气氛',logo:'../../image/workerschool/ws_shop_logo03.jpg',companyName:'帝豪装饰',isCollection:false},
+			{id:'recommend03',imgUrl:'../../image/workerschool/recommend02.jpg',info:'中式家具，古典韵味，中式独特风格！',logo:'../../image/workerschool/ws_shop_logo02.jpg',companyName:'一文装饰',isCollection:false}
+		],[
+			{id:'recommend01',imgUrl:'../../image/workerschool/recommend02.jpg',info:'现代新中式，简约大气，经典风！',logo:'../../image/workerschool/ws_shop_logo01.jpg',companyName:'爱龙装饰',isCollection:false},
+			{id:'recommend02',imgUrl:'../../image/workerschool/recommend03.jpg',info:'北欧风，为您增添活跃气氛',logo:'../../image/workerschool/ws_shop_logo02.jpg',companyName:'华文装饰',isCollection:false},
+			{id:'recommend03',imgUrl:'../../image/workerschool/recommend01.jpg',info:'中式家具，古典韵味，中式独特风格！',logo:'../../image/workerschool/ws_shop_logo03.jpg',companyName:'一文装饰',isCollection:false}
+		]];
+		
+		
+		headGridVm = new Vue({
+			el:'#grid_area',
+			data:{
+				curTab:0,//当前tab
+				dataList:[
+					{id:'decorateStrategy',title:'装修攻略',icon:'icon-zxgl_icon',pathNum:3,winName:'',frmName:'',url:'',isClick:false},
+					{id:'serviceGuarantee',title:'服务保障',icon:'icon-fwbz_icon',pathNum:2,winName:'',frmName:'',url:'',isClick:false},
+					{id:'newHomePack',title:'新家启装',icon:'icon-xjqz_icon',pathNum:4,winName:'',frmName:'',url:'',isClick:false},
+					{id:'cntCmt',title:'施工交流',icon:'icon-sgjl_icon',pathNum:9,winName:'',frmName:'',url:'',isClick:false},
+					{id:'decorateInstallment',title:'装修分期',icon:'icon-zxfq_icon',pathNum:3,winName:'',frmName:'',url:'',isClick:false},
+					{id:'hotNews',title:'新闻热点',icon:'icon-xwrd_icon',pathNum:7,winName:'',frmName:'',url:'',isClick:false},
+					{id:'knowledgeMaterial',title:'材料知识',icon:'icon-clzs_icon',pathNum:30,winName:'',frmName:'',url:'',isClick:false},
+					{id:'wholeHouseCustom',title:'全屋定制',icon:'icon-qwdz_icon',pathNum:2,winName:'',frmName:'',url:'',isClick:false},
+					{id:'calculator',title:'计算器',icon:'icon-jsj_icon',pathNum:13,winName:'',frmName:'',url:'',isClick:false},
+					{id:'more',title:'更多...',icon:'icon-xgt_icon',pathNum:0,winName:'',frmName:'',url:'',isClick:false}
+				],
+				activityList:[//活动
+					{id:'ws_activity01',imgurl:'../../image/workerschool/ws_activity01.jpg'},
+					{id:'ws_activity02',imgurl:'../../image/workerschool/ws_activity02.jpg'},
+					{id:'ws_activity03',imgurl:'../../image/workerschool/ws_activity03.jpg'},
+					{id:'ws_activity04',imgurl:'../../image/workerschool/ws_activity04.jpg'}
+				],
+				designerList:[//设计师
+					{id:'designerave01',aveUrl:'../../image/workerschool/designerave01.jpg'},
+					{id:'designerave02',aveUrl:'../../image/workerschool/designerave02.jpg'},
+					{id:'designerave03',aveUrl:'../../image/workerschool/designerave03.jpg'},
+					{id:'designerave04',aveUrl:'../../image/workerschool/designerave04.jpg'}
+				],
+				recommendList:[]
+			},
+			methods:{
+				setCurTab:function(position){
+					this.curTab=position;
+					this.recommendList=recommendListData01[position];
+				},
+				itemClick:function(data){
+					//item触发点击
+//					if(!data.isClick) {
+//						api.toast({ msg: '模块开发中,敬请期待...',duration: 1000, location: 'bottom'});
+//						return;
+//					}
+					gotoDescribedetail(data.title,data.id);
+				},
+				activityItemClick:function(data){
+					//推荐活动
+					gotoDescribedetail('推荐活动',data.id);
+				},
+				designerMoreClick:function(){
+					//更多设计师
+					gotoDescribedetail('更多设计师','moreDesigner');
+				},
+				designerItemClick:function(data){
+					//设计师
+					gotoDescribedetail('设计师',data.id);
+				},
+				recommendItemClick:function(data){
+					gotoDescribedetail('效果图',data.id);
+				}
+			}
+		});
+		headGridVm.setCurTab(0);
+		effectTab = new auiTab({
+	        element:document.getElementById("effect_tab"),
+	    },function(ret){
+	    	headGridVm.setCurTab(ret.index-1);
+	    })
+		
+	};
+</script>
+</html>

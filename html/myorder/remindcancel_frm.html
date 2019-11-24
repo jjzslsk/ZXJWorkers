@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>拒绝理由frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7}
+		.refuse-info{background-color: #FFFFFF;}
+		
+		.refuse-info .choose-item{height: 40px;line-height: 40px;max-height: 40px;padding: 0 10px;border-bottom: 1px solid #DDDDDD;box-sizing:border-box;-moz-box-sizing:border-box; /* Firefox */}
+		.refuse-info .choose-item .title{width: 5em}
+		.refuse-info .choose-item .content-area{width: calc(100% - 5em)}
+		.refuse-info .choose-item .content-area .content{width: calc(100% - 12px)}
+		.refuse-info .choose-item .content-area .choose-hint {color: #b1babf;}
+		.refuse-info .choose-item .content-area .arrow_down {width: 0; height: 0; border-left: 6px solid transparent;  border-right: 6px solid transparent; border-top: 6px solid #999999;}
+		.refuse-info .other{padding: 8px 10px;}
+		.refuse-info .other textarea{background-color: #f2f2f2;padding: 8px 5px;height: 100px;}
+		
+		
+		.scene-img-list{background-color: #FFFFFF;border-top: 1px solid #DDDDDD;box-sizing:border-box;-moz-box-sizing:border-box;padding-bottom: 20px;}
+		.scene-title{padding: 8px 10px;}
+		.img-del {width: 1.5rem;height: 1.5rem;line-height: 1.5rem;text-align: center;border-radius: 50%;background-color: #d61414;color: #FFFFFF;position: absolute;z-index: 99;right: 0;top: 0;}
+		.att-img {width: 80%;height: 0px;padding-bottom: 80%;position: relative;margin: 0 10%}
+		.att-img img {width: 100%;height: 100%;position: absolute;border-radius: 10px}
+		
+		.cur-location{background-color: #FFFFFF;padding: 8px 10px;border-top: 1px solid #DDDDDD;}
+		.cur-location .location-title{width: 6em;color:#999999;}
+		.cur-location .location-address{width: calc(100% - 7em);color:#999999;}
+		.cur-location .location-refresh{width: 1em;text-align: right;color: #2fc588;font-weight: bold;}
+		
+    </style>
+</head>
+<body>
+    <div id="info_id">
+    	<template>
+	    <div class="refuse-info">
+	    	<div class="choose-item horizontal">
+	    		<div class="title"><span>{{chooseTitle}}:</div>
+	    		<div class="content-area" tapmode="hover" @click="chooseReason">
+	    			<span v-if="actionCur.name.length>0" class="content">{{actionCur.name}}</span><span v-else class="content choose-hint">请选择{{chooseTitle}}</span><span class="arrow_down"></span>
+	    		</div>
+	    	</div>
+	    	<div class="other">
+	    		<div>其他原因:</div>
+	    		<textarea title="text" placeholder="请输入其他理由" maxlength="3000" v-model="other"></textarea>
+	    	</div>
+	    </div>
+	    </template>
+	    <template>
+	    <div class="scene-img-list">
+	    	<div class="scene-title">现场图片:{{sceneImgList.length}}/{{sceneImgNum}}张(证明您已经到达工地)</div>
+			<div>
+				<div class="aui-row aui-row-padded">
+					<div class="aui-col-xs-4" v-for="(sceneImgItem,sceneImgItemIndex) in sceneImgList">
+						<span class="img-del" tapmode="hover" @click="delImg(sceneImgItemIndex)">—</span>
+						<div class="att-img" tapmode="hover" @click="previewImg(sceneImgItemIndex,sceneImgList)">
+							<img :src="sceneImgItem" datasrc="../../image/placeholder.png" onerror="src='../../image/placeholder.png'"/>
+						</div>
+					</div>
+					<div class="aui-col-xs-4" v-if="sceneImgList.length<sceneImgNum">
+						<div class="att-img click-item-ser" tapmode="hover" @click="addCompImg()">
+							<img src="../../image/icon/add_img.png" onerror="src='../../image/placeholder.png'"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	    </template>
+	    <template>
+	    	<div class="cur-location horizontal">
+	    		<div class="location-title">
+	    			<i class="aui-iconfont aui-icon-location"></i>当前位置:
+	    		</div>
+	    		<div class="location-address" v-if="curAddress.length>0">{{curAddress}}</div>
+	    		<div class="location-address" v-else>{{locationHint}}</div>
+	    		<div class="location-refresh"><i class="aui-iconfont aui-icon-refresh" tapmode="hover" @click="againLocationClick"></i></div>
+	    	</div>
+	    </template>
+	    <template>
+	    <div class="submit-btn-bor" tapmode="hover" @click="submitClick">提交</div>
+	    </template>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+<script type="text/javascript">
+	var contentVm;
+	var remindCancelHttps,sendSmsHttps,upImgHttps;
+	var startLocationHttp;
+	var orderId='';
+	var userId='';
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		orderId = pageParam.orderId;
+		userId=$api.getStorage("userid");//用户id
+		
+		var cacelData=[{id:'001',name:'另有打算'},{id:'002',name:'做不来'},{id:'003',name:'时间安排不上'}];
+		
+		startLocationHttp=function(action){
+			if(action==0){
+				contentVm.locationHint='正在定位...';
+			}
+			if(!checkLocPer()){
+				contentVm.curAddress=''
+				contentVm.locationHint='定位失败';
+				return;
+			}
+			startLocation(function(ret){
+				//定位成功
+				//curLng,curLat;当前经度,当前纬度
+				var curLng = $api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");
+				var curLat = $api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");
+				contentVm.curAddress=$api.getStorage("curAddress");//当前地址
+				contentVm.locationHint='';
+				if(action==1){
+					if(contentVm.curAddress==undefined || contentVm.curAddress==null || contentVm.curAddress==''){
+						api.toast({ msg:'获取当前所在位置失败,请检查网络',duration: 2000, location: 'bottom'});
+						api.hideProgress();
+						return;
+					}
+					var sceneImgList = contentVm.sceneImgList;
+					//提醒业主取消
+					remindCancelHttps(contentVm.actionCur.name,contentVm.other,contentVm.curAddress,curLng,curLat,sceneImgList);
+				}
+			},function(action,err){
+				//定位失败
+				api.hideProgress();
+				contentVm.curAddress=''
+				contentVm.locationHint='定位失败';
+				if(action==1){
+					api.toast({ msg:'定位失败,请检查网络',duration: 2000, location: 'bottom'});
+				}
+			});
+		}
+		
+		
+		sendSmsHttps=function(){
+			var param="id="+orderId+"&workerId="+userId;
+			api.showProgress({title: '发送提醒短信'});
+			_getHttpsData('/worker/clientCancelSMS',param,
+				function(res){
+					api.hideProgress();
+					if(res.status){
+						showSingleAuiDialog('提醒成功', '业主需在24小时内取消订单，如有问题可以联系装小匠客户解决。','确定',function(res){
+							api.closeWin();
+						});
+					} else{
+						api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		//上传图片
+		upImgHttps=function(attFkId,sceneImgList){
+			var param={};
+			api.showProgress({
+				title : '压缩现场图片'
+			});
+			batchCompressList('work_remind_cancel', 'work_remind_cancel', sceneImgList, function(attNameList, attFkNameList, imgArray) {
+				if(imgArray.length>0) {
+					var param = {};
+					param.attUser = userId;
+					param.attFkId = attFkId;
+					param.attName = attNameList;
+					param.attFkName = attFkNameList;
+					api.showProgress({
+						title : '上传现场图片'
+					});
+					uploadFileHttps(param, imgArray, function(ret) {
+						api.hideProgress();
+						if (ret.status) {
+							sendSmsHttps();
+						} else {
+							showSingleAuiDialog('上传现场图片(' + ret.code + ')', ret.msg);
+						}
+					}, function(err) {
+						api.hideProgress();
+					});
+				}else{
+					api.hideProgress();
+					sendSmsHttps();
+				}
+			});
+			
+		};
+		
+		//提醒业主取消
+		remindCancelHttps=function(reasonStr,otherReasonStr,curAddress,curLng,curLat,sceneImgList){
+			if(orderId==undefined || orderId==null || orderId=='') {
+				api.toast({ msg: '订单id不能为空',duration: 2000, location: 'bottom'});
+				return;
+			}
+			var cancelReason='';
+			if(otherReasonStr!=undefined && otherReasonStr.length>0){
+				var cancelReason = reasonStr+'('+otherReasonStr+')';
+			} else{
+				cancelReason = reasonStr;
+			}
+			var param='id='+orderId+'&workerId='+userId+'&address='+curAddress+'&longitude='+curLng+'&latitude='+curLat;
+			api.showProgress({title: '提交信息'});
+			_getHttpsData('/worker/workerReasonCancel',param,
+				function(res){
+					if(res.status){
+						upImgHttps(res.data,sceneImgList);
+					} else{
+						api.hideProgress();
+						api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+					}
+					
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		
+		contentVm = new Vue({
+			el:'#info_id',
+			data:{
+				chooseTitle:'理由',
+				actionList:[],
+				actionCur:{id:'',name:''},
+				other:'',
+				sceneImgNum:3,
+				sceneImgList:[],
+				curAddress:'',
+				locationHint:'正在定位...'
+			},
+			methods:{
+				initData:function(title,actionData){
+					this.chooseTitle=title;
+					this.actionList=actionData;
+					this.nextTick();
+				},
+				nextTick : function() {
+					this.$nextTick(function() {
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				chooseReason:function(){
+					//选择理由
+					var tempList=[];
+					var actionList=this.actionList;
+					for(var index in actionList){
+						tempList.push(actionList[index].name);
+					}
+					api.actionSheet({
+					    buttons: tempList
+					}, function(ret, err) {
+					    var index = ret.buttonIndex-1;
+					    if(index>actionList.length-1) return;
+					    contentVm.actionCur=actionList[index];
+					});
+				},
+				appendCompImg : function(data) {
+					//追加现场图片
+					if (this.sceneImgList.length < this.sceneImgNum) {
+						this.sceneImgList = this.sceneImgList.concat(data);
+						this.nextTick();
+					} else {
+						api.hideProgress();
+						api.toast({
+							msg : '最多只能添加' + this.sceneImgNum + '张图片',
+							duration : 1000,
+							location : 'bottom'
+						});
+					}
+				},
+				delImg : function(position) {
+					//删除图片
+					this.sceneImgList.splice(position, 1);
+				},
+				previewImg : function(position, imgList) {
+					//预览图片
+					api.openWin({
+						name : 'previewpicture_win',
+						url : 'widget://html/previewpicture/previewpicture_win.html',
+						pageParam : {
+							position : position,
+							imgList : imgList
+						},
+						slidBackEnabled : false,
+						delay:300
+					});
+				},
+				addCompImg : function(action) {
+					//添加竣工场景图片
+					var chooseNum = Number(this.sceneImgNum) - Number(this.sceneImgList.length);
+					chooseCameraSheet(function(retList) {
+						api.showProgress();
+						contentVm.appendCompImg(retList);
+					}, chooseNum, '完成');
+				},
+				againLocationClick:function(){
+					//重新定位
+					startLocationHttp(0);
+				},
+				submitClick:function(){
+					//提交
+					if(this.actionCur.name==undefined ||this.actionCur.name==null || this.actionCur.name==''){
+						api.toast({ msg:'请选择'+contentVm.chooseTitle,duration: 2000, location: 'bottom'});
+						return;
+					}
+					if(this.sceneImgList==undefined || this.sceneImgList==null || this.sceneImgList=='' || this.sceneImgList.length==0){
+						api.toast({ msg:'至少要上传一张现场照片',duration: 2000, location: 'bottom'});
+						api.hideProgress();
+						return;
+					}
+					api.showProgress({title: '获取定位'});
+					startLocationHttp(1);
+				}
+			}
+		});
+		
+		//取消理由
+		contentVm.initData('取消理由',cacelData);
+		
+		startLocationHttp(0);
+		
+	};
+</script>
+</html>

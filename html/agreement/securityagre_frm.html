@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>保证金协议frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #FFFFFF}
+    	.agre-info{padding: 8px 10px;}
+    	.agre-info .agre-content{height: 100vh}
+    	.agre-info .agree-deal{margin-top: 10px;}
+    	
+    	.agre-info .agree-deal{height: 1.2rem;line-height: 1.2rem}
+    	.agre-info .agree-deal .radio-agree{width: 1.2rem;height: 1.2rem;line-height:1.2rem;border-radius: 50%;background-color: #ffffff; border: solid 1px #dddddd;text-align: center;background-clip: padding-box; color: #FFFFFF;font-weight: bold;}
+		.agre-info .agree-deal .radio-agree.check{background-color: #2fc588; border: solid 1px #2fc588;}
+    	.agre-info .agree-deal .agre-text{margin-left: 10px;}
+    	.agre-info .submit-btn{margin: 30px 20px 0 20px;text-align: center;border-radius: 20px;height: 40px;line-height: 40px;}
+    	.agre-info .phd-btm{height: 30px;min-height: 30px}
+    	
+    	.security-card{margin: 30px 20px;border-radius: 10px;color:#FFFFFF;padding: 20px 10px;}
+    	.security-card .security-balance-area{margin-top: 10px;}
+    	.title-area .title{font-size: 0.8rem;font-weight: bold}
+    	.title-area .hint{font-size: 0.6rem}
+    	.security-card .security-balance-area .security-balance{width: calc(100% - 8rem - 16px)}
+    	.security-card .security-balance-area .security-balance .balance-unit{margin-right: 5px;}
+    	.security-card .security-balance-area .security-balance .balance{font-size: 1.3rem}
+    	
+    	.security-card .security-balance-area .pay-btn{width: 3rem;text-align: center;font-size: 0.6rem;margin-left: 8px;}
+    	.security-card .security-balance-area .pay-btn span{border: 1px solid #FFFFFF;padding: 3px 0.2rem;text-align: center;border-radius: 10px;}
+    	.security-card .security-balance-area .withdrawal-btn{width: 5rem;text-align: center;font-size: 0.6rem;margin-left: 8px;}
+    	.security-card .security-balance-area .withdrawal-btn span{border: 1px solid #FFFFFF;padding: 3px 0.8rem;text-align: center;border-radius: 10px;}
+    	
+    </style>
+</head>
+<body>
+	<div id="info_id">
+		<template>
+		<div class="security-card this-bg-theme">
+			<div class="title-area"><span class="title">保证金</span><span class="hint">(单笔充值缴纳¥{{wecurityMoney}})</span></div>
+			<div class="security-balance-area horizontal">
+				<div class="security-balance"><span class="balance-unit">¥</span><span class="balance">{{securityBalance}}</span></div>
+				<div class="pay-btn"><span tapmode="hover" @click="submitClick">充值缴纳</span></div>
+				<div class="withdrawal-btn"><span tapmode="hover" @click="withdrawalClick">退回保证金</span></div>
+			</div>
+		</div>
+		</template>
+	</div>
+	
+	<!--<div id="info_id" class="agre-info">
+		<template>
+		<div class="agre-content"><iframe  src='../../res/agreement/seragre.html' width='100%' height='100%' ></iframe>
+		<div>
+			<div class="agree-deal horizontal" tapmode="hover" @click="agreeClick">
+			<div class="radio-agree check" v-if="isAgreeDeal"><i class="aui-iconfont aui-icon-correct"></i></div>
+			<div class="radio-agree" v-else></div>
+				<span class="agre-text">是否同意协议</span>
+			</div>
+			<div class="submit-btn submit-gradient-bg-footer" tapmode="hover" @click="submitClick">立即缴纳</div>
+			<div class="phd-btm"></div>
+		</div>
+		</div>
+		</template>
+	</div>-->
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var agreVm;
+	var payCallback;
+	var isGotoReturnmargin=false;
+	apiready = function(){
+		
+		var userId = $api.getStorage("userid");//用户id
+		
+		
+		payCallback=function(isSueecss){
+			if(isSueecss){
+				api.sendEvent({
+				    name: 'payMargin_send_event',
+				    extra: {
+				        isSuccess: true,
+				    }
+				});
+				api.closeWin();
+//				againLoginByUserId(function(isSuccess){
+//					if(isSuccess){
+//						api.sendEvent({
+//						    name: 'payMargin_send_event',
+//						    extra: {
+//						        isSuccess: true,
+//						    }
+//						});
+//						api.closeWin();
+//					}
+//				});
+//				var margin = $api.getStorage("margin")==undefined ? 0:$api.getStorage("margin");
+//				var totalMoney = Number(margin)+ Number(agreVm.wecurityMoney);
+//				var totalRet = _toFixed(totalMoney,2);
+//				$api.setStorage("margin", totalRet);//保证金
+//				agreVm.refreshData(totalRet);
+			} else{
+//				api.closeWin();
+			}
+			
+		};
+		
+		var httpsWalletData=function(){
+			api.showProgress();
+			var openId=$api.getStorage("openId");//openId
+			var pwd=$api.getStorage("pwd");//登录密码
+			if(pwd==undefined || pwd==null || pwd==''){
+				pwd='123456';
+			}
+			var param;
+			if(openId!=undefined && openId!='undefined' && openId!=null && openId!=''){
+				param = 'clientId=' + userId + '&openId=' + openId +'&from=2';
+			}else{
+				param = 'clientId=' + userId + '&password='+pwd+'&from=2';
+			}
+			_getHttpsData('/member/getBalance',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						var margin = ret.data==undefined || ret.data.margin==undefined ? 0:ret.data.margin;
+						agreVm.refreshData(margin);
+						$api.setStorage("margin", margin);//保证金
+						api.sendEvent({
+						    name: 'payMargin_send_event',
+						    extra: {
+						        isSuccess: true,
+						    }
+						});
+					}else{
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		}
+
+		agreVm = new Vue({
+			el:'#info_id',
+			data:{
+//				agreaInfo:'保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容保障金协议内容',
+				wecurityMoney:100,//单笔充值多少
+				securityBalance:0,//保余额
+				isAgreeDeal:false//是否统一协议
+			},
+			methods:{
+				refreshData:function(data){
+					this.securityBalance=data;
+				},
+				agreeClick:function(){
+					this.isAgreeDeal=!this.isAgreeDeal;
+				},
+				submitClick:function(){
+					showPayDialog(0,'',this.wecurityMoney,'securityagre_win','securityagre_frm','payCallback');
+				},
+				withdrawalClick:function(){
+					var balanceNum = this.securityBalance;
+//					api.openWin({
+//						name : 'withdrawtopup_win',
+//						url : 'widget://html/mywallet/withdrawtopup_win.html',
+//						pageParam:{
+//							action:3,
+//							title:'保证金退回',
+//							balanceNum:balanceNum
+//						},
+//						slidBackEnabled:false,
+//						delay:300
+//					});	
+					isGotoReturnmargin=true;
+					api.openWin({
+						name : 'returnmargin_win',
+						url : 'widget://html/agreement/returnmargin_win.html',
+						slidBackEnabled:false,
+						delay:300
+					});		
+	
+				}
+			}
+		});
+		
+		
+		httpsWalletData();
+		
+		//缴纳保证金成功
+		api.addEventListener({
+		    name: 'payMargin_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess && isGotoReturnmargin){
+					httpsWalletData();
+					isGotoReturnmargin=false;
+				}
+			}
+		});
+		
+	};
+</script>
+</html>

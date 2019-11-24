@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>实名认证</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui_flex.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/main.css"/>
+    <style>
+    	.step{font-size:0.7rem;padding: 1rem 2rem;overflow: hidden;color: #FFFFFF;text-align: center;}
+    	.step-num{width:1rem;height:1rem;text-align: center;line-height: 1rem;margin: 0 auto;border-radius: 50%;}
+    	.id-img{background: #EEEEEE;width:100%;height:0;padding-bottom:63%;text-align: center;font-size: 0.6rem;color:#999999;position: relative;}
+    	.id-img .placeholder{padding-top: 1rem;}
+    	.id-img img{width:100%;height:100%;position: absolute;}
+    	.font-size-30{font-size:1.5rem !important}
+    	/*.commit-btn{color:#FFFFFF;border-radius: 0.5rem;width:80%;position: absolute;bottom:2rem;left:10%;height:2rem;line-height:2rem;text-align: center;border:1px #EEEEEE solid;}*/
+    	.commit-btn{color:#FFFFFF;border-radius: 0.5rem;width:80%;margin:20px 10%;height:2rem;line-height:2rem;text-align: center;border:1px #EEEEEE solid;}
+    	.aui-list .aui-list-item-label{width:40%;font-size: 0.7rem;}
+    	.read-only {color: #999999}
+    </style>
+</head>
+<body style="background: #F1F1F1">
+    <div class="step this-bg-theme aui-margin-b-10">
+    	<div class="aui-flex-col">
+    		<div class="aui-flex-item-4">
+    			<div class="step-num aui-bg-danger">①</div>
+    			<div>身份认证</div>
+    		</div>
+    		<div class="aui-flex-item-4">
+    			<div class="step-num">②</div>
+    			<div>人脸识别</div>
+    		</div>
+    		<div class="aui-flex-item-4">
+    			<div class="step-num">③</div>
+    			<div>填写资料</div>
+			</div>
+    	</div>
+    </div>
+    <div id="info_id">
+    	<template>
+		<div class="aui-flex-col aui-margin-b-10 this-bg-white">
+			<div class="aui-flex-item-6 aui-padded-10">
+				<div class="id-img" tapmode="hover" @click="idCardImgClick(0)">
+					<img v-if="idCardPosImgUrl.length>0" v-lazy="idCardPosImgUrl" />
+					<div v-else>
+						<div class="placeholder"><i class="aui-iconfont aui-icon-camera font-size-30"></i></div>
+						<div>上传身份证正面</div>
+					</div>
+				</div>
+			</div>
+			<div class="aui-flex-item-6 aui-padded-10">
+				<div class="id-img" tapmode="hover" @click="idCardImgClick(1)">
+					<img v-if="idCardRevImgUrl.length>0" v-lazy="idCardRevImgUrl" />
+					<div v-else>
+						<div class="placeholder"><i class="aui-iconfont aui-icon-camera font-size-30"></i></div>
+						<div>上传身份证背面</div>
+					</div>
+				</div>
+			</div>
+	    </div>
+	    <ul class="aui-list aui-form-list aui-list-noborder">
+	        <li class="aui-list-item">
+	            <div class="aui-list-item-inner">
+	                <div class="aui-list-item-label">姓名</div>
+	                <div class="aui-list-item-input">
+	                    <input v-if="applyStatus==0 || applyStatus==3" type="text" placeholder="请输入姓名" maxlength="20" v-model="userName">
+	                	<div v-else class="read-only">{{userName}}</div>
+	                </div>
+	            </div>
+	        </li>
+	        <li class="aui-list-item">
+	            <div class="aui-list-item-inner">
+	                <div class="aui-list-item-label">身份证号</div>
+	                <div class="aui-list-item-input">
+	                    <input v-if="applyStatus==0 || applyStatus==3" type="text" maxlength="18" placeholder="请输入身份证号" v-model="idCardNum">
+	                    <div v-else class="read-only">{{idCardNum}}</div>
+	                </div>
+	            </div>
+	        </li>
+	    </ul>
+	    <div class="aui-padded-15 aui-font-size-12 this-cl-tips">确认个人信息，可点击修改</div>
+	    <div class="commit-btn this-bg-theme" tapmode @click="openDialog">下一步</div>
+		</template>
+	</div>
+</body>	
+
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript" src="../../script/baiduface.js"></script>
+<script type="text/javascript">
+	
+	var infoVm;
+	var dialog;
+//	var backbar;
+	var userId='';
+	apiready = function(){
+		userId = $api.getStorage("userid");//用户id
+		
+		
+		//获取用户信息
+		var getWorkerInfoHttps=function(){
+			var param = 'clientId='+userId+'&applyType=5';
+			_getHttpsData('/member/getApplyInfo',param,
+				function(ret){
+					if(ret.status){
+						infoVm.userName=ret.data.applyName;//姓名
+						infoVm.idCardNum=ret.data.applyCardNo;//身份证号
+						infoVm.refreshApplyStatus(ret.data.applyStatus,ret.data.applyType);
+					}else{
+						showSingleAuiDialog('获取信息失败('+ret.code+')',ret.msg);
+					}
+					getIdCardImgHttps();
+				},
+				function(err){
+					getIdCardImgHttps();
+				}
+			);
+		};
+		
+		var getIdCardImgHttps=function(){
+			var param='clientId='+userId+'&type=client_idcard'+'&userType=5';
+			_getHttpsData('/member/getPhoto',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						var idCardImgList = ret.pic;
+						for(var index in idCardImgList){
+							var imgObj=idCardImgList[index];
+							if(imgObj.attName=='worker_idcard_on.jpg'){
+								infoVm.refreshIdCardImg(0,imgObj.pic);
+							}
+							else if(imgObj.attName=='worker_idcard_off.jpg'){
+								infoVm.refreshIdCardImg(1,imgObj.pic);
+							}
+						}
+						
+					}else{
+						showSingleAuiDialog('获取身份证失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		/**
+		 *上传身份证 
+		 * idCardPosImgUrl 身份证正面
+		 * idCardRevImgUrl 身份证反面
+		 */
+		var uploadFile = function(idCardPosImgUrl,idCardRevImgUrl){
+			var imgArray=[];
+//			attUser   和 attFkId 都是clients 表的用户主键ID，如果是工人需求施工现场，attFkId就是 需求表主键ID。总之就是业务表主键ID
+//			attFkName 是固定的，client_idcard 就是身份证，client_cert 就是资质，client_place 经营场所，client_quali 其它认证文件，client_case 工程案例，如果没有，可自定义。
+//			attName   是图片（附件）名称，比如client_idcard_on 身份证正面， client_idcard_off 身份证反面。。。完全自定义的
+//			var param = {"attUser":userId,"attFkId":userId,"attFkName":["5_client_idcard","5_client_idcard"],"attName":["worker_idcard_on.jpg","worker_idcard_off.jpg"]};
+			
+			var param={};
+			param.attUser=userId;
+			param.attFkId=userId;
+			
+			//检测压缩身份证图片正面
+			api.showProgress({title: '压缩证件1'});
+			checkCompressImg(idCardPosImgUrl,function(imgPathPos){
+				var attFkName=[];
+				var attName=[];
+				if(imgPathPos!=null){
+					imgArray.push(imgPathPos);
+					attFkName.push('5_client_idcard');
+					attName.push('worker_idcard_on.jpg');
+				}
+ 			    //检测压缩身份证图反面
+ 			    api.showProgress({title: '压缩证件2'});
+ 			    checkCompressImg(idCardRevImgUrl,function(imgPathRev){
+	 			    if(imgPathRev!=null){
+						imgArray.push(imgPathRev);
+						attFkName.push('5_client_idcard');
+						attName.push('worker_idcard_off.jpg');
+					}
+					if(imgArray.length>0){
+						//开始上传
+	 			    	param.attFkName=attFkName;
+	 			    	param.attName=attName;
+						param.attNoWater='1';
+	 			    	api.showProgress({title: '上传证件'});
+	 			    	uploadFileHttps(param,imgArray,
+							function(ret){
+								api.hideProgress();
+								if(ret.status){
+									infoVm.openAuthStep3();
+								} else{
+									showSingleAuiDialog('提交信息失败('+ret.code+')', ret.msg);
+								}
+							},
+							function(err){
+								api.hideProgress();
+							}
+						);
+					} else{
+						infoVm.openAuthStep3();
+					}
+ 			    	
+				});
+			});
+	    }
+		
+		
+		dialog = new auiDialog();
+		
+		// 图片懒加载配置
+		Vue.use(VueLazyload, {
+		  preLoad: 1, // 预加载高度比例
+		  error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+		  loading: '../../image/placeholder_loading.png', // 预加载图片
+		  attempt: 1, // 尝试加载图片数量
+		  observer: true,
+		  observerOptions: {
+		    rootMargin: '0px',
+		    threshold: 0.1
+		  }
+		});
+		
+		infoVm=new Vue({
+			el:'#info_id',
+			data:{
+				applyStatus:0,//0未申请，1申请中，2审核通过，3审核不通过
+				idCardPosImgUrl:'',//身份证正面
+				idCardRevImgUrl:'',//身份证反面
+				userName:'',//姓名
+				idCardNum:'',//身份证号
+			},
+			methods:{
+				refreshApplyStatus:function(applyStatus,applyType){
+					this.applyStatus=applyStatus==undefined ? 0:applyStatus;
+					if(this.applyStatus==2){
+						refreshIsCertification(1,applyType);
+					}else{
+						refreshIsCertification(0);
+					}
+					api.execScript({
+						name : 'auth_step_win',
+						script : 'refreshCheckPro('+infoVm.applyStatus+')'
+					});
+				},
+				refreshIdCardImg:function(action,urlPath){
+					if(action==0){
+						//身份证正面
+						this.idCardPosImgUrl=urlPath;
+					} else{
+						//身份证反面
+						this.idCardRevImgUrl=urlPath;
+					}
+				},
+				idCardImgClick:function(action){
+					//拍照或者选择相册
+					if(this.applyStatus==0 || this.applyStatus==3){
+						chooseCameraSheet(function(retList) {
+							infoVm.refreshIdCardImg(action,retList[0]);
+						}, 1, '完成');
+					}
+				},
+				openDialog:function(){
+					if(this.applyStatus==0 || this.applyStatus==3) {
+						var idCardPosImgUrl = this.idCardPosImgUrl;//身份证正面
+						var idCardRevImgUrl = this.idCardRevImgUrl;//身份证反面
+						var userName = this.userName;//姓名
+						var idCardNum = this.idCardNum;//身份证号
+						
+						if(idCardPosImgUrl==undefined || idCardPosImgUrl==null || idCardPosImgUrl==''){
+							api.toast({msg : '请选择身份证正面',duration : 2000,});
+							return;
+						}
+						if(idCardRevImgUrl==undefined || idCardRevImgUrl==null || idCardRevImgUrl==''){
+							api.toast({msg : '请选择身份证反面',duration : 2000,});
+							return;
+						}
+						if(userName==undefined || userName==null || userName==''){
+							api.toast({msg : '请输入真实姓名',duration : 2000,});
+							return;
+						}
+						if(!checkPersonName(userName)){
+							return;
+						}
+						if(idCardNum==undefined || idCardNum==null || idCardNum==''){
+							api.toast({msg : '请输入身份证号',duration : 2000,});
+							return;
+						}
+						if(!checkIdCardNumber(idCardNum)){
+							return;
+						}
+						
+						var curDate = getCurrentDate('yyyy-MM-dd')+' 00:00:00';
+						
+	
+						//识别身份证反面与填写的信息一致
+						dialog.alert({
+				            title:"弹出提示",
+				            msg:'系统会采取您的动态图形信息进行公安比对，请您确认是否同意图像采集',
+				            buttons:['不同意','同意']
+				        },function(ret){
+				            if(ret.buttonIndex=='2'){
+				            	api.showProgress();
+								//把身份证正面压缩并转成base64
+								checkIdCardImgSize(idCardPosImgUrl,1024,15,function(base64ImgPt){
+									//把身份证反面压缩并转成base64
+									checkIdCardImgSize(idCardRevImgUrl,1024,15,function(base64ImgRe){
+										checkIdCardImg(base64ImgPt,base64ImgRe,userName,idCardNum,curDate,function(isPass){
+											if(isPass){
+												infoVm.openAuthStep2(userName,idCardNum,idCardPosImgUrl,idCardRevImgUrl);
+											}else{
+												api.hideProgress();
+											}
+										});
+									});
+								});
+				            }
+				        })
+			        }else{
+			        	//正在审核中，直接跳转查看其它信息
+			        	this.openAuthStep3();
+			        }
+			    },
+			    openAuthStep2:function(userName,idCardNum,idCardPosImgUrl,idCardRevImgUrl){
+			    	api.hideProgress();
+			    	openFaceDetectView(function(ret){
+						 api.showProgress({title: '人脸检测'});
+			    		 faceDetection(ret.bestImage,idCardNum,userName,function(isPass){
+			    		 	uploadFile(idCardPosImgUrl,idCardRevImgUrl);
+			    		 });
+			    		 closeFaceDetectView();
+			    	});
+
+				},
+				openAuthStep3:function(){
+					api.openWin({
+				        name: 'auth_step3_win',
+				        url: 'widget://html/login/auth_step3_win.html',
+				        delay:300,
+				        pageParam:{
+				        	idCardUserName:infoVm.userName,
+				        	idCardNumber:infoVm.idCardNum
+				        },
+			        });
+				}
+			}
+		});
+		
+		api.showProgress();
+		getWorkerInfoHttps();
+		
+
+	};
+    
+    
+    
+	
+</script>
+</html>

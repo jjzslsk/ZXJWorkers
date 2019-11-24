@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>商城frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/zxjshop/zxjshop.css" />
+    <style>
+    	html,body{height: 100%;}
+    
+    	.shop-img{text-align:center;width:100%;height:100%;}
+		.shop-img img{height:100%;width:100%;margin: 0 auto}
+    
+    	.open-shop{
+    		background: linear-gradient(to bottom, #e77918 20%,#fff500 100%);
+    		position: absolute;
+    		z-index: 99;
+    		top: auto;
+    		bottom: 1rem;
+    		width: 50%;
+    		margin:0 25%;
+    		border-radius:20px;
+    		text-align: center;
+    		height: 2rem;
+    		line-height: 2rem;
+    		font-size: 1rem;
+    		font-weight: bold;
+    	}
+    </style>
+    
+</head>
+<body>
+	<!--<div class="shop-main">-->
+		<div class="shop-img"><img src="../../image/shop_main.jpg" /></div>
+		<div class="open-shop" tapmode="hover" onclick="goShop()">立即前往小程序</div>
+	<!--</div>-->
+	<!--<footer class="aui-bar aui-bar-tab bar-btm-footer">
+		<div class="shop-btn" tapmode="hover" onclick="goShop()">
+			<div class="btn-text01">点击进入</div>
+			<div class="btn-text02">建材商城</div>
+		</div>
+	</footer>-->
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript">
+	var showJumpDialog,closeJumpDialog;
+	var goShop;
+	var doubleDialog;
+	apiready = function() {
+		function showDoubleDialog(){
+			if(doubleDialog!=undefined && doubleDialog!=null && doubleDialog!=''){
+				doubleDialog.remove();
+			}
+			doubleDialog = showDoubleAuiDialog('跳转提示','是否跳转到商城小程序','跳转','不跳转',
+				function(ret){
+					if(ret.buttonIndex==2){
+						goToWeChatApplet();
+					}
+				}
+			);
+		}
+
+		showJumpDialog = function(){
+			var systemType = api.systemType;
+			if (systemType == 'android') {
+				//同步返回结果：
+				var installed = api.appInstalled({
+				    sync: true,
+				    appBundle: 'com.tencent.mm'
+				});
+				if (installed) {
+				    //应用已安装
+				    showDoubleDialog();
+				} else {
+				    //应用未安装
+				    api.toast({ msg: '检测未安装微信应用，无法跳转小程序',duration: 2000, location: 'middle'});
+				}
+			}
+			else if(systemType == 'ios'){
+				var installed = api.appInstalled({
+				    sync: true,
+				    appBundle: 'wechat'
+				});
+				if (installed) {
+				    //应用已安装
+				    showDoubleDialog();
+				} else {
+				    //应用未安装
+				    api.toast({ msg: '检测未安装微信应用，无法跳转小程序',duration: 2000, location: 'middle'});
+				}
+			}else{
+				 api.toast({ msg: '系统暂未支持',duration: 2000, location: 'middle'});
+			}
+		}
+		
+		goShop=function(){
+			showJumpDialog();
+		};
+
+	};
+</script>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>新手指引frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html, body {height: 100%;background-color: #f7f7f7}
+    	.guidel-area{padding: 8px 10px}
+    	.guidel-area .post-total-num{color:#999999}
+    	.guidel-area .post-card-item{background-color: #FFFFFF;border-radius: 3px;margin-bottom: 10px;padding: 8px;box-shadow:1px 1px 2px #DDDDDD;}
+		.guidel-area .post-card-item:not(.noclick):active { background-color: #f4f4f4;}
+    	.guidel-area .post-card-item .info-content{width: 75%;padding-right: 8px}
+    	.guidel-area .post-card-item .info-content .content{padding-bottom: 20px}
+    	.guidel-area .post-card-item .info-content .time-preview{color: #999999; font-size: 0.6em;position: absolute;bottom: 8px;top:auto;width: calc(75% - 32px)}
+    	.guidel-area .post-card-item .info-content .time-preview .time{width: 50%;text-align: left}
+    	.guidel-area .post-card-item .info-content .time-preview .preview{width: 50%;text-align: right}
+    	.guidel-area .post-card-item .info-content .time-preview .preview span{color: #ff5404;}
+    	.guidel-area .post-card-item .info-img{width: 25%}
+    
+    </style>
+</head>
+<body>
+	<div>
+		<img src="../../image/icon/community/new_guide_head_bg.jpg" onerror="src='../../image/placeholder.png'" />
+	</div>
+	<div id="guidel_info" class="guidel-area">
+		<template>
+		<div class="post-total-num">共{{totalNum}}篇帖子</div>
+		<div class="post-card-item horizontal" v-for="item in dataList" tapmode="hover" @click="itemClick(item)">
+			<div class="info-content">
+				<div class="content">{{item.ARTICLE_TITLE}}</div>
+				<div class="time-preview horizontal">
+					<div class="time">{{item.CREATE_DATE}}</div>
+					<div class="preview"><span>{{item.BROWSE_NUMBER}}</span>次预览</div>
+				</div>
+			</div>
+			<div class="info-img">
+				<img v-if="item.IMG_PATH==undefined || item.IMG_PATH==null || item.IMG_PATH==''" src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+				<img v-else :src="item.IMG_PATH" onerror="src='../../image/placeholder.png'" />
+			</div>
+		</div>
+		</template>
+	</div>
+	<div id="more_hint" class="more-data"></div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_tab.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+
+	var indexPage=0;//每页开始位置
+	var pageNum=20;//每页的数量
+	var guideVm;
+	apiready = function(){
+		
+		var getDataListHttps=function(isRefresh){
+			indexPage = isRefresh ? 0:indexPage+pageNum;		
+//			START_POSITION=每页开始位置
+//			END_POSITION=每页长度
+			var param = "START_POSITION=" + indexPage+'&END_POSITION='+pageNum;
+			_httpsPlatformSql('work_little_page', 'list', param,
+				function(ret){
+					api.hideProgress();
+					if(isRefresh){api.refreshHeaderLoadDone();};
+					if(ret.code==0){
+						var msgJson = checkIsJsonObj(ret.msg);
+						var data = msgJson==null ? []:msgJson;
+						if(isRefresh){
+							guideVm.refreshData(data);
+						}else{
+							guideVm.appendData(data);
+						}
+						
+					} else{
+						if(indexPage>=pageNum){
+							indexPage=indexPage-pageNum;
+						}
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+					if(indexPage>=pageNum){
+						indexPage=indexPage-pageNum;;
+					}
+				}
+			);
+		};
+		
+		guideVm = new Vue({
+			el:'#guidel_info',
+			data:{
+				totalNum:0,
+				dataList:[]
+			},
+			methods:{
+				refreshData:function(data){
+					this.dataList=data;
+					this.totalNum=data.length;
+					this.nextTick(data);
+				},
+				appendData:function(data){
+					this.dataList=this.dataList.concat(data);
+					this.nextTick(data);
+				},
+				nextTick:function(data){
+					var ret = data.length>pageNum?true:false; 
+					pullupHint('more_hint',ret);
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				itemClick:function(data){
+					api.openWin({
+						name : 'newguidelinesdetail_win',
+						url : 'widget://html/workercommunity/newguidelinesdetail_win.html',
+						pageParam : data,
+						delay:300,
+						slidBackEnabled : false
+					});
+					data.BROWSE_NUMBER=Number(data.BROWSE_NUMBER)+1;
+				}
+			}
+		});
+		api.showProgress();
+		getDataListHttps(true);
+		
+		//下拉刷新
+		api.setRefreshHeaderInfo({
+		    loadingImg: '',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉刷新...',
+		    textUp: '松开刷新...'
+		}, function(ret, err) {
+		    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+		   	getDataListHttps(true);
+		});
+		//监听距离底部距离,实现上拉加载更多
+		api.addEventListener({
+		    name:'scrolltobottom',
+		    extra:{
+		        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+		    }
+		}, function(ret, err){
+			getDataListHttps(false);
+		});
+		
+	};
+</script>
+</html>

@@ -1,0 +1,58 @@
+
+.footer-btn{border-top: 1px solid #DDDDDD;}
+.footer-btn .chat{background-color: #fe5301;color: #FFFFFF;}
+.footer-btn .take-orders{background-color: #2fc588;color: #FFFFFF;}
+
+.detail-info {
+	background-color: #FFFFFF;
+}
+.detail-info .creat-time {
+	padding: 8px;
+	border-bottom: 1px solid #DDDDDD;
+	text-align: center;
+	color: #999999;
+}
+.detail-info .info-content {
+	padding: 8px 10px;
+}
+.detail-info .info-content .order-title{
+	color: #2fc588;
+}
+.detail-info .info-content .info-item .title {
+	color: #999999;
+	width:23%;
+}
+.detail-info .info-content .info-item .content {
+	padding-left:8px;
+	width:77%;
+}
+.detail-info .info-content .info-item .content .money {
+	color: #ff5400
+}
+.detail-info .info-content .info-item .content .unit {
+	color: #999999;
+}
+
+.aui-border-t {border-top:0;}
+.aui-border-b {border-bottom: 0;}
+.aui-card-list-content-padded {
+	position: relative;
+	padding: 0.3rem 0;
+}
+.aui-row-padded [class*=aui-col-xs-] {
+	padding: 0.3rem;
+}
+.att-img {
+	width: 100%;
+	height: 0px;
+	padding-bottom: 100%;
+	position: relative;
+}
+.att-img img {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	border-radius: 20px;
+}
+.detail-info .info-content .warmPrompt{padding-bottom: 30px;}
+

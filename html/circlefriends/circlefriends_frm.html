@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>朋友圈frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui_flex.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7}
+    	
+    	.cf-item{background-color: #FFFFFF;padding: 8px 10px;border-bottom: 1px solid #DDDDDD;}
+    	.cf-item .project-item .project-title{width: calc(100% - 4.5em);color:#11ce7c;font-weight: bold;}
+    	/*.cf-item .project-item .project-time{width: 6em;color:#999999;text-align: right;font-size: 0.8em;}*/
+    	.cf-item .project-item .project-time{color:#999999;font-size: 0.8em;}
+    	
+    	.cf-item .info-item{margin-top: 10px;}
+    	.cf-item .info-item .att-area{width: 40%;height:0;padding-bottom:30%;position: relative;}
+    	.cf-item .info-item .att-area .video-info img{width: 100%;height:100%;position: absolute;}
+    	.cf-item .info-item .att-area .video-info .play-icon{width: 1.5rem;height: 1.5rem;border: 1px solid #FFFFFF;position: absolute;z-index: 99;top:calc(50% - 0.75rem);left:calc(50% - 0.75rem);border-radius: 50%;padding: 0.25rem 0.25rem 0.25rem 0.5rem;}
+		.cf-item .info-item .att-area .video-info .play-icon span{width: 0;height: 0;border-top: 0.5rem solid transparent;border-bottom: 0.5rem solid transparent;border-right: 0.5rem solid transparent;border-left: 0.5rem solid rgba(255,255,255,0.9);}
+    	/*一个图片的时候*/
+    	.cf-item .info-item .att-area .img-info1 img{width: 100%;height:100%;position: absolute;}
+    	/*两个图片的时候*/
+    	.img-item2{width: 100%;height: 0px;padding-bottom: 148%;position: relative;}
+    	/*三个图片*/
+    	.img-item3-l{width: 100%;height: 0px;padding-bottom: 148%;position: relative;}
+    	.img-item3-t,.img-item3-b{width: 100%;height: 0px;padding-bottom: calc(74% - 0.125rem);position: relative;}
+    	.img-item3-b{margin-top: 0.25rem;}
+    	/*四个图片*/
+    	.img-item4{width: 100%;height: 0px;padding-bottom: 74%;position: relative;}
+    	/*大于4个小于7个*/
+    	.img-item5{width: 100%;height: 0px;padding-bottom: 111%;position: relative;}
+    	/*大于六个*/
+    	.img-item6{width: 100%;height: 0px;padding-bottom: 74%;position: relative;}
+    	.img-item2 img,.img-item3-l img,.img-item3-t img,.img-item3-b img,.img-item4 img,.img-item5 img,.img-item6 img{width: 100%;height:100%;position: absolute;z-index: 99}
+    	
+    	.cf-item .info-item .content-area{width: 60%;padding-left: 10px;}
+    	.cf-item .info-item .content-area-fill{width: 100%;padding-left: 10px;}
+    	.cf-item .info-item .content-area .content-title,.cf-item .info-item .content-area-fill .content-title{color:#000000;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
+    	.cf-item .info-item .content-area .content-detail,f-item .info-item .content-area-fill .content-detail{color:#999999;margin-top:8px;text-overflow: -o-ellipsis-lastline;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;}
+    	.cf-item .info-item .content-area .phd-div,.cf-item .info-item .content-area-fill .phd-div{height: 1.2rem;min-height: 1.2rem;max-height: 1.2rem;}
+    	.cf-item .info-item .content-area .content-footer-btns{position:absolute;bottom: 0;width: calc(60% - 8px)}
+    	.cf-item .info-item .content-area-fill .content-footer-btns{position:absolute;bottom: 0;width: calc(100% - 8px)}
+    	.cf-item .info-item .content-area .content-footer-btns .fbtn-item,.cf-item .info-item .content-area-fill .content-footer-btns .fbtn-item{width: 30%;}
+    	.cf-item .info-item .content-area .content-footer-btns .fbtn-item.fbtn-item-l,.cf-item .info-item .content-area-fill .content-footer-btns .fbtn-item.fbtn-item-l{text-align: left;color:#999999;}
+    	.cf-item .info-item .content-area .content-footer-btns .fbtn-item.fbtn-item-l-ok,.cf-item .info-item .content-area-fill .content-footer-btns .fbtn-item.fbtn-item-l-ok{text-align: left;color:#11ce7c;}
+    	.cf-item .info-item .content-area .content-footer-btns .fbtn-item.fbtn-item-c,.cf-item .info-item .content-area-fill .content-footer-btns .fbtn-item.fbtn-item-c{text-align:center;margin: 0 5%;color:#999999;}
+    	.cf-item .info-item .content-area .content-footer-btns .fbtn-item.fbtn-item-c-ok,.cf-item .info-item .content-area-fill .content-footer-btns .fbtn-item.fbtn-item-c-ok{text-align:center;margin: 0 5%;color:#11ce7c;}
+    	.cf-item .info-item .content-area .content-footer-btns .fbtn-item.fbtn-item-r,.cf-item .info-item .content-area-fill .content-footer-btns .fbtn-item.fbtn-item-r{text-align: right;color:#999999;}
+    	.cf-item .info-item .content-area .content-footer-btns .fbtn-item.fbtn-item-r-ok,.cf-item .info-item .content-area-fill .content-footer-btns .fbtn-item.fbtn-item-r-ok{text-align: right;color:#11ce7c;}
+    
+    </style>
+</head>
+<body>
+	<div id="circlefriend_id">
+		<template>
+		<!--一个视频的时候-->
+		<div class="cf-item" v-for="dataItem in dataList" tapmode="hover" @click="itemClick(dataItem)">
+			<!--<div class="project-item horizontal">
+				<div class="project-title">项目名称:{{dataItem.SUBJECT_TITLE}}</div>
+				<div class="project-time">{{dataItem.CRETAE_DATE}}</div>
+			</div>-->
+			<div class="project-item">
+				<div class="project-time">{{dataItem.CRETAE_DATE}}</div>
+			</div>
+			<div class="info-item horizontal">
+				<div class="att-area" v-if="dataItem.attDataList.length>0">
+					<!--视频-->
+					<div v-if="dataItem.attType==1" class="video-info">
+						<img v-lazy="dataItem.attDataList[0].imgUrl"/>
+						<div class="play-icon"><span></span></div>
+					</div>
+					<!--一张图片-->
+					<div class="img-info1" v-else-if="dataItem.attType==0 && dataItem.attDataList.length==1">
+						<img v-lazy="dataItem.attDataList[0].imgUrl"/>
+					</div>
+					<!--两张图片-->
+					<div class="img-info2" v-else-if="dataItem.attType==0 && dataItem.attDataList.length==2">
+						<div class="aui-row aui-row-padded">
+							<div class="aui-col-xs-6" v-for="imgItem in dataItem.attDataList">
+								<div class="img-item2">
+									<img v-lazy="imgItem.imgUrl"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--三张图片-->
+					<div class="img-info3" v-else-if="dataItem.attType==0 && dataItem.attDataList.length==3">
+						<div class="aui-row aui-row-padded">
+							<div class="aui-col-xs-6">
+								<div class="img-item3-l">
+									<img  v-lazy="dataItem.attDataList[0].imgUrl"/>
+								</div>
+							</div>
+							<div class="aui-col-xs-6">
+								<div class="img-item3-t">
+									<img v-lazy="dataItem.attDataList[1].imgUrl"/>
+								</div>
+								<div class="img-item3-b">
+									<img v-lazy="dataItem.attDataList[2].imgUrl"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--四张图片-->
+					<div class="img-info4" v-else-if="dataItem.attType==0 && dataItem.attDataList.length==4">
+						<div class="aui-row aui-row-padded">
+							<div class="aui-col-xs-6" v-for="imgItem in dataItem.attDataList">
+								<div class="img-item4">
+									<img v-lazy="imgItem.imgUrl"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--大于4张小于7张-->
+					<div class="img-info5" v-else-if="dataItem.attType==0 && dataItem.attDataList.length>4 && dataItem.attDataList.length<7">
+						<div class="aui-row aui-row-padded">
+							<div class="aui-col-xs-4" v-for="imgItem in dataItem.attDataList">
+								<div class="img-item5">
+									<img v-lazy="imgItem.imgUrl"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--六张以上-->
+					<div class="img-info6" v-else-if="dataItem.attType==0 && dataItem.attDataList.length>6">
+						<div class="aui-row aui-row-padded">
+							<div class="aui-col-xs-4" v-for="imgItem in dataItem.attDataList">
+								<div class="img-item6">
+									<img v-lazy="imgItem.imgUrl"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--没有附件-->
+					<div class="img-info1" v-else>
+						<img src="../../image/placeholder.png" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+					</div>
+				</div>
+				<div :class="dataItem.attDataList.length>0 ? 'content-area':'content-area-fill'">
+					<div class="content-title">{{dataItem.SUBJECT_TITLE}}</div>
+					<div class="content-detail">{{dataItem.SUBJECT_MEMO}}</div>
+					<div class="phd-div"></div>
+					<div class="content-footer-btns horizontal">
+						<div class="fbtn-item" :class="dataItem.ZAN_FLAG==1 || dataItem.ZAN_FLAG=='1' ? 'fbtn-item-l-ok':'fbtn-item-l'"><i class="aui-iconfont aui-icon-laud"></i>{{filterNumber(dataItem.DZ_NUM)}}</div>
+						<div class="fbtn-item fbtn-item-c"><i class="aui-iconfont aui-icon-comment"></i>{{filterNumber(dataItem.HF_NUM)}}</div>
+						<div class="fbtn-item fbtn-item-r"><i class="aui-iconfont aui-icon-forward"></i>{{filterNumber(dataItem.NO_NUM)}}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="height: 2rem;min-height: 2rem;max-height: 2rem;"></div>
+		</template>
+	</div>
+	<div id="more_hint" class="more-data"></div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui-sharebox.js" ></script>
+<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+
+	var circlefriendVm;
+	var startNum=0;//起始位置
+	var pageSize=30;//每页数量
+	var endNum=pageSize;//截止位置
+	var wxModule;
+	apiready = function(){
+	
+		var userId = $api.getStorage("userid");//用户id
+		
+		//通过视频路径除去格式部分,去获取视频预览图
+		var filterVideoImgByUrl=function(attDataList,attName){
+			var resultUrl='';
+			for(var index in attDataList){
+				var attUrl = attDataList[index].URL;
+				var attFormat=attUrl.substring(attUrl.length-4,attUrl.length);
+				if(attUrl.indexOf(attName) != -1 && attFormat!='.mp4' && attFormat!='.MP4'){
+					resultUrl=attUrl;
+					break;
+				}
+			}
+			return resultUrl;
+		}
+		
+		var httpsDataList=function(isRefresh){
+			if(isRefresh){
+				startNum=0;
+				endNum=pageSize;
+			}else{
+				startNum=startNum+pageSize;
+				endNum=startNum+pageSize;
+			}
+			var param = "key=zxj_repertory&AJAX_MODE=AJAX_MODE_QUERY&DATASET=bbs_my_page&QUERY_MODE=list&CLIENT_ID="+userId+"&MY_CLIENT_ID="+userId+"&START_POSITION="+startNum+"&END_POSITION="+endNum;
+			_httpsPlatformClass('',param,
+				function(ret){
+					api.hideProgress();
+					if(isRefresh){
+						api.refreshHeaderLoadDone();
+					}
+					if(ret.code == 0 || ret.code == '0') {
+						var resultMsg =  checkIsJsonObj(ret.msg);
+						if(resultMsg!=null) {
+							var msgList = resultMsg!=null ? resultMsg:[];
+							var packagingResList=[];//存放封装结果
+							//重新封装数据
+							for(var index in msgList){
+								//获取item的数据
+								var itemObj = msgList[index];
+								itemObj.attType=0;//添加一个字段用于判断附件类型:0图片，1视频；默认为0
+								//获取item中附件数组的数据并且转成json对象
+								var attDataList = checkIsJsonObj(itemObj.IMG_LIST);
+								attDataList = attDataList!=null ? attDataList:[];
+								var attDataListTemp=[];//存放从新封装的附件信息
+								var isAppend=false;//是否允许数据添加到attDataListTemp
+								//循环遍历附件数组，从新封装区分视频和图片数据
+								for(var attIndex in attDataList){
+									isAppend=false;
+									var attObj = attDataList[attIndex];//获取附件对象
+									var attUrl = attObj.URL;//获取附件url
+									if(attUrl==undefined || attUrl==null || attUrl==''){
+										return;
+									}
+									var attObjTemp={};
+									//截取附件格式
+									var attFormat=attUrl.substring(attUrl.length-4,attUrl.length);
+									if(attFormat=='.mp4' || attFormat=='.MP4'){
+										//如果是.mp4格式
+										var attNamePosition=attUrl.substring(attUrl.length-5,attUrl.length-4);
+										var videoImgUrl = filterVideoImgByUrl(attDataList,'friend_video'+attNamePosition);
+										itemObj.attType=1;
+										attObjTemp.imgUrl=videoImgUrl;
+										attObjTemp.videoUrl=attUrl;
+										isAppend=true;
+										
+									}else{
+										//如果是图片
+										//只获取普通图片
+										if(attUrl.indexOf("friend_pic") != -1){
+											//视频的预览图
+											attObjTemp.imgUrl=attUrl;
+											isAppend=true;
+										}
+									}
+									if(isAppend){
+										attDataListTemp.push(attObjTemp);
+									}
+									
+								}
+								itemObj.attDataList=attDataListTemp;
+								packagingResList.push(itemObj);
+							}
+							
+							if(isRefresh){
+								circlefriendVm.refreshData(packagingResList);
+							}else{
+								circlefriendVm.appendData(packagingResList);
+							}
+						} else{
+							if(isRefresh){
+								circlefriendVm.refreshData([]);
+							}else{
+								circlefriendVm.appendData([]);
+							}
+						}
+					} else{
+						showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				},true
+			);
+			
+		}
+	
+		// 图片懒加载配置
+		Vue.use(VueLazyload, {
+		  preLoad: 1.3, // 预加载高度比例
+		  error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+		  loading: '../../image/placeholder_loading.png', // 预加载图片
+		  attempt: 1, // 尝试加载图片数量
+		  // set observer to true
+		  observer: true,
+		  // optional
+		  observerOptions: {
+		    rootMargin: '0px',
+		    threshold: 0.1
+		  }
+		})
+		
+		circlefriendVm = new Vue({
+			el:'#circlefriend_id',
+			data:{
+				dataList:[]
+			},
+			methods:{
+				refreshData:function(data){
+					this.dataList=data;
+					this.nextTick(data);
+				},
+				appendData:function(data){
+					this.dataList = this.dataList.concat(data);
+					this.nextTick(data);
+				},
+				nextTick:function(data){
+					var ret = data!=undefined && data.length>pageSize?true:false;
+					pullupHint('more_hint',ret);
+					if(!ret && startNum>pageSize){
+						startNum=startNum-pageSize;
+					}
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				filterNumber:function(data){
+					if(data==undefined || data==null || data=='null' || data=='' ){
+						return 0;
+					}else{
+						return data;
+					}
+				},
+				itemClick:function(data){
+					api.openWin({
+						name : 'circlefriendsdetail_win',
+						url : 'widget://html/circlefriends/circlefriendsdetail_win.html',
+						slidBackEnabled:true,
+						delay:300,
+						pageParam:{
+							cfDetail:data
+						}
+					});	
+				},
+//				shareItemClick:function(data){
+//					openSharebox('../../image',function(position,sceneValue){
+//						var title = data.SUBJECT_TITLE==undefined || data.SUBJECT_TITLE=='' ? '装小匠':data.SUBJECT_TITLE;
+//						var content = data.SUBJECT_MEMO==undefined || data.SUBJECT_MEMO=='' ? '装小匠':data.SUBJECT_MEMO;
+//						var shareUrl = thirdUseUrl+'/zxj_company/weixin_gzh/worker_detail.html?id='+data.CLIENT_ID;
+//						if(wxModule==undefined || wxModule==null || wxModule==''){
+//							wxModule = api.require('wx');
+//						}
+//						wxModule.isInstalled(function(ret, err) {
+//						    if (ret.installed) {
+//						        wxModule.shareWebpage({
+//	//							    apiKey: '',
+//								    scene: sceneValue,//session（会话）;timeline（朋友圈）;favorite（收藏）
+//								    title: title,
+//								    description: content,
+//								    thumb: 'widget://image/app_logo.png',
+//								    contentUrl: shareUrl
+//								}, function(ret, err) {
+//								});
+//						    } else {
+//						    	api.toast({ msg: '当前设备未安装微信客户端',duration: 2000, location: 'bottom'});
+//						    }
+//						});
+//					});
+//				}
+			}
+			
+		});
+		
+		api.showProgress();
+		httpsDataList(true);
+		
+		//下拉刷新
+		api.setRefreshHeaderInfo({
+		    loadingImg: '',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉刷新...',
+		    textUp: '松开刷新...'
+		}, function(ret, err) {
+		    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+			httpsDataList(true);
+		});
+		
+		//监听距离底部距离,实现上拉加载更多
+		api.addEventListener({
+		    name:'scrolltobottom',
+		    extra:{
+		        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+		    }
+		}, function(ret, err){
+			httpsDataList(false);
+		});
+		
+		//监听发布朋友圈成功
+		api.addEventListener({
+		    name: 'haircf_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					//发布成功
+					api.refreshHeaderLoading();
+				}
+			}
+		});
+		
+		//监听提交评论成功
+		api.addEventListener({
+		    name: 'eva_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					api.refreshHeaderLoading();
+				}
+			}
+		});
+		
+		//监听点赞成功
+		api.addEventListener({
+		    name: 'like_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					api.refreshHeaderLoading();
+				}
+			}
+		});
+		
+		//收藏或者取消收藏成功
+		api.addEventListener({
+		    name: 'collect_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					api.refreshHeaderLoading();
+				}
+			}
+		});
+		
+		//转发成功
+		api.addEventListener({
+		    name: 'share_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					api.refreshHeaderLoading();
+				}
+			}
+		});
+		
+		
+		//监听删除朋友圈成功
+		api.addEventListener({
+		    name: 'delcf_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					api.refreshHeaderLoading();
+				}
+			}
+		});
+		
+		
+	};
+</script>
+</html>

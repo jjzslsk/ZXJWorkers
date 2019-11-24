@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>工匠社区frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/workercommunity/workercommunity.css" />
+</head>
+<body>
+	<div id="com_id">
+		<template>
+		<!--标签-->		
+		<div class="aui-grid view-box-shadow">
+	        <div class="aui-row">
+	            <div class="aui-col-xs-4 click-item-ser" v-for="(lableItem,lableIndex) in tableList" tapmode="hover" @click="lableClick(lableIndex)">
+	                <div class="aui-grid-label"><span class="lable-item" :class="curTable==lableIndex ? 'acvity':''">{{lableItem}}</span></div>
+	            </div>
+	        </div>
+	    </div>
+	    </template>
+	    <template>
+	    <!--大家都再说-->
+	    <div class="eve-talk">
+	    	<div class="horizontal talk-title">
+	    		<div class="title">大家都再说</div>
+	    		<div class="more"><span>更多</span><i class="aui-iconfont aui-icon-right"></i></div>
+	    	</div>
+	    	<div class="horizontal talk-img-list">
+	    		<div class="talk-img-item" v-for="eveTalkItem in eveTalkList">
+	    			<div class="content-info" tapmode="hover" @click="articleItemClick(eveTalkItem.id)">
+	    				<div class="img-info">
+		    				<span v-if="eveTalkItem.hotDegree==1" class="hot-degree hot-degree-bg01">爆</span>
+		    				<span v-else-if="eveTalkItem.hotDegree==2" class="hot-degree hot-degree-bg02">热</span>
+			    			<img :src="eveTalkItem.imgUrl" onerror="src='../../image/placeholder.png'"/>
+		    			</div>
+		    			<div class="content">
+		    				<div class="content-title">{{eveTalkItem.title}}</div>
+		    				<div class="statistical-num"><span>{{eveTalkItem.discussNum}}</span>次讨论</div>
+		    			</div>
+	    			</div>
+	    		</div>
+	    	</div>
+	    </div>
+	    </template>
+	    <template>
+		<!--热门、最近、推荐、本地、精华-->	    
+	    <div class="tab-list-area">
+	    	<div class="aui-tab" id="comm_tab">
+		        <div class="aui-tab-item aui-active">热门<span class="tab-active-line"></span></div>
+		        <div class="aui-tab-item">最近<span class="tab-active-line"></span></div>
+		        <div class="aui-tab-item">推荐<span class="tab-active-line"></span></div>
+		        <div class="aui-tab-item">本地<span class="tab-active-line"></span></div>
+		        <div class="aui-tab-item">精华<span class="tab-active-line"></span></div>
+		    </div>
+		    <!--卡片item-->
+		    <div class="tab-card-item" v-for="cardIBdtem in tabBodyList">
+		    	<div class="img-text horizontal click-item-ser" tapmode="hover" @click="articleItemClick(cardIBdtem.id)">
+		    		<div class="img-area">
+		    			<img :src="cardIBdtem.imgUrl" onerror="src='../../image/placeholder.png'"/>
+		    		</div>
+		    		<div class="text-area">
+		    			<div class="title">{{cardIBdtem.title}}</div>
+		    			<div class="content">{{cardIBdtem.content}}</div>
+		    			<div class="discuss-num statistical-num"><span>{{cardIBdtem.discussNum}}</span>次预览</div>
+		    		</div>
+		    	</div>
+		    	<div class="card-type"><span class="title-icon">#</span><span class="type-name">{{cardIBdtem.articleTypeName}}</span></div>
+		    	<div class="horizontal item-bottom-btn">
+		    		<div class="eva-num statistical-num" tapmode="hover" @click="evaClick(cardIBdtem.id)"><i class="aui-iconfont aui-icon-comment"></i><span>{{cardIBdtem.evaNum}}</span>人评论</div>
+		    		<div class="give-like-num statistical-num" tapmode="hover" @click="giveLikeClick(cardIBdtem.id)"><i class="aui-iconfont aui-icon-laud"></i><span>{{cardIBdtem.giveLikeNum}}</span>人点赞</div>
+		    		<div class="share-num statistical-num" tapmode="hover" @click="shareClick(cardIBdtem.id)"><i class="aui-iconfont aui-icon-share"></i><span>{{cardIBdtem.shareNum}}</span>人分享</div>
+		    	</div>
+		    </div>
+	    </div>
+	    </template>
+	    <template>
+	    <!--底部列表-->
+	    <div class="bottom-list-area">
+	    	<div class="horizontal btm-title-area">
+	    		<div class="btm-img-view">
+	    			<img src="../../image/icon/community/comm_head.png" onerror="src='../../image/placeholder.png'"/>
+	    		</div>
+	    		<div class="btm-title-name">{{btmData.name}}</div>
+	    		<div class="btm-time">{{btmData.city}}.{{btmData.time}}</div>
+	    	</div>
+	    	<div class="btm-card-item" v-for="btmItem in btmData.dataList">
+	    		<div class="btm-card-title" tapmode="hover" @click="articleItemClick(btmItem.id)">{{btmItem.title}}</div>
+	    		<div class="btm-card-img" tapmode="hover" @click="articleItemClick(btmItem.id)"><img :src="btmItem.imgUrl" onerror="src='../../image/placeholder.png'"/></div>
+	    		<div class="horizontal item-bottom-btn">
+	    			<div class="eva-num statistical-num" tapmode="hover" @click="evaClick(btmItem.id)"><i class="aui-iconfont aui-icon-comment"></i><span>{{btmItem.evaNum}}</span>人评论</div>
+		    		<div class="give-like-num statistical-num" tapmode="hover" @click="giveLikeClick(btmItem.id)"><i class="aui-iconfont aui-icon-laud"></i><span>{{btmItem.giveLikeNum}}</span>人点赞</div>
+		    		<div class="share-num statistical-num" tapmode="hover" @click="shareClick(btmItem.id)"><i class="aui-iconfont aui-icon-share"></i><span>{{btmItem.shareNum}}</span>人分享</div>
+		    	</div>
+	    	</div>
+	    </div>
+	    </template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_tab.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var commVm;
+	var commTab;
+	var eveTalkListTemp=[
+		{id:'et001',imgUrl:'../../image/video/decorateStep.png',title:'#装修视频大赛',discussNum:1250,hotDegree:1},
+		{id:'et002',imgUrl:'../../image/video/decorateStep.png',title:'#装修技艺大赛',discussNum:1650,hotDegree:2},
+		{id:'et003',imgUrl:'../../image/video/decorateStep.png',title:'#装修技艺大赛',discussNum:150,hotDegree:3},
+	];
+	
+	var tabBodyListTemp=[
+		{id:'b001',imgUrl:'../../image/testtemp/demo2.png',title:'标题标题装修视频大赛装修视频大赛',content:'正文正文大赛装修视频大赛装修视频',discussNum:1250,articleTypeName:'装修视频大赛',evaNum:1280,giveLikeNum:1000,shareNum:1682},
+		{id:'b002',imgUrl:'../../image/testtemp/l1.png',title:'标题标题装修视频大赛装修视频大赛',content:'正文正文大赛装修视频大赛装修视频',discussNum:1250,articleTypeName:'装修视频大赛',evaNum:1280,giveLikeNum:1000,shareNum:1682}
+	];
+	
+	var btmDataTemp={
+		name:'名称名称',
+		city:'南宁',
+		time:'2天前',
+		dataList:[
+			{id:'bt001',title:'文字内容文字内容，一套非常完善',imgUrl:'../../image/testtemp/l2.png',evaNum:1280,giveLikeNum:1000,shareNum:1682}
+		]
+	};
+	
+	
+	apiready = function(){
+		
+		commVm=new Vue({
+			el:'#com_id',
+			data:{
+				curTable:0,//当前选中标签的下标
+				tableList:['匠工故事','社区活动','话题交流','安全常识','保险'],//标签列表
+				eveTalkList:[],
+				tabBodyList:[],//中间的列表数据
+				btmData:{}//底部数据
+			},
+			methods:{
+				refreshEveTalkList:function(data){
+					//刷新大家都在说的列表数据
+					this.eveTalkList=data;
+					this.nextTick();
+				},
+				refreshTabBodyList:function(data){
+					//刷新中间的列表数据
+					this.tabBodyList=data;
+					this.nextTick();
+				},
+				refreshBtmData:function(data){
+					//刷新底部数据
+					this.btmData=data;
+					this.nextTick();
+				},
+				lableClick:function(position){
+					//标签点击事件
+					this.curTable=position;
+					this.nextTick();
+				},
+				nextTick:function(){
+					this.$nextTick(function(){
+						api.parseTapmode();
+//						api.hideProgress();
+					})
+				},
+				articleItemClick:function(id){
+					//文章item点击
+					api.toast({ msg: '文章item点击:'+id,duration: 2000, location: 'middle'});
+				},
+				evaClick:function(id){
+					//评论
+					api.toast({ msg: '评论:'+id,duration: 2000, location: 'middle'});
+				},
+				giveLikeClick:function(id){
+					//点赞
+					api.toast({ msg: '点赞:'+id,duration: 2000, location: 'middle'});
+				},
+				shareClick:function(id){
+					//分享
+					api.toast({ msg: '分享:'+id,duration: 2000, location: 'middle'});
+				}
+			} 
+		});
+		
+		commVm.refreshEveTalkList(eveTalkListTemp);
+		commVm.refreshTabBodyList(tabBodyListTemp);
+		commVm.refreshBtmData(btmDataTemp);
+		
+		commTab = new auiTab({
+	        element:document.getElementById("comm_tab"),
+	    },function(ret){
+	    
+	    });
+		
+	};
+</script>
+</html>

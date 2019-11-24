@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>发朋友圈frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui_flex.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7}
+    	.hair-info{background-color: #FFFFFF;padding: 20px;}
+    	.hair-info .title{border-bottom: 1px solid #DDDDDD;padding: 0 5px;}
+    	.hair-info .title input{width: 100%;}
+    	.hair-info .conent{margin-top: 10px;}
+    	.hair-info .conent textarea{width: 100%;min-height: 3rem;padding:5px;}
+   		
+   		.my-mood{color:#999999;margin-top: 20px;}
+   		/*.att-info-area{}*/
+    	.att-img {width: 80%;height: 0px;padding-bottom: 80%;position: relative;margin: 0 10%}
+		.att-img img {width: 100%;height: 100%;position: absolute;border-radius: 10px}
+		.att-img .del-tip {width: 1.5rem;height: 1.5rem;line-height: 1.5rem;text-align: center;border-radius: 50%;background-color: #d61414;color: #FFFFFF;position: absolute;z-index: 99;right: -0.5rem;top: -0.5rem;}
+		.add-img{background: #EEEEEE;border-radius: 10px;border: 1px dashed #DDDDDD;}
+		.add-img i{position: absolute;top:calc(40% - 0.6rem);left:calc(50% - 0.6rem);font-size: 1.2rem;}
+		.att-img .play-icon{width: 1.5rem;height: 1.5rem;border: 1px solid #FFFFFF;position: absolute;z-index: 99;top:calc(50% - 0.75rem);left:calc(50% - 0.75rem);border-radius: 50%;padding: 0.25rem 0.25rem 0.25rem 0.5rem;}
+		.att-img .play-icon span{width: 0;height: 0;border-top: 0.5rem solid transparent;border-bottom: 0.5rem solid transparent;border-right: 0.5rem solid transparent;border-left: 0.5rem solid rgba(255,255,255,0.9);}
+		
+		.hair-list{margin-top: 30px;border-top: 1px solid #DDDDDD;}
+		.hair-list .hair-list-item{padding: 15px 0;}
+		.hair-list .hair-list-item .item-icon{width: 1.5rem;text-align: left;margin-top: 4px;}
+		.hair-list .hair-list-item .item-icon i{font-size: 1rem;}
+		.hair-list .hair-list-item .item-content{width: calc(100% - 1.5rem);border-bottom: 1px solid #DDDDDD;padding: 8px 0}
+		.hair-list .hair-list-item .item-content .content{width: calc(100% - 1.5rem);}
+		.hair-list .hair-list-item .item-content .item-icon-arw-r{width: 1.5rem;text-align: right;}
+		.hair-list .hair-list-item .item-content .item-icon-arw-ri{font-size: 1rem;}
+
+		
+
+
+    </style>
+</head>
+<body>
+	<div id="hair_id">
+		<template>
+		<div class="hair-info">
+			<div class="title">
+				<input type="text" placeholder="输入标题...(非必填)" maxlength="100" v-model="infoTitle"/>
+			</div>
+			<div class="conent">
+				<textarea type="text" placeholder="这一刻的想法.." maxlength="1000" v-model="infoContent"></textarea>
+			</div>
+			<div class="my-mood">#我的心情#</div>
+			<!--附件图片或者视频-->
+			<div class="att-info-area aui-flex-col aui-flex-middle">
+				<div class="aui-flex-item-4 aui-padded-5" v-for="(attDataItem,attDataIndex) in attDataList">
+					<div class="att-img">
+						<span class="del-tip" tapmode="hover" @click="attDataDel(attDataIndex,attDataItem)">—</span>
+						<img v-lazy="attDataItem.imgUrl" tapmode="hover" @click="previewImg(attDataIndex,attDataList)"/>
+						<div class="play-icon" v-if="attDataItem.type==1"><span></span></div>
+					</div>
+				</div>
+				<div class="aui-flex-item-4 aui-padded-5" v-if="attDataList.length<attDataMax && (showChooseAttType==-1 || showChooseAttType==0)">
+					<div class="att-img add-img" tapmode="hover" @click="addAttDataClick">
+						<i class="aui-iconfont aui-icon-plus"></i>
+					</div>
+				</div>
+				<div class="aui-flex-item-4 aui-padded-5" v-else-if="attDataList.length<attVideoMax && (showChooseAttType==-1 || showChooseAttType==1)">
+					<div class="att-img add-img" tapmode="hover" @click="addAttDataClick">
+						<i class="aui-iconfont aui-icon-plus"></i>
+					</div>
+				</div>
+				<!--<div class="aui-flex-item-3 aui-padded-5" v-if="attDataList.length<attDataMax+attVideoMax">
+					<div class="att-img add-img" tapmode="hover" @click="addAttDataClick">
+						<i class="aui-iconfont aui-icon-plus"></i>
+					</div>
+				</div>-->
+				
+				
+			</div>
+			<div class="hair-list">
+				<div class="horizontal hair-list-item" tapmode="hover" @click="chooseCurAddressClick">
+					<div class="item-icon"><i class="aui-iconfont aui-icon-location"></i></div>
+					<div class="horizontal item-content">
+						<div class="content" v-if="curAddress.length>0">{{curAddress}}</div>
+						<div class="content" v-else>所在位置</div>
+						<div class="item-icon-arw-r"><i class="aui-iconfont aui-icon-right"></i></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+<script type="text/javascript">
+	var publishInfoHttps;//发表
+	var shootVideoClick;
+	var hairVm;
+	var addressChooseRes;
+	var keybackClick;
+	var sumbitLoading=false;//是否是在提交中
+	apiready = function(){
+		var userId = $api.getStorage("userid");//用户id
+		var curLocationAddress = $api.getStorage("curAddress")==undefined ? '':$api.getStorage("curAddress");//当前地址
+		
+		/**
+		 *上传图片
+		 *imgList 图片
+		 */
+		var uploadImgList = function(attFkId,attFkName,attName,imgList, funCal) {
+			if (imgList.length > 0) {
+				//检测压缩工程案例
+				api.showProgress({
+					title : '压缩图片'
+				});
+				batchCompressList(attFkName, attName, imgList, function(attNameList, attFkNameList, imgArray) {
+					if(imgArray.length>0) {
+						var param = {};
+						param.attUser = userId;
+						param.attFkId = attFkId;
+						param.attName = attNameList;
+						param.attFkName = attFkNameList;
+						param.attNoWater = '1';
+						api.showProgress({
+							title : '上传图片'
+						});
+						uploadFileHttps(param, imgArray, function(ret) {
+							if (ret.status) {
+								if (funCal != undefined && typeof funCal === "function") {
+									funCal(true);
+								}
+							} else {
+								if (funCal != undefined && typeof funCal === "function") {
+									funCal(false);
+								}
+								showSingleAuiDialog('上传图片失败(' + ret.code + ')', ret.msg);
+							}
+						}, function(err) {
+							api.hideProgress();
+						});
+					}else{
+						if (funCal != undefined && typeof funCal === "function") {
+							funCal(true);
+						}
+					}
+					
+				});
+			} else {
+				if (funCal != undefined && typeof funCal === "function") {
+					funCal(true);
+				}
+			}
+		};
+		
+		//上传视频
+		var uploadVideoList=function(attFkId,arrVideoImgList,videoList,funCal){
+			if(videoList.length>0){
+				uploadImgList(attFkId,'friend_pic','friend_video',arrVideoImgList,function(isPass){
+					if(isPass){
+						var param = {};
+						param.attUser = userId;
+						param.attFkId = attFkId;
+						param.attNoWater = '1';
+						var attFkNameVideoList=[];
+						var attNameVideoList=[];
+						for(var index in videoList){
+							attFkNameVideoList.push('friend_pic');
+							attNameVideoList.push('friend_video'+index+".mp4");
+						}
+						param.attFkName = attFkNameVideoList;
+						param.attName = attNameVideoList;
+						api.showProgress({
+							title : '上传视频'
+						});
+						//开始上传视频
+						uploadFileHttps(param, videoList, function(ret) {
+							if (ret.status) {
+								if (funCal != undefined && typeof funCal === "function") {
+									funCal(true);
+								}
+							} else {
+								if (funCal != undefined && typeof funCal === "function") {
+									funCal(false);
+								}
+								showSingleAuiDialog('上传视频失败(' + ret.code + ')', ret.msg);
+							}
+						}, function(err) {
+							api.hideProgress();
+						});
+					}else{
+						if(funCal != undefined && typeof funCal === "function") {
+							funCal(false);
+						}
+					}
+				});
+			}else{
+				if (funCal != undefined && typeof funCal === "function") {
+					funCal(true);
+				}
+			}
+		}
+		
+		var uploadFile=function(attFkId,attDataList){
+			var attImgList=[];//图片
+			var arrVideoImgList=[];//视频预览图
+			var attVideoList=[];//视频
+			for(var index in attDataList){
+				var attData = attDataList[index];
+				//type:0图片；1视频
+				if(attData.type==0){
+					//图片
+					attImgList.push(attData.imgUrl);
+				}else{
+					//视频
+					arrVideoImgList.push(attData.imgUrl);
+					attVideoList.push(attData.videoUrl);
+				}
+			}
+			
+			uploadImgList(attFkId,'friend_pic','friend_pic',attImgList,function(isPass){
+				if(isPass){
+					uploadVideoList(attFkId,arrVideoImgList,attVideoList,function(videoIsPass){
+						api.hideProgress();
+						if(isPass){
+							showSingleAuiDialog('提交', '提交成功','确定',function(ret){
+								sumbitLoading=false;
+								api.sendEvent({
+								    name: 'haircf_send_event',
+								    extra: {
+								       isSuccess: true,
+								    }
+								});
+								api.closeWin();
+							});
+						}
+					});
+				}
+			});
+			
+		}
+		
+		
+		var sumbitInfoHttps=function(title,content,attDataList,curAddressTemp){
+			if(sumbitLoading) {
+				api.toast({ msg: '正在提交中...',duration: 2000, location: 'middle'});
+				return;
+			}
+			var param ="CLIENT_ID="+ userId+"&FLAG=0&BBS_ID=1&SUBJECT_TITLE="+title+"&SUBJECT_MEMO="+content+"&ADDR="+curAddressTemp;
+			sumbitLoading=true;
+			api.showProgress({title: '提交信息'});
+			_httpsPlatformClass('saveSubject',param,
+				function(ret){
+					if(ret.code == 0 || ret.code == '0') {
+						var resultMsg = checkIsJsonObj(ret.msg);
+						uploadFile(resultMsg.msg,attDataList);
+					} else{
+						api.hideProgress()
+						showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+						sumbitLoading=false;
+					}
+				},
+				function(err){
+					api.hideProgress();
+					sumbitLoading=false;
+				}
+			);
+		}
+		
+		
+		//发表
+		publishInfoHttps=function(){
+			var title=hairVm.infoTitle;//标题
+			var content=hairVm.infoContent;//内容
+			var attDataList=hairVm.attDataList;//附件
+			var curAddressTemp='';
+			if(hairVm.curAddress!='不显示位置'){
+				curAddressTemp=hairVm.curAddress=='' ? curLocationAddress:hairVm.curAddress;
+			}
+			
+//			if(title==undefined || title==null || title==''){
+//				api.toast({msg : '请填写发布标题',duration : 2000,location : 'middle'});
+//			}
+			if(content==undefined || content==null || content==''){
+				api.toast({msg : '请填写发布内容',duration : 2000,location : 'middle'});
+			}else{
+				sumbitInfoHttps(title,content,attDataList,curAddressTemp);
+			}
+			
+		}
+		
+		shootVideoClick=function(){
+			shootSmallVideo();
+		}
+		
+		addressChooseRes=function(res){
+			hairVm.curAddress=res.address;
+		}
+		
+		keybackClick=function(){
+			//监听物理返回键
+			if(zySmallVideoIsOpen){
+				zySmallVideoClose();
+			}else{
+				api.closeWin();
+			}
+		}
+		// 图片懒加载配置
+		Vue.use(VueLazyload, {
+		  preLoad: 1, // 预加载高度比例
+		  error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+		  loading: '../../image/placeholder_loading.png', // 预加载图片
+		  attempt: 1, // 尝试加载图片数量
+		  observer: true,
+		  observerOptions: {
+		    rootMargin: '0px',
+		    threshold: 0.1
+		  }
+		});
+		hairVm = new Vue({
+			el:'#hair_id',
+			data:{
+				infoTitle:'',//信息标题
+				infoContent:'',//信息内容
+				attDataList:[], //附件信息(图片或视频)
+				attDataMax:9, //附件信息最多能添加多少个
+				attVideoMax:1,//最多只能添加一个视频
+				showChooseAttType:-1,//显示选择附件的类型。-1：弹出选择图片或者视频；0：图片；1：视频
+				curAddress:''
+			},
+			watch:{
+				'infoTitle': function() {
+					this.infoTitle=filterKeyboardEmoji(this.infoTitle);
+			  	},
+			  	'infoContent': function() {
+					this.infoContent=filterKeyboardEmoji(this.infoContent);
+			  	}
+			},
+			methods:{
+				initData:function(){
+					
+				},
+				nextTick:function(){
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				attObjPackag:function(type,obj){
+					//type:0图片；1视频
+					var imgObj={};
+					imgObj.type=type;
+					if(type==0){
+						imgObj.imgUrl=obj;
+					}else{
+						imgObj.imgUrl=obj.imgUrl;
+						imgObj.videoUrl=obj.videoUrl;
+					}
+					return imgObj;
+				},
+				attDataDel : function(position,data) {
+					//删除行业资质图片
+					this.attDataList.splice(position, 1);
+					if(this.attDataList.length==0){
+						this.showChooseAttType=-1;
+					}
+				},
+				getArrDataCountByType:function(type){
+					//获取已添加图片或者视频数量
+					//type 0图片,1视频
+					var countTemp=0;
+					var attDataList = this.attDataList;
+					for(var index in attDataList){
+						if(attDataList[index].type==type){
+							countTemp++;
+						}
+					}
+					return countTemp;
+				},
+				appendAttData:function(pathObj,isVideo) {
+					//添加附件
+					if(isVideo!=undefined && isVideo){
+						//视频
+						if(this.getArrDataCountByType(1) < this.attVideoMax) {
+							var imgObj = this.attObjPackag(1,pathObj);
+							this.attDataList.push(imgObj);
+							this.showChooseAttType=1;
+						}else {
+							api.toast({
+								msg : '最多只能添加' + this.attVideoMax + '个视频',
+								duration : 1000,
+								location : 'bottom'
+							});
+						}
+					}else{
+						//图片
+						if (this.getArrDataCountByType(0) < this.attDataMax) {
+							for(var index in pathObj){
+								var imgObj = this.attObjPackag(0,pathObj[index]);
+								this.attDataList.push(imgObj);
+							}
+							this.showChooseAttType=0;
+						} else {
+							api.toast({
+								msg : '最多只能添加' + this.attDataMax + '张图片',
+								duration : 1000,
+								location : 'bottom'
+							});
+						}
+					}
+					this.nextTick();
+					
+				},
+				addAttDataClick:function() {
+					var showChooseAttType = this.showChooseAttType;
+					var isAddVideo=false,onlyChooseVideo=false;
+					if(showChooseAttType==-1){
+						isAddVideo=true;
+						onlyChooseVideo=false;
+					}
+					else if(showChooseAttType==1){
+						isAddVideo=true;
+						onlyChooseVideo=true;
+					}
+					
+					var chooseNum = Number(this.attDataMax) - Number(this.getArrDataCountByType(0));
+					chooseCameraSheet(function(ret,isVideo) {
+						hairVm.appendAttData(ret,isVideo);
+					}, chooseNum, '完成',isAddVideo,onlyChooseVideo);
+				},
+				previewImg : function(position, imgList) {
+					if(imgList[position].type==0){
+						//点击的是图片
+						var imgListTemp =[];//行业资质
+						for(var index in imgList){
+							if(imgList[index].type==0){
+								imgListTemp.push(imgList[index].imgUrl);
+							}
+						}
+						api.openWin({
+							name : 'previewpicture_win',
+							url : 'widget://html/previewpicture/previewpicture_win.html',
+							pageParam : {
+								position : position,
+								imgList : imgListTemp
+							},
+							slidBackEnabled : false,
+							delay : 300
+						});
+					}else{
+						//点击的是视频
+						var videoObj={};
+						videoObj.title="预览短视频";
+						videoObj.videoUrl=imgList[position].videoUrl;
+						videoPlay(videoObj);
+					}
+				},
+				chooseCurAddressClick:function(){
+					//选择所在位置
+					api.openWin({
+						name : 'searchnearby_win',
+						url : 'widget://html/circlefriends/searchnearby_win.html',
+						slidBackEnabled : false,
+						delay : 300,
+						pageParam:{
+							winName:'haircirclefriends_win',
+							frmName:'haircirclefriends_frm',
+							funCalRes:'addressChooseRes'
+						}
+					});
+					
+				}
+			}
+		});
+		
+		
+		
+	};
+</script>
+</html>

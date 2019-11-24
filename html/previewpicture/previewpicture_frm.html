@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>图片预览frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui_slide.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/previewpicture/previewpicture.css" />
+</head>
+<body>
+	<div id="aui-slide-img">
+		<template>
+        <div class="aui-slide-wrap" >
+            <div class="aui-slide-node bg-dark" v-for="imgItemUrl in imgList">
+                <img v-lazy="imgItemUrl"/>
+            </div>
+        </div>
+        <!--分页容器-->
+        <div class="aui-slide-page-wrap"></div>
+        </template>
+    </div>
+	<div id="page_count" class="page-count">0/0</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_slide.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+<script type="text/javascript">
+	var imgVm;
+	var initSlideImg;
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		var position=pageParam.position;
+		var imgList=pageParam.imgList;
+		var frameHeight = api.frameHeight;
+		initSlideImg=function(pageCount){
+			var slideImg = new auiSlide({
+		         container:document.getElementById("aui-slide-img"), //容器
+			    "height":frameHeight, //高度
+			    "speed":500, //速度
+			    "autoPlay": 0, //自动播放
+			    "loop":true,//是否循环
+			    "pageShow":true,//是否显示分页器
+			    "pageStyle":"dot", //分页器样式，分dot,line
+			    "dotPosition":"center", //当分页器样式为dot时控制分页器位置，left,center,right
+			    "index":position,
+			    "currentPage":function(curIndex){
+					var curIndexTemp=curIndex+1;
+			    	$('#page_count').text(curIndexTemp+'/'+pageCount);
+			    }
+	    	})
+		}
+		// 图片懒加载配置
+		Vue.use(VueLazyload, {
+		  preLoad: 1, // 预加载高度比例
+		  error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+		  loading: '../../image/placeholder_loading.png', // 预加载图片
+		  attempt: 1, // 尝试加载图片数量
+		  observer: true,
+		  observerOptions: {
+		    rootMargin: '0px',
+		    threshold: 0.1
+		  }
+		});
+		imgVm=new Vue({
+			el:'#aui-slide-img',
+			data:{
+				imgList:[]
+			},
+			methods:{
+				refreshData:function(data){
+					this.imgList=data;
+					var countTemp=Number(position)+1;
+					$('#page_count').text(countTemp+'/'+this.imgList.length);
+					this.nextTick();
+				},
+				nextTick : function() {
+					this.$nextTick(function() {
+						initSlideImg(imgVm.imgList.length);
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				}
+			}
+		});
+		
+		
+		imgVm.refreshData(imgList);
+	};
+</script>
+</html>

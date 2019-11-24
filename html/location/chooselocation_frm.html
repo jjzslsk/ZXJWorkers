@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>选择工作城市frm</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/lettersort.css">
+		<link rel="stylesheet" type="text/css" href="../../css/location/location.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/mylist.css" />
+		<style>
+	    	.search-area{width: 90%;margin-left:5%;margin-right: 5%;margin-bottom:0.3rem;background-color: #F1F1F1;}
+	    	.search-area .search-hint{width: 100%;color: #000000;padding: 0 10px;line-height: 1.6rem;max-height:1.6rem;}
+			.search-area .search-hint input{width:calc(100% - 50px);height: 1.6rem;line-height: 1.6rem}
+			.search-area .search-icon{right:5%;}
+	        .address-area{margin-top: 2.5rem;background-color: #FFFFFF}
+	        .initials{top: 3rem;}
+	        
+	        .item-content{padding: 8px 10px;border-bottom: 1px solid #DDDDDD }
+	        .area-title{color: #999999;}
+	        .aui-grid [class*=aui-col-xs-4] {padding: 5px 0}
+	        .hot-city-item{background-color: #F1F1F1;width: 90%;margin: 0 5%;border-radius: 8px;padding: 3px;}
+		</style>
+	</head>
+	<body>
+		<div id="address_list">
+			<!--搜索区域-->
+			<div class="float-head-bar">
+				<div class="search-area">
+					<span class="search-hint"><input type="text" placeholder="请输入关键字查询" maxlength="100" v-model="searchKey"/></span>
+					<span class="search-icon"><i class="aui-iconfont aui-icon-search"></i></span>
+				</div>
+			</div>
+			<div class="address-area">
+				<div class="item-content area-title">推荐城市</div>
+				<div class="item-content">
+					<div class="aui-grid aui-margin-b-8">
+					    <div class="aui-row">
+					        <div class="aui-col-xs-4" v-for="hotItem in hotCityList">
+					            <template>
+					            <div class="hot-city-item" tapmode="hover" @click="itemClick(hotItem)">{{hotItem.name}}</div>
+					            </template>
+					        </div>
+					    </div>
+					</div>
+				</div>
+				<div class="item-content area-title">全部城市(仅展示开通装小匠的城市)</div>
+				<div class="sort_box">
+					<div class="sort_list" v-for="item in itemList" tapmode="hover" @click="itemClick(item)">
+						<template>
+						<div class="num_name">{{item.name}}</div>
+						</template>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="initials"><ul></ul></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../res/data/citylist.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerycharfirstpinyin.js"></script>
+	<script type="text/javascript" src="../../script/custom/lettersort.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+	<script type="text/javascript">
+		var addressVm;
+		var winName,frmName,funCal;
+		apiready = function(){
+			winName=api.pageParam.winName;//win名称
+			frmName=api.pageParam.frmName;//frm名称
+			funCal=api.pageParam.funCal;//回调
+			api.showProgress();
+			addressVm = new Vue({
+				el:'#address_list',
+				data:{
+					searchKey:'',
+					hotCityList:[],
+					cityList:[]
+				},
+				computed: {
+			        //过滤方法
+			        itemList: function() {
+			        	$(".sort_letter").remove();
+			            var _search = this.searchKey;
+			            if (_search) {
+			                //不区分大小写处理
+			                var reg = new RegExp(_search, 'ig')
+			          		  this.nextTick();
+			                //es6 filter过滤匹配，有则返回当前，无则返回所有
+			                return this.cityList.filter(function(e) {
+			                    //匹配所有字段
+	//		                    return Object.keys(e).some(function(key) {
+	//		                        return e[key].match(reg);
+	//		                    })
+			                    //匹配某个字段
+			                    return e.name.match(reg);
+			                })
+			            };
+			            this.nextTick();
+			            return this.cityList;
+			        }
+		        },
+				methods:{
+					refreshData:function(data){
+						this.hotCityList=data.hotCitieList;
+						this.cityList=data.citieList;
+					},
+					nextTick:function(){
+						this.$nextTick(function(){
+		 					initials();
+		 					api.hideProgress();
+		 				})
+					},
+					itemClick:function(data){
+						chooseCurLocationStor(data.code,data.name);
+						api.execScript({
+				            name: winName,
+				            frameName: frmName,
+				            script: funCal
+				        });
+				        api.closeWin({
+						    name: 'chooselocation_win'
+						});
+					}
+				}
+			});
+			
+			var cityData = getCityList();
+			addressVm.refreshData(cityData);
+		}
+		
+	</script>
+</html>

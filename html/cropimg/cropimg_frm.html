@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	var FNImageClip;
+	var closeClick,resetClick,saveClick;
+	var winName,frmName,funCal;
+	apiready = function(){
+	
+		closeClick=function(){
+			//取消
+			FNImageClip.close();
+			api.closeWin();
+		};
+		resetClick=function(){
+			//重置
+			FNImageClip.reset();
+		};
+		saveClick=function(){
+			//确认
+			var imageCachePath = api.cacheDir;
+			var img_Name = new Date().getTime();
+			var destPath=imageCachePath+'/'+img_Name+ '.jpg'
+			FNImageClip.save({
+			    destPath: destPath,
+			    copyToAlbum: false,
+			    quality: 1
+			}, function(ret, err) {
+			    if (ret) {
+				    api.execScript({
+				    	name: winName,
+					    frameName: frmName,
+					    script: funCal+'('+JSON.stringify(ret)+ ')'
+					});
+			    	FNImageClip.close();
+			    	api.closeWin();
+			    } else {
+			    	api.toast({msg : '剪切保存失败:'+JSON.stringify(err), duration : 1000,location : 'bottom'});
+			    }
+			});
+		};
+	
+	
+		var pageParam = api.pageParam;//页面提交过来的参数
+		var path = pageParam.path;
+		var highDefinition=pageParam.highDefinition==undefined ? false:pageParam.highDefinition;//（可选项）截图时是否截取与原图分辨率一致的图     默认：false
+		var isMinWidth=pageParam.isMinWidth==undefined ? false:pageParam.isMinWidth;//（可选项）是否开启裁剪框不限制最小宽度   默认：false
+		var isMinHeight=pageParam.isMinHeight==undefined ? false:pageParam.isMinHeight;//（可选项）是否开启裁剪框不限制最小高度   默认：false
+		var isHideGrid=pageParam.isHideGrid==undefined ? false:pageParam.isHideGrid;//（可选项）是否隐藏中间横竖网格线   默认：false
+		var shearBoxW=pageParam.shearBoxW==undefined ? 100:pageParam.shearBoxW;//可选项）数字类型；裁剪区域的宽度。默认100
+		var shearBoxH=pageParam.shearBoxH==undefined ? 100:pageParam.shearBoxH;//（可选项）数字类型；裁剪区域的高度。默认100
+		var appearance = pageParam.appearance;//支持 circular | rectangle；默认：rectangle
+		var mode = pageParam.mode==undefined ? 'all': pageParam.mode;//支持 circular | rectangle；默认：rectangle
+		
+		winName = pageParam.winName;
+	    frmName = pageParam.frmName;
+	    funCal = pageParam.funCal;
+		
+		if(appearance==undefined || appearance==null || appearance=='') {
+			appearance='rectangle';
+		}
+		FNImageClip = api.require('FNImageClip');
+		FNImageClip.open({
+		    rect: {
+		        x: 0,
+		        y: 0,
+		        w: api.frameWidth,
+		        h: api.frameHeight
+		    },
+		    srcPath: path,
+		    highDefinition:highDefinition,
+		    isMinWidth:isMinWidth,
+		    isMinHeight:isMinHeight,
+		    isHideGrid:isHideGrid,
+		    style: {
+		        mask: 'rgba(255, 255, 255, 0.3)',
+		        clip: {
+		            w: shearBoxW,
+		            h: shearBoxH,
+		            x: (api.frameWidth - shearBoxW) / 2,
+		            y: (api.frameHeight - shearBoxH) / 2,
+		            borderColor: '#0f0',
+		            borderWidth: 1,
+		            appearance: appearance
+		        }
+		    },
+		    mode:mode,//clip：裁剪框可移动或缩放，图片固定位置和大小，当 appearance 值为 circular 时，无法改变大小;image：图片可以移动或缩放，裁剪框固定位置和大小;all：裁剪框可移动或缩放，图片可移动或缩放，该模式下用户的放大操作只对图片有效，裁剪框只能通过拖动改变大小，当 appearance 值为 circular 时，无法改变大小;
+		    fixedOn: api.frameName
+		}, function(ret, err) {});
+	};
+</script>
+</html>

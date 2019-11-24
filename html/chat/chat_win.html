@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+	    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/chat/chat.css" />
+	</head>
+	<body>
+		 <header id="header" class="aui-bar aui-bar-nav this-bg-theme">
+	        <a class="aui-pull-left" tapmode="hover" onclick="backbar()">
+	            <span class="aui-iconfont aui-icon-left"></span>
+	        </a>
+	        <div class="aui-title">聊一聊</div>
+	    </header>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/mywebsocket.js"></script>
+	<script type="text/javascript">
+		var backbar,cameraClick,sendClick;
+		apiready = function() {
+			var header = $api.byId('header');
+			$api.fixStatusBar(header); 
+			backbar = function(){
+				//关闭当前window，使用默认动画
+				setPlayNoticeStor(1);
+				api.closeWin();
+			}
+			setPlayNoticeStor(0);
+			
+			cameraClick=function(){
+				//触发相机
+				chooseCameraSheet(function(ret){
+					var json={};
+					json.text='';
+					json.imgList=ret;
+					api.execScript({
+					    frameName: 'chat_frm',
+					    script: 'sendCentent('+JSON.stringify(json)+')'
+					});
+					
+				},5,'发送');
+			}
+			sendClick=function(contentStr,imgList){
+				//发送消息文字
+				if(contentStr.length>0){
+					var json = {};
+					json.text=contentStr;
+					json.imgList=[];
+					api.execScript({
+					    frameName: 'chat_frm',
+					    script: 'sendCentent('+JSON.stringify(json)+')'
+					});
+				}
+				else if(imgList.length>0){
+					var json = {};
+					json.text='';
+					json.imgList=imgList;
+					api.execScript({
+					    frameName: 'chat_frm',
+					    script: 'sendCentent('+JSON.stringify(json)+')'
+					});
+				}
+			}
+		
+		
+		
+			var pageParam = api.pageParam;//页面提交过来的参数
+			var headerBar = $api.dom('header').offsetHeight;
+			var footerBar = 60;
+			
+	        api.openFrame({
+	            name: 'chat_frm',
+	            url: 'chat_frm.html',
+	            bounces: true,
+			    scrollToTop:true,
+	            rect: { // 推荐使用Margin布局，用于适配屏幕的动态变化
+  					x: 0,
+			        y: headerBar,
+			        w: 'auto',
+			        h: api.winHeight-headerBar-footerBar
+	            },
+	            pageParam:pageParam
+	        });
+	        
+	        //输入框模块
+			var UIChatBox = api.require('UIChatBox');
+			UIChatBox.open({
+				placeholder : '',
+				autoFocus:false,//（可选项）输入框是否自动获取焦点，并弹出键盘; 默认值：false
+				maxRows : 4,//（可选项）输入框显示的最大行数（高度自适应;默认值：4
+				emotionPath : 'widget://res/img/emotion',//自定义表情文件夹（表情图片所在的文件夹，须同时包含一个与该文件夹同名的.json配置文件）的路径（本地路径，fs://、widget://）。.json文件内的 name 值必须与表情文件夹内表情图片名对应
+				texts : {//（可选项）聊天输入框模块可配置的文本
+//					recordBtn : {//（可选项）JSON对象；录音按钮文字内容
+//						normalTitle : '按住说话',//（可选项）字符串类型；按钮常态的标题，默认：'按住 说话'
+//						activeTitle : '松开结束'//（可选项）字符串类型；按钮按下时的标题，默认：'松开 结束'
+//					},
+					sendBtn : {//（可选项）JSON对象；发送按钮文字内容，在 iOS 平台上对键盘内按钮无效
+						title : '发送'//（可选项）字符串类型；按钮常态的标题，默认：'发送';
+					}
+				},
+				styles : { 
+					topDivider:{//(可选项)顶部分割线配置
+					    width:3, //(可选项)顶部分割线的粗细，默认：0 
+					    color:'#000'//(可选项)顶部分割线的颜色；默认：#000 ;支持图片设置(fs:// & widget://)
+				    },
+					inputBar:{//（可选项）JSON对象；输入区域（输入框及两侧按钮）整体样式    
+						borderColor:'#d9d9d9',//（可选项）字符串类型；输入框区域上下边框的颜色，支持 rgb，rgba，#；默认：'#d9d9d9'
+						bgColor:'#f1f1f1',//（可选项）字符串类型；输入框区域的整体背景色，支持 rgb，rgba，#；默认：'#f2f2f2'
+						textColor:'#00000',//（可选项）字符串类型；输入文字的颜色；默认：#000
+					    textSize:16,//（可选项）数字类型；默认：16
+					    textMarginLeft:5//（可选项）数字类型；光标距离左边框的距离，默认：5
+					},
+					inputBox:{//（可选项）JSON对象；输入框样式
+						 borderColor: '#B3B3B3',//（可选项）字符串类型；输入框的边框颜色，支持 rgb，rgba，#；默认：'#B3B3B3'
+				         bgColor: '#ffffff',//（可选项）字符串类型；输入框的背景色，支持 rgb，rgba，#；默认：'#f2f2f2'
+				         boardBgColor: '#FFFFFF',//（可选项）字符串类型；面板的背景色(表情面板，附加面板)，支持 rgb，rgba，#；默认：'#f2f2f2'
+				         topMargin:10,//（可选项）数字类型；输入框距离顶部的边距；默认：10
+				         borderCorner:5,//(可选项)数字类型；默认：5
+				    	 leftIcon:{//(可选项)JSON对象，输入框左侧图标  本参数仅支持android
+				         	size:20,//(可选项)数字类型；icon的大小；默认：20
+				         	path:''//字符串类型；icon的路径；支持widget:// fs://
+				         }
+					},
+					emotionBtn:{//（可选项）JSON对象；表情按钮样式；不传则不显示表情按钮
+						normalImg : 'widget://res/img/chatbox_face.png'//（可选项）字符串类型；表情按钮常态的背景图片（本地路径，fs://、widget://）；默认：笑脸小图标,
+					},
+					extrasBtn : {//（可选项）JSON对象；附加功能按钮样式，不传则不显示附加功能按钮
+						normalImg : 'widget://res/img/chatbox_add.png'//（可选项）字符串类型；附加功能按钮常态的背景图片（本地路径，fs://、widget://）
+					},
+//					keyboardBtn : {//JSON对象；键盘按钮样式
+//						normalImg : 'widget://res/img/mo_uichatbox_keyboard_btn.png'//字符串类型；键盘按钮常态的背景图片（本地路径，fs://、widget://）；默认：键盘小图标
+//					},
+//					speechBtn : {//（可选项）JSON对象；输入框左侧按钮样式，不传则不显示左边的语音按钮
+//						normalImg : 'widget://res/img/chatbox_voice.png'//字符串类型；左侧按钮常态的背景图片（本地路径，fs://、widget://）
+//					},
+					recordBtn : {//JSON对象；“按住 录音”按钮的样式
+						normalBg : '#c4c4c4',//（可选项）字符串类型；按钮常态的背景，支持 rgb，rgba，#，图片路径（本地路径，fs://、widget://）；默认：'#c4c4c4'
+						activeBg : '#999999',//（可选项）字符串类型；按钮按下时的背景，支持 rgb，rgba，#，图片路径（本地路径，fs://、widget://）；默认：'#999999'；normalBg 和 activeBg 必须保持一致，同为颜色值，或同为图片路径
+						color : '#000',//（可选项）字符串类型；按钮标题文字的颜色，支持 rgb，rgba，#，默认：'#000000'
+						size : 14//（可选项）数字类型；按钮标题文字的大小，默认：14
+					},
+					recordPanelBtn:{//JSON对象；录音面板样式
+					     normalImg: '',//（可选项）字符串类型；按钮常态的图片
+					     activeImg: '',//（可选项）字符串类型；按钮按下时的图片
+					     width:100,//（可选项）数字类型；按钮的宽度，默认：100
+					     height:100//（可选项）数字类型；按钮的高度，默认：100
+				    },
+					indicator : { //（可选项）JSON对象；表情和附加功能面板的小圆点指示器样式，若不传则不显示该指示器
+						target : 'both',//（可选项）字符串类型；配置指示器的显示区域；默认：'both'【取值范围：both（表情和附加功能面板皆显示）；emotionPanel（表情面板显示）；extrasPanel（附加功能面板显示）】
+						color : '#c4c4c4', //（可选项）字符串类型；指示器颜色；支持 rgb、rgba、#；默认：'#c4c4c4'
+						activeColor : '#9e9e9e'//（可选项）字符串类型；当前指示器颜色；支持 rgb、rgba、#；默认：'#9e9e9e'
+					},
+					sendBtn : {//（可选项）JSON对象；发送按钮样式，本参数对 iOS 平台上的键盘内发送按钮无效
+						bg : '#4cc518',//（可选项）字符串类型；发送按钮背景颜色，支持 rgb、rgba、#、img；默认：#4cc518
+						titleColor : '#ffffff', //（可选项）字符串类型；发送按钮标题颜色；默认：#ffffff
+						activeBg : '#46a91e',//（可选项）字符串类型；发送按钮背景颜色，支持 rgb、rgba、#、img；默认：无
+						titleSize : 14//（可选项）数字类型；发送按钮标题字体大小；默认：13
+					}
+				},
+				isShowSendBtn:true,//（可选项）表情键盘上的发送按钮是否显示 注意:本参数对 iOS 平台上的键盘内发送按钮无效 ，该参数仅支持iOS;默认：true
+				extras : {//（可选项）点击附加功能按钮，打开的附加功能面板的按钮样式，配合 extrasBtn 一起使用，若 extrasBtn 参数内 normalImg 属性不传则此参数可不传
+					titleSize : 10,//（可选项）数字类型；标题文字大小，默认：10
+					titleColor : '#a3a3a3',//（可选项）字符串类型；标题文字颜色，支持 rgb、rgba、#；默认：'#a3a3a3'
+					isAdaptScreenSize:true,// (可选项) 布尔类型；附加功能按钮的样式是否自适应屏幕大小布局，改参数为false时，则每一行固定显示四个,若为true，则根据屏幕大小自动适配 默认：true
+					btns : [{//数组类型；附加功能按钮的样式
+						title : '图片',//（可选项）字符串类型；附加功能按钮的标题内容  
+						normalImg : 'widget://res/img/camera_nor.png',//（可选项）字符串类型；按钮常态的背景图片（本地路径，fs://、widget://）
+						activeImg : 'widget://res/img/camera_sel.png'//（可选项）字符串类型；按钮按下时的背景图片（本地路径，fs://、widget://）  
+					}, {
+						title : '拍照',
+						normalImg : 'widget://res/img/album_nor.png',
+						activeImg : 'widget://res/img/album_sel.png'
+					}]
+				},
+				recordType:'pressRecord',//可选项）点击左边录音按钮所展示的类型;按住 录音”按钮的样式;[取值范围：pressRecord (“按住 录音”按钮的样式);recordPanel (录音面板)]
+				isClose:false,//（可选项）点击空白区域是否关闭整个模块(包括键盘);默认：false
+			}, function(ret, err) {
+				if (ret) {
+//					{
+//					    eventType: 'show',  //字符串类型；回调的事件类型，
+//					                        //取值范围：
+//					                        //show（该模块打开成功）
+//					                        //send（用户点击发送按钮）
+//					                        //clickExtras（用户点击附加功能面板内的按钮）
+//					                        //clickRecord（用户点击录音功能面板内的按钮）
+//					    index: 0,           //数字类型；当 eventType 为 clickExtras 时，此参数为用户点击附加功能按钮的索引，否则为 undefined
+//					    msg: ''             //字符串类型；当 eventType 为 send 时，此参数返回输入框的内容，否则返回 undefined
+//					    inputBarHeight:30   //数字类型；输入框及左右按钮整体区域的高度
+//					}
+
+					if(ret.eventType=='send'){
+						sendClick(ret.msg,[]);
+					}
+					else if(ret.eventType=='clickExtras'){
+						if(ret.index==0){
+							//图片
+							chooseImg(function(ret){
+								sendClick('',ret);
+							},5,'发送');
+						}
+						else if(ret.index==1){
+							//拍照
+							goPhoto('camera', function(ret){
+								sendClick('',ret);
+							});
+						}
+					}
+				} else {}
+			});
+			
+			//监听键盘
+			UIChatBox.addEventListener({
+			    target: 'inputBar',
+			    name: 'move'
+			}, function(ret, err) {
+				var systemType = api.systemType;
+			    if (ret && systemType=='ios') {
+			        api.setFrameAttr({
+					    name: 'chat_frm',
+					    rect: { // 推荐使用Margin布局，用于适配屏幕的动态变化
+					    	x:0,                 //左上角x坐标
+    						y:headerBar,                 //左上角y坐标
+			                h : api.winHeight-headerBar-footerBar-ret.panelHeight
+			            },
+					});
+					if(ret.panelHeight>0){
+						api.execScript({
+							name : 'chat_win',
+							frameName : 'chat_frm',
+							script : 'pageDown()'
+						});
+					}
+					
+			    } else {}
+			});
+			
+			
+			
+		};
+	</script>
+</html>

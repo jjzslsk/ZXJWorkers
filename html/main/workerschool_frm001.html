@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>匠工学堂frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/mylist.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/workschool/workschool.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/iconfont.css"/>
+</head>
+<body ontouchstart="" onmouseover="">
+	<div class="float-head-bar">
+		<div class="search-ws-area" tapmode="hover" onclick="searchClick()">
+			<span class="search-ws search-ws-hint" id="search_btn">请输入关键字查找</span>
+			<span class="search-ws-icon"><i class="aui-iconfont aui-icon-search"></i></span>
+		</div>
+	</div>
+	<div id="grid_area" class="grid-area">
+		<template>
+		<div class="aui-grid">
+	        <div class="aui-row">
+	            <div class="aui-col-xs-3 click-item-ser" v-for="headItem in dataList" tapmode="hover" @click="itemClick(headItem)">
+	                <div class="aui-iconfont">
+		                <span :class="headItem.icon">
+		                <span v-for="pathItem in headItem.pathNum" :class="'path'+pathItem"></span>
+		                </span>
+		            </div>
+	                <div class="aui-grid-label">{{headItem.title}}</div>
+	            </div>
+	        </div>
+	    </div>
+        </template>
+	    <!--问题查找-->
+	    <template>
+	    <div class="problem-find"><span class="problem-find-title">问题查找</span></div>
+	    <div class="aui-grid">
+	        <div class="aui-row">
+	            <div class="aui-col-xs-4 click-item-ser" v-for="proFindItem in problemFindList" tapmode="hover" @click="itemClick(proFindItem)">
+	               	<div class="aui-iconfont">
+		                <span :class="proFindItem.icon">
+		                <span v-for="proPathItem in proFindItem.pathNum" :class="'path'+proPathItem"></span>
+		                </span>
+		            </div>
+	                <div class="aui-grid-label">{{proFindItem.title}}</div>
+	            </div>
+	        </div>
+	    </div>
+	    <!--图文列表-->
+	    </template>
+	    <template>
+	    <div class="image-text-list">
+	    	<div class="horizontal image-text-item click-item-ser" v-for="imgTextItem in imageTextList" tapmode="hover" @click="imageTextClick(imgTextItem)">
+	    		<div class="title-area">{{imgTextItem.text}}</div>
+	    		<div class="image-area"><img  :src="imgTextItem.url" onerror="src='../../image/placeholder.png'"/></div>
+	    	</div>
+	    </div>
+	    </template>
+    </div>
+    
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript">
+	var headGridVm;
+	var searchClick;
+	apiready = function(){
+		//搜索
+		searchClick=function(){
+			api.openWin({
+				name : 'search_win',
+				url : 'widget://html/search/search_win.html',
+				slidBackEnabled:true,
+				pageParam:{
+					searchKey:$('#search_btn').text()=='请输入关键字查找'? '':$('#search_btn').text(),
+		        	winName:'main_win',//当前win名称
+		        	frmName:'workerschool_frm',//当前frm名称
+		        	funCal:'startSearch'//回调名称
+		        },
+				delay:300
+				
+			});
+		};
+		
+		//开始搜索
+		startSearch=function(searchObj){
+			searchKey=searchObj.searchKey;
+			if(searchKey.length>0){
+				$('#search_btn').removeClass('search-ws-hint');
+				$('#search_btn').text(searchKey);
+			} else{
+				$('#search_btn').addClass('search-ws-hint');
+				$('#search_btn').text('请输入关键字查找');
+			}
+		};
+		
+		
+		headGridVm = new Vue({
+			el:'#grid_area',
+			data:{
+				dataList:[
+					{id:'effectPicture',title:'效果图',icon:'icon-xgt_icon',pathNum:0,winName:'',frmName:'',url:'',isClick:false},
+					{id:'decorateStrategy',title:'装修攻略',icon:'icon-zxgl_icon',pathNum:3,winName:'',frmName:'',url:'',isClick:false},
+					{id:'serviceGuarantee',title:'服务保障',icon:'icon-fwbz_icon',pathNum:2,winName:'',frmName:'',url:'',isClick:false},
+					{id:'calculator',title:'计算器',icon:'icon-jsj_icon',pathNum:13,winName:'',frmName:'',url:'',isClick:false},
+					{id:'lookingDesigner',title:'找设计师',icon:'icon-zsjs_icon',pathNum:4,winName:'',frmName:'',url:'',isClick:false},
+					{id:'supervisionCraftsmen',title:'监理工匠',icon:'icon-jlgj_icon',pathNum:3,winName:'',frmName:'',url:'',isClick:false},
+					{id:'decorateInstallment',title:'装修分期',icon:'icon-zxfq_icon',pathNum:3,winName:'',frmName:'',url:'',isClick:false},
+					{id:'oneStopService',title:'一站服务',icon:'icon-yzfw_icon',pathNum:5,winName:'',frmName:'',url:'',isClick:false},
+					{id:'wholeHouseCustom',title:'全屋定制',icon:'icon-qwdz_icon',pathNum:2,winName:'',frmName:'',url:'',isClick:false},
+					{id:'hotNews',title:'新闻热点',icon:'icon-xwrd_icon',pathNum:7,winName:'',frmName:'',url:'',isClick:false},
+					{id:'activity',title:'活动',icon:'icon-hd_icon',pathNum:2,winName:'',frmName:'',url:'',isClick:false}
+				],
+				problemFindList:[
+					{id:'newHomePack',title:'新家启装',icon:'icon-xjqz_icon',pathNum:4,winName:'',frmName:'',url:'',isClick:false},
+					{id:'knowledgeMaterial',title:'材料知识',icon:'icon-clzs_icon',pathNum:30,winName:'',frmName:'',url:'',isClick:false},
+					{id:'softOutfitCollocation',title:'软装搭配',icon:'icon-rzdq_icon',pathNum:13,winName:'',frmName:'',url:'',isClick:false},
+					{id:'occupyLife',title:'居家生活',icon:'icon-jjsh_icon',pathNum:18,winName:'',frmName:'',url:'',isClick:false},
+					{id:'designInspiration',title:'灵感设计',icon:'icon-lgsj_icon',pathNum:18,winName:'',frmName:'',url:'',isClick:false},
+					{id:'cntCmt',title:'施工交流',icon:'icon-sgjl_icon',pathNum:9,winName:'',frmName:'',url:'',isClick:false}
+				],
+				imageTextList:[
+					{text:'90m²两房，拥有超大厨房&惊人收纳',url:''},
+					{text:'家具修复魔术大实验，那些生活小抄真的有用吗？',url:''},
+				]
+			},
+			methods:{
+				itemClick:function(data){
+					//item触发点击
+					if(!data.isClick) {
+						api.toast({ msg: '模块开发中,敬请期待...',duration: 1000, location: 'bottom'});
+						return;
+					}
+					alert(JSON.stringify(data))
+				},
+				imageTextClick:function(data){
+					alert(JSON.stringify(data))
+				}
+			}
+		});
+		
+	};
+</script>
+</html>

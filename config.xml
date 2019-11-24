@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<widget id="A6005178315196" version="0.0.1"> 
+  <name>装小匠工人端</name>  
+  <description>装小匠工人端</description>  
+  <author email="2809712409@qq.com" href="http://www.apicloud.com">装小匠</author>  
+  <content src="index.html"/>  
+  <preference name="pageBounce" value="false"/>  
+  <preference name="appBackground" value="rgba(0,0,0,0.0)"/>  
+  <preference name="windowBackground" value="rgba(0,0,0,0.0)"/>  
+  <preference name="frameBackgroundColor" value="rgba(0,0,0,0.0)"/>  
+  <preference name="hScrollBarEnabled" value="true"/>  
+  <preference name="vScrollBarEnabled" value="true"/>  
+  <preference name="autoLaunch" value="true"/>  
+  <preference name="fullScreen" value="false"/>  
+  <preference name="autoUpdate" value="false"/>  
+  <preference name="smartUpdate" value="false"/>  
+  <preference name="debug" value="true"/>  
+  <preference name="statusBarAppearance" value="true"/>  
+  <preference name="softInputMode" value="resize"/>  
+  <preference name="backgroundMode" value="location | remote-notification"/>  
+  <permission name="readPhoneState"/>  
+  <permission name="camera"/>  
+  <permission name="record"/>  
+  <permission name="location"/>  
+  <permission name="fileSystem"/>  
+  <permission name="internet"/>  
+  <permission name="bootCompleted"/>  
+  <permission name="hardware"/>  
+  <access origin="*"/>  
+  <feature name="wx"> 
+    <param name="urlScheme" value="wx5fb9d8a50dc4fbd4"/>  
+    <param name="apiKey" value="wx5fb9d8a50dc4fbd4"/>  
+    <param name="apiSecret" value="0ec6420b8ef45bb9782bbfa1e4c3098d"/> 
+  </feature>  
+  <feature name="wxPay"> 
+    <param name="urlScheme" value="wx5fb9d8a50dc4fbd4"/>  
+    <param name="apiKey" value="wx5fb9d8a50dc4fbd4"/>  
+    <param name="apiSecret" value="0ec6420b8ef45bb9782bbfa1e4c3098d"/> 
+  </feature>  
+  <feature name="bMap"> 
+    <param name="android_api_key" value="6L4yakzR0hjRvzSvHqZLOQGSubyGhAQj"/>  
+    <param name="ios_api_key" value="Fj0k3daXi9rAnz19iwkREV8qaQ4iwX3A"/> 
+  </feature>  
+  <feature name="baiduFaceLive"> 
+    <param name="LicenseID_iOS" value="zxj-worker-face-ios"/>  
+    <param name="LicenseFileName_iOS" value="idl-license.face-ios"/>  
+    <param name="LicenseID_Android" value="zxj-worker-face-android"/>  
+    <param name="LicenseFileName_Android" value="idl-license.face-android"/> 
+  </feature>  
+  <feature name="ajpush"> 
+    <param name="app_key" value="14a3baa3a3b772cbd91fe693"/>  
+    <param name="channel" value="4"/> 
+  </feature> 
+</widget>

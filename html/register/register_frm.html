@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>注册frm</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css"/>
+    	<link rel="stylesheet" type="text/css" href="../../css/iconfont.css"></head>
+    	<link rel="stylesheet" type="text/css" href="../../css/register/register.css"></head>
+	</head>
+	<body>
+		<div class="head-bg">
+			<div id="header" class="back-btn" tapmode="hover" onclick="backbar()">
+				<img src="../../image/icon/back.png" />
+			</div>
+			<img src="../../image/enter_bj.png" />
+			<div class="head-conent">
+				<div class="logo-area">
+				<div class="logo">
+					<img src="../../image/App_logo.png" />
+				</div>
+				</div>
+				<div class="logo-text">欢迎注册装小匠</div>
+			</div>
+		</div>
+		<div class="content-area" id="info_content">
+			<template>
+			<div class="horizontal input-area">
+				<div class="icon-item"><span class="aui-iconfont aui-icon-my" style="font-size: 25px"></span></div>
+				<div class="input-item"><input type="text" placeholder="昵称" maxlength="10" v-bind:readonly="phoneIsRed" v-model="regInfo.nickname"/></div>
+			</div>
+			<div class="horizontal input-area item-phone">
+				<div class="icon-item"><span class="icon-phone"></span></div>
+				<div class="input-item"><input type="tel" placeholder="请输入手机号" maxlength="11" v-bind:readonly="phoneIsRed" v-model="regInfo.phone"/></div>
+			</div>
+			<div class="horizontal input-area item-pwd">
+				<div class="icon-item"><span class="icon-captcha"></span></div>
+				<div class="input-item-code"><input type="number" placeholder="请输入验证码" oninput="if(value.length>4)value=value.slice(0,4)"  v-model="regInfo.code"/></div>
+				<div class="check-code" tapmode="hover" @click="checkCodeClick"><span :class="codeIsClick ? 'code-hint01' : 'code-hint02'">{{codeHint}}</span></div>
+			</div>
+			<div class="horizontal input-area item-pwd">
+				<div class="icon-item"><span class="icon-cipher"></span></div>
+				<div class="input-item"><input type="password" placeholder="请输入6-18位密码" maxlength="18" v-model="regInfo.pwd"/></div>
+			</div>
+			<div class="reg-btn" tapmode="hover" @click="regClick">立即注册</div>
+			</template>
+		</div>
+		<div class="footer-area"><div class="foooter-content"><span class="footer-text">注册代表您已经同意</span><span class="agre-text" tapmode="hover" onclick="jumpUserAgreement()">装小匠用户协议、隐私政策</span></div></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/md5/md5.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/custom/publicjump.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	<script type="text/javascript">
+		var backbar,regClick;
+		var infoVm;
+		var countCodeValReg;
+		apiready = function() {
+			var header = $api.byId('header');
+			$api.fixStatusBar(header);
+		 	backbar = function(){
+				//关闭当前window，使用默认动画
+				api.closeWin();
+			}
+			
+			keyboardListening(function(isShow){
+	        	if(isShow){
+	        		//当软键盘弹起
+	        		$('.footer-area').css('position', 'static');
+	        	} else{
+	        		//当软键盘收起
+	        		$('.footer-area').css({ 'position': 'fixed', 'bottom': '20' });
+	        	}
+	        });
+	        
+			infoVm = new Vue({
+				el:'#info_content',
+				data:{
+					regInfo:{
+						nickname:'',
+						phone:'',
+						code:'',
+						pwd:''
+					},
+					codeHint:'获取验证码',
+					codeIsClick:false,//获取验证码按钮是否允许点击
+					phoneIsRed:false//是否设置手机输入框为只读模式
+				},
+				watch:{
+					'regInfo.phone': function() {
+						var resPhone = checkPhone(this.regInfo.phone);
+						this.codeIsClick=resPhone;
+				  	},
+				},
+				methods:{
+					startCountDown:function(){
+						//开始计时
+						var timeNum=30;//设定30秒时间
+						infoVm.codeIsClick=false;
+						infoVm.phoneIsRed=true;
+						infoVm.codeHint='重新获取'+timeNum;
+						//点击获取验证码
+						countCodeValReg = setInterval(function() {
+							timeNum--;
+							infoVm.codeHint='重新获取'+timeNum;
+							// 你倒计时显示的地方元素
+							if(timeNum==0){
+								infoVm.codeIsClick=true;
+								infoVm.phoneIsRed=false;
+								infoVm.codeHint='重新获取';
+								clearInterval(countCodeValReg);
+							}
+						}, 1000);
+					},
+					checkCodeClick:function(){
+						//点击获取短信验证码
+						if(!this.codeIsClick) return;
+						var param = 'phone='+this.regInfo.phone+'&type=1'+'&from=4'; //type:1注册，2登录，3修改密码，4信息变更
+						_getHttpsData('/user/getSmsVerify',param,
+							function(res){
+								if(res.status){
+									infoVm.startCountDown();
+								}else{
+									api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+								}
+							},
+							function(err){
+							
+							}
+						);
+					},
+					regClick:function(){
+						//注册
+						var nickname = this.regInfo.nickname;
+						var phone=this.regInfo.phone;
+						var code=this.regInfo.code;
+						var pwd=this.regInfo.pwd;
+						if(nickname==undefined || nickname==null || nickname==''){
+							api.alert({
+								title : '提示',
+								msg : '请输入昵称',
+							}, function(ret, err) {
+							});
+						}
+						else if(phone==undefined || phone==null || phone==''){
+							api.alert({
+								title : '提示',
+								msg : '请输入手机号',
+							}, function(ret, err) {
+							});
+						}
+						else if(!checkPhone(phone)){
+							api.alert({
+								title : '提示',
+								msg : '请输入正确的手机号',
+							}, function(ret, err) {
+							});
+						}
+						else if(code==undefined || code==null || code==''){
+							api.alert({
+								title : '提示',
+								msg : '请输入验证码',
+							}, function(ret, err) {
+							});
+						}
+						else if(code.length<4){
+							api.alert({
+								title : '提示',
+								msg : '请输入正确的4位数验证码',
+							}, function(ret, err) {
+							});
+						}
+						else if(pwd==undefined || pwd==null || pwd=='' || pwd.length<6){
+							api.alert({
+								title : '提示',
+								msg : '请输入6-18位密码',
+							}, function(ret, err) {
+							});
+						}
+						else{
+//							var md5Pwd=md5(pwd);
+//							alert(md5Pwd)
+							var param={};
+//							param.openId = ''; 
+//							param.unionid = ''; 
+							param.account = nickname; //昵称
+							param.phone=phone;//帐号或微信昵称
+							param.from=4;//注册来源，1-微信，2-商城小程序，3-找工人小程序,  4-APP，5-网站
+							param.pwd=pwd;//密码
+							param.verifyCode=code;//短信验证码
+							param.type = 0;//"type":0正常注册"type": 1 扫码注册
+							
+							api.showProgress();
+							_postHttpsData('/user/reg',param,
+								function(res){
+									api.hideProgress();
+									if(res.status){
+										api.alert({
+										    title: '提示',
+										    msg: '注册成功',
+										}, function(ret, err) {
+											api.closeWin();
+										});
+									}
+									api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+								},
+								function(err){
+									api.hideProgress();
+								}
+							);
+						}
+						
+					}
+				}
+			});
+			api.parseTapmode();
+			api.addEventListener({
+				name : 'viewdisappear'
+			}, function(ret, err) {
+				//关闭当前window，使用默认动画
+				clearInterval(countCodeValReg);
+			});
+		};
+	</script>
+</html>

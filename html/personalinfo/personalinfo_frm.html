@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>个人信息frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7}/* f7f7f7 */
+    	.info-area{margin-top: 10px;background-color: #FFFFFF;}
+    	
+    	.info-area .info-img{padding: 5px 10px;border-bottom: 1px solid #DDDDDD;align-items:center; display: -webkit-flex;}
+    	.info-area .info-img .info-img-title{width: 6em}
+    	.info-area .info-img .info-img-content{width: calc(100% - 6em - 1rem);text-align: right;color: #999999;margin-right: 0.3rem;}
+    	.info-area .info-img .info-img-content .ava-img{width: 15%;height:0;padding-bottom: 15%;margin: 0 0 0 85%;position: relative;}
+    	.info-area .info-img .info-img-content .ava-img img{width: 100%;height:100%;position: absolute;border-radius: 50%;}
+    	
+    	.info-area .info-item{padding: 10px;border-bottom: 1px solid #DDDDDD;}
+    	.info-area .info-item .info-item-title{width: 6em}
+		.info-area .info-item .info-item-content{width: calc(100% - 6em);text-align: right;color: #999999}
+		.info-area .info-item .info-item-content span{text-align: left;}
+		
+		
+    
+    	.aui-card-list-content-padded{border-bottom: 1px solid #DDDDDD}
+    	.bslc-img {width: 80%;height: 0px;padding-bottom: 100%;margin: 0 auto;position: relative;}
+		.bslc-img img {width: 100%;height: 100%;position: absolute;}
+		
+		.att-img {width: 100%;height: 0px;padding-bottom: 100%;position: relative;}
+		.att-img img {width: 100%;height: 100%;position: absolute;border-radius: 20px;}
+		
+		.upinfo-btn{height: 40px;line-height: 40px;text-align: center;border-radius: 20px;color: #FFFFFF;margin: 30px 20px;}
+    
+    	.aui-card-list-content,.aui-card-list-content-padded{font-size: 0.8rem;}
+    
+    </style>
+</head>
+<body>
+	<div id="info_area" class="info-area">
+		<div class="info-img horizontal">
+			<div class="info-img-title">头像</div>
+			<div class="info-img-content click-item-ser" tapmode="hover" @click="upAvaClick">
+				<template>
+				<div class="ava-img">
+					<img v-lazy="avatar"/>
+				</div>
+				</template>
+			</div>
+			<i class="aui-iconfont aui-icon-right"></i>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">姓名</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.applyNamePri}}</span></div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">性别</div>
+			<template>
+			<div class="info-item-content"><span>{{sexNameByCode(infoData.sex)}}</span></div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">身份证号</div>
+			<template>
+			<div class="info-item-content" v-if="infoData.applyCardNo!=undefined && infoData.applyCardNo!=null && infoData.applyCardNo!=''">{{infoData.applyCardNoPri}}</div>
+			<div class="info-item-content click-item-ser" tapmode="hover" @click="goAutoClick" v-else>去认证</div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">注册手机号</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.applyPhonePri}}</span></div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">紧急联系人</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.emergContact}}</span></div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">联系人号码</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.emergTelPri}}</span></div>
+			</template>
+		</div>
+		<!--<div class="info-item horizontal">
+			<div class="info-item-title">银行卡</div>
+			<template>
+			<div class="info-item-content" v-if="infoData.bankCard!=undefined && infoData.bankCard!=null && infoData.bankCard!='' ">{{infoData.bankCardPri}}</div>
+			<div class="info-item-content click-item-ser" tapmode="hover" @click="bindBankClick" v-else>去设置</div>
+			</template>
+		</div>-->
+		<div class="info-item horizontal">
+			<div class="info-item-title">工作城市</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.workAddress}}</span></div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">工种</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.clientClassName}}</span></div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">工匠座右铭</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.workZym}}</span></div>
+			</template>
+		</div>
+		<div class="info-item horizontal">
+			<div class="info-item-title">技能介绍</div>
+			<template>
+			<div class="info-item-content"><span>{{infoData.workJnjs}}</span></div>
+			</template>
+		</div>
+		<div class="aui-card-list-content-padded">
+			<div>行业资质/行业资质</div>
+			<div class="aui-row aui-row-padded">
+				<template>
+				<div class="aui-col-xs-4" v-for="(bslcImgItem,bslcImgItemIndex) in busLicImgList">
+					<div class="bslc-img" tapmode="hover" @click="previewImg(bslcImgItemIndex,busLicImgList)">
+						<img v-lazy="bslcImgItem"/>
+					</div>
+				</div>
+				</template>
+			</div>
+		</div>
+		<div class="aui-card-list-content-padded">
+			<div>工程案例</div>
+			<div class="aui-row aui-row-padded">
+				<template>
+				<div class="aui-col-xs-4" v-for="(proCaseItem,proCaseItemIndex) in proCaseImgList">
+					<div class="att-img" tapmode="hover" @click="previewImg(proCaseItemIndex,proCaseImgList)">
+						<img v-lazy="proCaseItem"/>
+					</div>
+				</div>
+				</template>
+			</div>
+		</div>
+		<template>
+		<div class="upinfo-btn this-bg-theme"  tapmode="hover" @click="upinfoClick">编辑修改</div>
+		<div style="height: 30px;min-height: 30px"></div>
+		</template>
+		
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	
+	var infoVm;
+	var corpImgRes;
+	var httpsDataInfo;
+	var userId='';
+	apiready = function(){
+		userId = $api.getStorage("userid");//用户id
+		//获取用户信息
+		var getWorkerInfoHttps=function(){
+			api.showProgress();
+			var param = 'clientId='+userId+'&applyType=5&type=client_quali,client_case';
+			_getHttpsData('/member/getWorkerInfo',param,
+				function(ret){
+					if(ret.status){
+						infoVm.refreshData(ret.data);
+						api.execScript({
+							name : 'personalinfo_win',
+							script : 'refreshCheckPro('+ret.data.applyStatus+')'
+						});
+					}else{
+						showSingleAuiDialog('获取信息失败('+ret.code+')',ret.msg);
+					}
+//					getBusLicImgHttps();//获取行业资质
+				},
+				function(err){
+//					getBusLicImgHttps();//获取行业资质
+				}
+			);
+		};
+		
+		//获取行业资质图片
+		var getBusLicImgHttps=function(){
+			var param = 'clientId='+userId+'&type=client_quali&userType=5';
+			_getHttpsData('/member/getPhoto',param,
+				function(ret){
+					if(ret.status){
+						var picList = ret.pic;
+						var busLicImgList=[];
+						for(var index in picList){
+							busLicImgList.push(picList[index].pic);
+						}
+						infoVm.busLicImgList=busLicImgList;
+						
+					}else{
+						showSingleAuiDialog('获取行业资质失败('+ret.code+')',ret.msg);
+					}
+					getProCaseImgHttps();//获取工程案例
+				},
+				function(err){
+					getProCaseImgHttps();//获取工程案例
+				}
+			);
+		}; 
+		
+		//获工程案例图片
+		var getProCaseImgHttps=function(){
+			var param = 'clientId='+userId+'&type=client_case&userType=5';
+			_getHttpsData('/member/getPhoto',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						var picList = ret.pic;
+						var proCaseImgList=[];
+						for(var index in picList){
+							proCaseImgList.push(picList[index].pic);
+						}
+						infoVm.proCaseImgList=proCaseImgList;
+						
+					}else{
+						showSingleAuiDialog('获取行业资质失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		}; 
+		
+		//上传用户头像
+		var uploadUserAvatarHttps=function(avatarPath){
+			var param={};
+			param.clientId=userId;
+			param.attUser=userId;
+			param.attFkId=userId;
+			param.attNoWater = '1';//1没有水印
+			api.showProgress({title: '压缩头像'});
+			var imgArray=[];
+			checkCompressImg(avatarPath,function(imgPathPos){
+				var attFkName=[];
+				var attName=[];
+				if(imgPathPos!=null){
+					imgArray.push(imgPathPos);
+					attFkName.push('client_avatar');
+					attName.push('client_avatar.jpg');
+				}
+				if(imgArray.length>0){
+					//开始上传
+					param.attFkName=attFkName;
+ 			    	param.attName=attName;
+ 			    	api.showProgress({title: '上传头像'});
+ 			    	uploadFileHttps(param,imgArray,
+						function(ret){
+							api.hideProgress();
+							if(ret.status){
+								api.toast({ msg: ret.msg,duration: 2000, location: 'middle'});
+								setAvatarStor(ret.pic[0].pic);
+								infoVm.setAvaImg(ret.pic[0].pic);
+								api.sendEvent({
+								    name: 'personalInfo_send_event',
+								    extra: {
+								        personalInfoSuccess: true,
+								    }
+								});
+							} else{
+								showSingleAuiDialog('上传头像失败('+ret.code+')', ret.msg);
+							}
+						},
+						function(err){
+							api.hideProgress();
+						}
+					);
+				} else{
+					api.hideProgress();
+				}
+			});
+		};
+		
+		
+	
+		corpImgRes=function(ret){
+			uploadUserAvatarHttps(ret.destPath);
+		},
+		
+		// 图片懒加载配置
+		Vue.use(VueLazyload, {
+		  preLoad: 1, // 预加载高度比例
+		  error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+		  loading: '../../image/placeholder_loading.png', // 预加载图片
+		  attempt: 1, // 尝试加载图片数量
+		  observer: true,
+		  observerOptions: {
+		    rootMargin: '0px',
+		    threshold: 0.1
+		  }
+		})
+		
+		infoVm=new Vue({
+			el:'#info_area',
+			data:{
+				avatar:'',
+				infoData:{},
+				busLicImgList:[], //行业资质
+				proCaseImgList:[], //工程案例
+			},
+			methods:{
+				refreshData:function(data){
+					this.infoData=data;
+					for(var index in data.client_quali_pic){
+						this.busLicImgList.push(data.client_quali_pic[index].pic)
+					}
+					for(var index in data.client_case_pic){
+						this.proCaseImgList.push(data.client_case_pic[index].pic)
+					};
+					this.avatar=$api.getStorage("avatar");//用户头像
+					//隐藏手机号中间几位号
+					this.infoData.applyPhonePri=phoneMiddleHide(data.applyPhone);//注册手机号
+					this.infoData.emergTelPri=phoneMiddleHide(data.emergTel);//紧急联系人号码
+					//隐藏身份证中间几位号
+					this.infoData.applyCardNoPri=idCardMiddleHide(data.applyCardNo);//身份证号
+//					//隐藏银行卡中间几位号
+//					this.infoData.bankCardPri=bankCardHide(data.bankCard);//银行卡
+					//隐藏姓名一些文字
+					this.infoData.applyNamePri=personNameHide(data.applyName);//姓名
+					//隐藏姓名一些文字
+					this.infoData.emergContactPri=personNameHide(data.emergContact);//联系人
+					this.nextTick();
+				},
+				sexNameByCode:function(code){
+					return code==0 ? '女':'男';//性别名称
+				},
+				setAvaImg:function(path){
+					this.avatar=path;
+				},
+				nextTick:function(){
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				upAvaClick:function(){
+					//更新头像
+					chooseCameraSheet(function(retList){
+						imgCutUp(retList[0]);
+					},1,'完成');
+				},
+				goAutoClick:function(){
+					//去认证身份
+					//实名认证
+					api.openWin({
+				        name: 'auth_step_win',
+				        url: 'widget://html/login/auth_step_win.html',
+				        delay:300
+			        });
+				},
+				bindBankClick:function(){
+					//绑定银行卡
+				},
+				previewImg : function(position,imgList) {
+					api.openWin({
+						name : 'previewpicture_win',
+						url : 'widget://html/previewpicture/previewpicture_win.html',
+						pageParam : {
+							position : position,
+							imgList : imgList
+						},
+						delay:300,
+						slidBackEnabled : false
+					});
+				},
+				upinfoClick:function(){
+					//修改信息
+					api.openWin({
+				        name: 'auth_step_win',
+				        url: 'widget://html/login/auth_step_win.html',
+				        delay:300
+			        });
+				}
+			}
+		});
+		
+		
+		
+//		httpsDataInfo();
+		getWorkerInfoHttps();
+		
+		var FNImageClip;
+		function imgCutUp(path){
+			api.openWin({
+				name : 'cropimg_win',
+				url : 'widget://html/cropimg/cropimg_win.html',
+				pageParam : {
+					winName : 'personalinfo_win',
+					frmName:'personalinfo_frm',
+					funCal:'corpImgRes',
+					path : path,
+					shearBoxW:100,
+					shearBoxH:100,
+					appearance:'rectangle',
+					mode:'image'
+				},
+				delay:300,
+				slidBackEnabled : false
+			});
+		}
+		
+		//监听刷新数据
+		api.addEventListener({
+		    name: 'authstepsend_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.isSuccess){
+					getWorkerInfoHttps();
+				}
+			}
+		});
+		
+	
+	};
+</script>
+</html>

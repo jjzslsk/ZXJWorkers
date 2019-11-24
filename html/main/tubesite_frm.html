@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>管工地frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/iconfont.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/tubesite/tubesite.css" />
+	
+</head>
+<body>
+
+		<!--<div class="img-wrap">
+				<img src="http://www.zxj888.cn/photo/zxj_shop_icon/advertisingImg/construction.png" alt="" />
+			</div>-->
+	<!--头部区域信息-->
+	<div class="head-area">
+		<div>
+			<img src="../../image/msite_topbj.jpg"/>
+			<div class="head-info-area">
+				<div class="my-new-home">我的新家</div>
+				<div class="info"><span>ID:1001816</span><span class="phone icon-phone"></span><span id="phone_num"></span></div>
+			</div>
+			<span class="telephone icon-telephone click-item-ser" tapmode="hover" onclick="headItemClick('telephone')"></span>
+		</div>
+		<div class="aui-grid">
+	        <div class="aui-row">
+	            <div class="aui-col-xs-3 click-item-ser" tapmode="hover" onclick="headItemClick('decorateLive')">
+	                <div class="aui-iconfont">
+		                 <span class="icon-bg-round decorate-live icon-Live-decoration"></span>
+		            </div>
+	                <div class="aui-grid-label">装修直播</div>
+	            </div>
+	            <div class="aui-col-xs-3 click-item-ser" tapmode="hover" onclick="headItemClick('quInRep')">
+	                <div class="aui-iconfont ">
+		                 <span class="icon-bg-round qu-in-rep icon-Inspection_report"></span>
+		            </div>
+	                <div class="aui-grid-label">质检报告</div>
+	            </div>
+	            <div class="aui-col-xs-3 click-item-ser" tapmode="hover" onclick="headItemClick('payment')">
+	                <div class="aui-iconfont ">
+		                 <span class="icon-bg-round payment icon-Payment"></span>
+		            </div>
+	                <div class="aui-grid-label">支付款项</div>
+	            </div>
+	            <div class="aui-col-xs-3 click-item-ser" tapmode="hover" onclick="headItemClick('moreOperations')">
+	                <div class="aui-iconfont ">
+		                 <span class="icon-bg-round more-operations icon-More-operations"></span>
+		            </div>
+	                <div class="aui-grid-label">更多操作</div>
+	            </div>
+	        </div>
+	    </div>
+	</div> 
+	<!--底部tab页签-->
+	<div class="aui-tab" id="tab">
+	    <div class="aui-tab-item aui-active">装修前</div>
+	    <div class="aui-tab-item">水电工程</div>
+	    <div class="aui-tab-item">中期工程</div>
+	    <div class="aui-tab-item">竣工工程</div>
+	</div>
+	<div id="tab_list" class="tubs-tab-list">
+		<!--装修前-->
+		<template v-if="curTab==0">
+			<div class="horizontal steps-list" v-for="beforeDecProItem in beforeDectList" tapmode="hover" @click="proItemClick(beforeDecProItem)">
+				<div class="steps-num"><span>{{beforeDecProItem.stepsNun}}</span></div>
+				<div class="steps-content">
+					<div class="title">{{beforeDecProItem.title}}</div>
+					<div class="state">{{beforeDecProItem.stateInfo}}</div>
+					<div class="content">{{beforeDecProItem.content}}</div>
+				</div>
+			</div>
+		</template>
+		<!--水电工程-->
+		<template v-else-if="curTab==1">
+		<div class="horizontal steps-list" v-for="hydProItem in hydProList" tapmode="hover" @click="proItemClick(hydProItem)">
+			<div class="steps-num"><span>{{hydProItem.stepsNun}}</span></div>
+			<div class="steps-content">
+				<div class="title">{{hydProItem.title}}</div>
+				<div class="state">{{hydProItem.stateInfo}}</div>
+				<div class="content">{{hydProItem.content}}</div>
+			</div>
+		</div>
+		</template>
+		<!--中期工程-->
+		<template v-else-if="curTab==2">
+			<div class="horizontal steps-list" v-for="midProItem in midProList" tapmode="hover" @click="proItemClick(midProItem)">
+				<div class="steps-num"><span>{{midProItem.stepsNun}}</span></div>
+				<div class="steps-content">
+					<div class="title">{{midProItem.title}}</div>
+					<div class="state">{{midProItem.stateInfo}}</div>
+					<div class="content">{{midProItem.content}}</div>
+				</div>
+			</div>
+		</template>
+		<!--竣工工程-->
+		<template v-else-if="curTab==3">
+			<div class="horizontal steps-list" v-for="compProItem in compProList" tapmode="hover" @click="proItemClick(compProItem)">
+				<div class="steps-num"><span>{{compProItem.stepsNun}}</span></div>
+				<div class="steps-content">
+					<div class="title">{{compProItem.title}}</div>
+					<div class="state">{{compProItem.stateInfo}}</div>
+					<div class="content">{{compProItem.content}}</div>
+				</div>
+			</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_tab.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript">
+	
+	//装修前临时测试数据
+	var beforeDectTemp=[
+		{id:'tubesite01',stepsNun:'01',title:'水电质检',stateInfo:'您的装修需求尚未通过审核',content:'主要工作为切割开槽，布设电/水管。水路要打压测试，电路要通电验收。水电工程是装修的大坑，需控制预算，小心支出。'},
+		{id:'tubesite02',stepsNun:'02',title:'托管水电增项',stateInfo:'您家的水电质检尚未完成',content:'为保障工程的顺利进行，水电质检完成后，请您尽快将水电增项托管在装小匠。'}
+	]
+	//水电工程临时测试数据
+	var hydProDataTemp=[
+		{id:'tubesite01',stepsNun:'01',title:'水电质检',stateInfo:'您的装修需求尚未通过审核',content:'主要工作为切割开槽，布设电/水管。水路要打压测试，电路要通电验收。水电工程是装修的大坑，需控制预算，小心支出。'},
+		{id:'tubesite02',stepsNun:'02',title:'托管水电增项',stateInfo:'您家的水电质检尚未完成',content:'为保障工程的顺利进行，水电质检完成后，请您尽快将水电增项托管在装小匠。'}
+	]
+	//中期工程临时测试数据
+	var midProDataTemp=[
+		{id:'tubesite01',stepsNun:'01',title:'水电质检',stateInfo:'您的装修需求尚未通过审核',content:'主要工作为切割开槽，布设电/水管。水路要打压测试，电路要通电验收。水电工程是装修的大坑，需控制预算，小心支出。'},
+		{id:'tubesite02',stepsNun:'02',title:'托管水电增项',stateInfo:'您家的水电质检尚未完成',content:'为保障工程的顺利进行，水电质检完成后，请您尽快将水电增项托管在装小匠。'}
+	]
+	//竣工工程临时测试数据
+	var compProDataTemp=[
+		{id:'tubesite01',stepsNun:'01',title:'水电质检',stateInfo:'您的装修需求尚未通过审核',content:'主要工作为切割开槽，布设电/水管。水路要打压测试，电路要通电验收。水电工程是装修的大坑，需控制预算，小心支出。'},
+		{id:'tubesite02',stepsNun:'02',title:'托管水电增项',stateInfo:'您家的水电质检尚未完成',content:'为保障工程的顺利进行，水电质检完成后，请您尽快将水电增项托管在装小匠。'}
+	]
+	
+	
+	var headItemClick;
+	var tab;
+	var tabVm;
+	var phoneNum='18686868866';
+	$('#phone_num').text(phoneMiddleHide(phoneNum));
+	apiready = function(){
+		api.showProgress();
+		headItemClick=function(action){
+			//decorateLive,quInRep,payment,moreOperations,telephone
+			if(action=='decorateLive'){
+				//装修直播
+				api.openWin({
+		            name: 'videoplayer_win',
+		            url: 'widget://html/videoplayer/videoplayer_win.html',
+		            bounces: false,
+				    scrollToTop:false,
+					delay:300
+		        });
+			}
+			else if(action=='quInRep'){
+				//质检报告
+				gotoDescribedetail('质检报告','quInRep');
+//				api.toast({ msg: '模块开发中,敬请期待...',duration: 1000, location: 'bottom'});
+			}
+			else if(action=='payment'){
+				//支付款项
+				gotoDescribedetail('支付款项','payment');
+//				api.toast({ msg: '模块开发中,敬请期待...',duration: 1000, location: 'bottom'});
+			}
+			else if(action=='moreOperations'){
+				//更多操作
+				gotoDescribedetail('更多操作','moreOperations');
+//				api.toast({ msg: '模块开发中,敬请期待...',duration: 1000, location: 'bottom'});
+			}
+			else if(action=='telephone'){
+				//拨打电话
+				var permissionNameObj={phone:'电话'};
+				var permissionList=['phone'];
+				if(!checkAppPermission(permissionNameObj,permissionList)) return;
+				if(phoneNum.length>0){
+					api.call({
+					    type: 'tel_prompt',
+					    number: phoneNum
+					});
+				}
+				
+			}
+			
+		}
+		
+		
+		tabVm=new Vue({
+			el:'#tab_list',
+			data:{
+				curTab:0,//当前tab
+				beforeDectList:[],//装修前数据
+				hydProList:[],//水电工程数据
+				midProList:[],//中期工程
+				compProList:[]//竣工工程
+			},
+			methods:{
+				setCurTab:function(position){
+					//设置当前页签
+					this.curTab=position;
+				},
+				refreshBeforeDect:function(data){
+					//刷新装修前数据
+					this.beforeDectList=data;
+					this.nextTick();
+				},
+				refreshHydPro:function(data){
+					//刷新水电工程数据
+					this.hydProList=data;
+					this.nextTick();
+				},
+				refresMidPro:function(data){
+					//刷新中期工程数据
+					this.midProList=data;
+					this.nextTick();
+				},
+				refresCompPro:function(data){
+					//刷新中期工程数据
+					this.compProList=data;
+					this.nextTick();
+				},
+				nextTick:function(){;
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				proItemClick:function(data){
+					var title='标题';
+					if(this.curTab==0){
+						title='装修前';
+					}
+					else if(this.curTab==1){
+						title='水电工程';
+					}
+					else if(this.curTab==2){
+						title='中期工程';
+					}
+					else if(this.curTab==3){
+						title='竣工工程';
+					}
+					gotoDescribedetail(title,data.id);
+				}
+			}
+			
+		});
+		
+		tabVm.refreshBeforeDect(beforeDectTemp);
+		tabVm.refreshHydPro(hydProDataTemp);
+		tabVm.refresMidPro(midProDataTemp);
+		tabVm.refresCompPro(compProDataTemp);
+
+		tab = new auiTab({
+	        element:document.getElementById("tab"),
+	    },function(ret){
+	    	tabVm.setCurTab(ret.index-1);
+	    });
+	};
+</script>
+</html>

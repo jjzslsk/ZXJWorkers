@@ -1,0 +1,16 @@
+html,body{height: 100%;background-color: #f7f7f7}
+.content-info{padding: 30px 10%;}
+.content-info .location-icon-area{text-align: center;width: 100%}
+.content-info .location-icon-area .location-icon{border: 1px solid #000000;border-radius: 50%;width: 4em;height: 4em}
+.content-info .location-icon-area .location-icon i{font-size: 3em}
+.content-info .location-address{font-size: 1.5em;text-align: center;margin-top: 20px;}
+.content-info .hint-content{margin-top: 20px;}
+.setup-btn{position: absolute;bottom: 30px;width:80%;margin:0 10%;background-color: #2fc588;line-height: 50px;color: #FFFFFF;text-align: center;font-weight: bold;border-radius: 8px;}
+
+.float-head-bar{
+	position: fixed;
+	z-index: 99;
+	top: 0px;
+	width: 100%;
+	background-color: #FFFFFF;
+}

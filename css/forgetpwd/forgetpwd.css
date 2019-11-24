@@ -1,0 +1,12 @@
+html,body{height: 100%;background-color: #f7f7f7}
+.content-area{background-color:#FFFFFF;margin-top: 10px;}
+.content-area .content-item{padding: 0px 10px;line-height: 45px;border-bottom: 1px solid #DDDDDD;}
+.content-area .content-item .title-item{width: 5em;margin-right: 5px;}
+.content-area .content-item .input-item{width: calc(100% - 5px - 5em);}
+.content-area .content-item .input-item input{line-height: 2em;width: 100%;outline:none;}
+.content-area .content-item .check-code {width: 9em;text-align: right;}
+.content-area .content-item .input-item-code{width: calc(100% - 10px - 14em);}
+.content-area .content-item .input-item-code input{line-height: 2em;width: 100%;outline:none;}
+.content-area .content-item .check-code .code-hint01{color:#2fc588;}
+.content-area .content-item .check-code .code-hint02{color:#cecece;}
+.submit-btn{margin: 50px 10% 30px 10%;background-color: #2fc588;line-height: 50px;color: #FFFFFF;text-align: center;font-weight: bold;border-radius: 8px;}

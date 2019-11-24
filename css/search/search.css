@@ -1,0 +1,4 @@
+html,body{height: 100%;background-color: #f7f7f7}
+.history-search{padding: 8px 10px}
+.history-search .history-item{background-color: #DDDDDD;border-radius: 8px;padding: 3px 10px;font-size: 0.6rem;margin: 5px;}
+.clear-history{margin-top:20px;text-align: center;color:#999999}

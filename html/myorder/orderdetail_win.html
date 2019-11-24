@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单详情win</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/myorder/orderdetailnew.css" />
+	
+</head>
+<body>
+	<header id="header" class="aui-bar aui-bar-nav main-gradient-bg">
+        <a class="aui-pull-left" tapmode="hover" onclick="backbar()">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title" id="order_title">我的订单</div>
+    </header>
+   <!-- <footer class="aui-bar aui-bar-tab footer-btn" id="footer_id" v-if="curStepsIndex==0 || curStepsIndex==1 || curStepsIndex==2 || curStepsIndex==3 || curStepsIndex==4">-->
+    <footer class="aui-bar aui-bar-tab footer-btn" id="footer_id" >
+    	<!--发布需求订单-工人报价步骤-->
+   		 <template v-if="orderTypeAction==0 && curStepsIndex==0">
+	        <div class="aui-bar-tab-item chat-gradient-bg-footer" tapmode="hover" @click="chatClick">
+	        	聊一聊
+	        </div>
+	        <div class="aui-bar-tab-item submit-gradient-bg-footer" tapmode="hover" @click="offerClick">
+	        	报价
+	        </div>
+        </template>
+        <!--邀约订单-工人报价步骤-->
+    	<template v-else-if="orderTypeAction==1 && curStepsIndex==0">
+	        <div class="aui-bar-tab-item refused-gradient-bg-footer" tapmode="hover" @click="refusedClick" >
+	        	拒绝
+	        </div>
+	        <div class="aui-bar-tab-item chat-gradient-bg-footer" tapmode="hover" @click="chatClick">
+	        	聊一聊
+	        </div>
+	        <div class="aui-bar-tab-item submit-gradient-bg-footer" tapmode="hover" @click="offerClick">
+	        	报价
+	        </div>
+        </template>
+         <!--待开工-->
+        <template v-else-if="curStepsIndex==1">
+        	<div class="aui-bar-tab-item refused-gradient-bg-footer" tapmode="hover" @click="cancelOfferClick">
+        		取消报价
+	        </div>
+	        <div class="aui-bar-tab-item chat-gradient-bg-footer" tapmode="hover" @click="chatClick">
+	        	聊一聊
+	        </div>
+        </template>
+        <!--待开工-->
+        <template v-else-if="curStepsIndex==2">
+	        <div class="aui-bar-tab-item refused-gradient-bg-footer" tapmode="hover" @click="cancelOrderClick">
+	        	取消订单
+	        </div>
+	        <div class="aui-bar-tab-item chat-gradient-bg-footer" tapmode="hover" @click="chatClick">
+	        	聊一聊
+	        </div>
+	        <div class="aui-bar-tab-item refused-gradient-bg-footer" tapmode="hover" @click="remindCancelClick">
+	        	提醒取消
+	        </div>
+	        <div class="aui-bar-tab-item submit-gradient-bg-footer" tapmode="hover" @click="remindWorkClick">
+	        	提醒开工
+	        </div>
+        </template>
+        <!--施工中-->
+    	<template v-else-if="curStepsIndex==3">
+	        <div class="aui-bar-tab-item chat-gradient-bg-footer" tapmode="hover" @click="chatClick">
+	        	聊一聊
+	        </div>
+	        <div class="aui-bar-tab-item refused-gradient-bg-footer" tapmode="hover" @click="upSettAmountClick">
+	        	确认修改金额
+	        </div>
+	        <div class="aui-bar-tab-item submit-gradient-bg-footer" tapmode="hover" @click="completedSubmitClick">
+	        	竣工提交
+	        </div>
+        </template>
+        <!--竣工待确认-->
+    	<template v-else-if="curStepsIndex==4">
+	        <div class="aui-bar-tab-item chat-gradient-bg-footer" tapmode="hover" @click="chatClick">
+	        	聊一聊
+	        </div>
+	        <div class="aui-bar-tab-item submit-gradient-bg-footer" tapmode="hover" @click="remindCompletedClick">
+	        	提醒竣工确认
+	        </div>
+        </template>
+    	<template v-else-if="curStepsIndex==5 || curStepsIndex==6">
+	        <div class="aui-bar-tab-item chat-gradient-bg-footer" tapmode="hover" @click="chatClick">
+	        	聊一聊
+	        </div>
+        </template>
+        <!--竣工确认,确认开工是在小程序那边提交，所以这里就不没有操作按钮-->
+        <!--竣工,已竣工没有操作按钮-->
+    </footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var backbar;
+	var orderTypeAction=0;//订单类型：0发布需求订单；1邀约订单
+	var curStepsIndex=2;//当前订单步骤:0发布需求/立即预约；1报价；2待开工；3施工中；4竣工待确认；5竣工已确认；6竣工
+	var footerVm;
+//	var chatClick,offerClick,cancelOfferClick,cancelOrderClick,remindCancelClick,refusedClick,sceneOfferClick,remindWorkClick,uploadSceneImgClick,completedSubmitClick,upSettAmountClick,remindCompletedClick;
+	apiready = function(){
+		 var header = $api.byId('header');
+		 $api.fixStatusBar(header); 
+		 backbar = function(){
+			//关闭当前window，使用默认动画
+			api.closeWin();
+		}
+		var pageParam = api.pageParam;//页面提交过来的参数
+		orderTypeAction=pageParam.orderTypeAction;
+		curStepsIndex=pageParam.curStepsIndex;
+		if(curStepsIndex==0){
+			if(orderTypeAction==0){
+				$('#order_title').text('附近订单')
+			} else{
+				$('#order_title').text('邀约订单')
+			}
+		}
+		else if(curStepsIndex==1){
+			$('#order_title').text('报价订单')
+		}
+		else if(curStepsIndex==2){
+			$('#order_title').text('待开工订单')
+		}
+		else if(curStepsIndex==3){
+			$('#order_title').text('施工中订单')
+		}
+		else if(curStepsIndex==4){
+			$('#order_title').text('竣工待确认订单')
+		}
+		else if(curStepsIndex==5){
+			$('#order_title').text('竣工已确认订单')
+		}
+		else if(curStepsIndex==6){
+			$('#order_title').text('订单完成')
+		}
+		
+//		//聊一聊
+//		chatClick=function(){
+//		alert(22)
+//			return;
+//			if(!checkCurLoginClientLevel()) return;
+//			api.openWin({
+//				name : 'chat_win',
+//				url : 'widget://html/chat/chat_win.html',
+//				pageParam:pageParam,
+//				slidBackEnabled:true,
+//				delay:300
+//			});		
+//		};
+//		//报价
+//		offerClick = function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'orderOfferSumbitHttps()'
+//			});
+//		};
+//		
+//		//取消报价
+//		cancelOfferClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'cancelOfferHttps()'
+//			});
+//		};
+//		
+//		//取消订单
+//		cancelOrderClick=function(){
+//		alert(11)
+//			return;
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'cancelOrderHttps()'
+//			});
+//		};
+//		
+//		//提醒业主取消
+//		remindCancelClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'remindCancelHttps()'
+//			});
+//		};
+//		
+//		//拒绝
+//		refusedClick = function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'refusedOrderHttps()'
+//			});
+//		};
+//		//现场报价
+//		sceneOfferClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'sceneOfferHttps()'
+//			});
+//		};
+//		
+//		remindWorkClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'remindWorkHttps()'
+//			});
+//		};
+//		
+//		//上传现场图片
+//		uploadSceneImgClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'uploadSceneImgClick()'
+//			});
+//		};
+//		
+//		//竣工提交
+//		completedSubmitClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'completionApplyHttps()'
+//			});
+//		};
+//		
+//		//修改结算金额
+//		upSettAmountClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'upSettAmountClick()'
+//			});
+//		};
+//		
+//		//竣工待确认，提醒业主竣工确认
+//		remindCompletedClick=function(){
+//			api.execScript({
+//				name : 'orderdetail_win',
+//				frameName : 'orderdetail_frm',
+//				script : 'remindCompletedHttps()'
+//			});
+//		};
+		
+		
+		footerVm=new Vue({
+			el:'#footer_id',
+			data:{
+				orderTypeAction:0,//订单类型：0发布需求订单；1邀约订单
+				curStepsIndex:0//当前订单步骤:0发布需求/立即预约；1报价；2待开工；3施工中；4竣工待确认；5竣工已确认；6竣工
+			},
+			methods:{
+				initData:function(orderTypeAction,curStepsIndex){
+					this.orderTypeAction=orderTypeAction;
+					this.curStepsIndex=curStepsIndex;
+					this.nextTick();
+				},
+				nextTick : function() {
+					this.$nextTick(function() {
+						api.parseTapmode();
+						api.hideProgress();
+						
+						var headerBar = $api.dom('header').offsetHeight;
+						var footerBar = 0;
+						
+						if(this.curStepsIndex==0 || this.curStepsIndex==1 || this.curStepsIndex==2 || this.curStepsIndex==3 || this.curStepsIndex==4 || this.curStepsIndex==5 || this.curStepsIndex==6) {
+							footerBar = $api.dom('footer').offsetHeight;
+						}
+				        api.openFrame({
+				            name: 'orderdetail_frm',
+				            url: 'orderdetail_frm.html',
+				            bounces: false,
+						    scrollToTop:true,
+				            rect: { // 推荐使用Margin布局，用于适配屏幕的动态变化
+				                marginTop: headerBar, // main页面距离win顶部的高度
+				                marginBottom: footerBar, // main页面距离win底部的高度
+				                w: 'auto' // main页面的宽度 自适应屏幕宽度
+				            },
+				            pageParam:pageParam
+				        });
+						
+					})
+				},
+				chatClick:function(){
+					//聊一聊
+					if(!checkCurLoginClientLevel()) return;
+					api.openWin({
+						name : 'chat_win',
+						url : 'widget://html/chat/chat_win.html',
+						pageParam:pageParam,
+						slidBackEnabled:true,
+						delay:300
+					});		
+				},
+				offerClick:function(){
+					//报价
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'orderOfferSumbitHttps()'
+					});
+				},
+				cancelOfferClick:function(){
+					//取消报价
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'cancelOfferHttps()'
+					});
+				},
+				cancelOrderClick:function(){
+					//取消订单
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'cancelOrderHttps()'
+					});
+				},
+				remindCancelClick:function(){
+					//提醒业主取消
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'remindCancelHttps()'
+					});
+				},
+				refusedClick:function(){
+					//拒绝
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'refusedOrderHttps()'
+					});
+				},
+				sceneOfferClick:function(){
+					//现场报价
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'sceneOfferHttps()'
+					});
+				},
+				remindWorkClick:function(){
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'remindWorkHttps()'
+					});
+				},
+				uploadSceneImgClick:function(){
+					//上传现场图片
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'uploadSceneImgClick()'
+					});
+				},
+				completedSubmitClick:function(){
+					//竣工提交
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'completionApplyHttps()'
+					});
+				},
+				upSettAmountClick:function(){
+					//修改结算金额
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'upSettAmountClick()'
+					});
+				},
+				remindCompletedClick:function(){
+					//竣工待确认，提醒业主竣工确认
+					api.execScript({
+						name : 'orderdetail_win',
+						frameName : 'orderdetail_frm',
+						script : 'remindCompletedHttps()'
+					});
+				}
+			}
+		});
+		footerVm.initData(orderTypeAction,curStepsIndex);
+		
+	};
+</script>
+</html>

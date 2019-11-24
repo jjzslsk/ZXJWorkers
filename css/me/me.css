@@ -1,0 +1,31 @@
+html,body{height: 100%;background-color: #f7f7f7}
+.me-head-area{height:20vh;max-height:20vh;padding: 0 15px;width: 100%}
+.me-head-area .user-ava{height: 10vh;width: 10vh;margin-top: 5vh;display: flex;align-items: center;}
+.me-head-area .user-ava img{width: 100%;height: 100%;align-items: center;border-radius: 50%;}
+/* .me-head-area .user-name:not(.noclick):active { background-color: #23aa73;} */
+.me-head-area .user-name{color:#FFFFFF;height: 10vh;max-height:10vh;margin-top: 5vh;margin-left: 10px;padding-top:1vh;width:calc(100% - 10% - 20px);}
+.me-head-area .user-name .realname-auth .real-name{background-color: #f59a2c;margin-top: 0.5vh;padding: 0 10px;font-size: 0.8em;border-radius: 3px; -webkit-appearance:none;padding: 3px 5px}
+.me-head-area .user-name .pay-security{margin-left: 8px;}
+.me-head-area .user-name .pay-security .pay-security-sel{background-color: #f59a2c;margin-top: 0.5vh;padding: 0 10px;font-size: 0.8em;border-radius: 3px; -webkit-appearance:none;padding: 3px 5px}
+.me-head-area .user-name .pay-security .pay-security-nor{background-color: #999999;margin-top: 0.5vh;padding: 0 10px;font-size: 0.8em;border-radius: 3px; -webkit-appearance:none;padding: 3px 5px}
+
+.me-head-area .hint-login{color:#FFFFFF;height: 10vh;max-height:10vh;margin-top: 5vh;margin-left: 10px;padding-top:2.5vh;width:calc(100% - 10% - 20px);}
+
+.line-switch{position: absolute;top: 10px;right:20px;height: 2rem; line-height: 2rem;z-index: 99}
+.line-switch span{color: #FFFFFF; font-size: 0.8em;}
+.line-switch img{height: 1.2rem;margin-top: 0.4rem;margin-left: 3px;}	
+
+.aui-grid [class*=aui-col-] {padding: 0.5rem 0;}
+
+.me-icon-item img{width: 40%;margin: 0 auto}
+.info-title{color:000000;font-weight: bold;border-bottom: 1px solid #DDDDDD}
+.info-title .item-title{width: 60%;}
+.info-title .all-order{width: 40%;text-align: right;font-weight: normal;color: #3C3C3C;font-size:0.8em;}
+
+.info-area{width: calc(100% - 30px);margin: 0 15px;position: absolute;top:17vh;padding-bottom: 10px;}
+.info-area .order-state{background-color: #FFFFFF;padding:8px;border-radius: 8px;}
+.info-area .order-state .state-text{font-size: 0.7em}
+
+.info-area .base-info{background-color: #FFFFFF;padding:8px;border-radius: 8px;margin-top: 10px;}
+.info-area .val-add-info{background-color: #FFFFFF;padding:8px;border-radius: 8px;margin-top: 10px}
+.base-tip{width:16px;height: 16px;line-height:16px;text-align:center;font-size:8px;border-radius: 50%;color:#FFFFFF;background-color: #d61414;position: absolute;top: 5px;right: calc(50% - 20px);}

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>拒绝理由frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #f7f7f7}/* f7f7f7 */
+		.refuse-info{background-color: #FFFFFF;}
+		
+		.cancel-type{background-color: #FFFFFF;height: 40px;line-height: 40px;max-height: 40px;padding: 0 10px;border-bottom: 1px solid #DDDDDD;box-sizing:border-box;-moz-box-sizing:border-box; }
+		.cancel-type .title{width: 5em}
+		.cancel-type .cancel-type-radio{width:calc(100% - 5em);}
+		.cancel-type .cancel-type-radio .radio-item{width: 50%;color:#999999;}
+		.cancel-type .cancel-type-radio .radio-item img{width: 30px;height: 30px;margin-top: 5px}
+		
+		.refuse-info .choose-item{height: 40px;line-height: 40px;max-height: 40px;padding: 0 10px;border-bottom: 1px solid #DDDDDD;box-sizing:border-box;-moz-box-sizing:border-box; /* Firefox */}
+		.refuse-info .choose-item .title{width: 5em}
+		.refuse-info .choose-item .content-area{width: calc(100% - 5em)}
+		.refuse-info .choose-item .content-area .content{width: calc(100% - 12px)}
+		.refuse-info .choose-item .content-area .choose-hint {color: #b1babf;}
+		.refuse-info .choose-item .content-area .arrow_down {width: 0; height: 0; border-left: 6px solid transparent;  border-right: 6px solid transparent; border-top: 6px solid #999999;}
+		.refuse-info .other{padding: 8px 10px;}
+		.refuse-info .other textarea{background-color: #f2f2f2;padding: 8px 5px;height: 100px;}
+		
+		
+		.scene-img-list{background-color: #FFFFFF;border-top: 1px solid #DDDDDD;box-sizing:border-box;-moz-box-sizing:border-box;padding-bottom: 20px;}
+		.scene-title{padding: 8px 10px;}
+		.img-del {width: 1.5rem;height: 1.5rem;line-height: 1.5rem;text-align: center;border-radius: 50%;background-color: #d61414;color: #FFFFFF;position: absolute;z-index: 99;right: 0;top: 0;}
+		.att-img {width: 80%;height: 0px;padding-bottom: 80%;position: relative;margin: 0 10%}
+		.att-img img {width: 100%;height: 100%;position: absolute;border-radius: 10px}
+		
+    </style>
+</head>
+<body>
+    <div id="info_id">
+    	<template>
+	    <div class="refuse-info">
+	    	<div class="choose-item horizontal">
+	    		<div class="title"><span>{{chooseTitle}}:</div>
+	    		<div class="content-area" tapmode="hover" @click="chooseReason">
+	    			<span v-if="actionCur.name.length>0" class="content">{{actionCur.name}}</span><span v-else class="content choose-hint">请选择{{chooseTitle}}</span><span class="arrow_down"></span>
+	    		</div>
+	    	</div>
+	    	<div class="other">
+	    		<div>其他原因:</div>
+	    		<textarea title="text" placeholder="请输入其他理由" maxlength="3000" v-model="other"></textarea>
+	    	</div>
+	    </div>
+	    </template>
+	    <template>
+	    <div class="submit-btn-bor" tapmode="hover" @click="submitClick">提交</div>
+	    </template>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var contentVm;
+	var submitHttps;
+	var orderId='';
+	var userId='';
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		var action = pageParam.action;//0拒绝理由；1待开工取消订单
+		orderId = pageParam.orderId;
+		securityMoney = pageParam.securityMoney;//取消订单金额
+		userId=$api.getStorage("userid");//用户id
+		
+		var refuseData=[{id:'001',name:'另有打算'},{id:'002',name:'联系不上业主'},{id:'003',name:'价格不合适'},{id:'004',name:'近期无时间'}];
+		var cacelData=[{id:'001',name:'另有打算'},{id:'002',name:'做不来'},{id:'003',name:'时间安排不上'}];
+	
+		
+		submitHttps=function(reasonStr,otherReasonStr){
+			var actionUrl='';
+			var param;
+			if(action==0){
+				//0拒绝理由
+				actionUrl='/worker/workerDecline';
+				param = 'id='+orderId+'&userId='+userId+'&refuseReason='+reasonStr+'&otherRefuseReason='+otherReasonStr;
+			}else{
+				var cancelReason='';
+				if(otherReasonStr!=undefined && otherReasonStr.length>0){
+					var cancelReason = reasonStr+'('+otherReasonStr+')';
+				} else{
+					cancelReason = reasonStr;
+				}
+				actionUrl='/worker/cancleDemandOrder';
+				param='id='+orderId+'&userId='+userId+'&cancelReason='+cancelReason+'&type=10'
+			}
+			//提交数据
+			api.showProgress();
+			_getHttpsData(actionUrl,param,
+				function(res){
+					api.hideProgress();
+					if(res.status){
+						api.alert({
+						    title: '提示',
+						    msg: res.msg,
+						}, function(ret, err) {
+							api.sendEvent({
+							    name: 'detailOrder_send_event',
+							    extra: {
+							        detailOrderSuccess: true,
+							    }
+							});
+							api.closeWin({name: 'orderdetail_win'});
+							api.closeWin();
+						});
+					} else{
+						api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+					}
+					
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		
+		
+		contentVm = new Vue({
+			el:'#info_id',
+			data:{
+				chooseTitle:'理由',
+				actionList:[],
+				actionCur:{id:'',name:''},
+				other:''
+			},
+			methods:{
+				initData:function(title,actionData){
+					this.chooseTitle=title;
+					this.actionList=actionData;
+					this.nextTick();
+				},
+				nextTick : function() {
+					this.$nextTick(function() {
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				chooseReason:function(){
+					//选择理由
+					var tempList=[];
+					var actionList=this.actionList;
+					for(var index in actionList){
+						tempList.push(actionList[index].name);
+					}
+					api.actionSheet({
+					    buttons: tempList
+					}, function(ret, err) {
+					    var index = ret.buttonIndex-1;
+					    if(index>actionList.length-1) return;
+					    contentVm.actionCur=actionList[index];
+					});
+				},
+				submitClick:function(){
+					//提交
+					if(this.actionCur.name==undefined ||this.actionCur.name==null || this.actionCur.name==''){
+						api.toast({ msg:'请选择'+contentVm.chooseTitle,duration: 2000, location: 'bottom'});
+						return;
+					}
+					submitHttps(this.actionCur.name,this.other);
+				}
+			}
+		});
+		
+		if(action==0){
+			//拒绝理由
+			contentVm.initData('拒绝理由',refuseData);
+		} else{
+			//取消理由
+			contentVm.initData('取消理由',cacelData);
+		}
+		
+	};
+</script>
+</html>

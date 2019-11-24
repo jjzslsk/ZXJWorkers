@@ -1,0 +1,40 @@
+html,body{height: 100%;background-color: #f7f7f7}
+
+/* 我的钱包 start*/
+.wallet-info{width: 100%;text-align: center;}
+.wallet-info .balance-hint{padding-top: 20%;color:#999999}
+.wallet-info .balance{color: #000000;margin-top: 20px;}
+.wallet-info .balance .balance-unit{font-size: 1.5em;}
+.wallet-info .balance .balance-num{ font-size: 2em;margin-left: 5px;}
+.wallet-info .top-up{margin: 30px 20% 0 20%;width: 60%; background-color: #2fc588; color: #FFFFFF; text-align: center; padding: 8px 10px; border-radius: 20px;}
+.wallet-info .withdrawal{ margin: 30px 20%; width: 60%; background-color: #FFFFFF; border: 1px solid #2fc588; color: #2fc588;text-align: center;padding: 8px 10px; border-radius: 20px;}
+/* 我的钱包 end*/
+
+/* 余额充值、余额提现 start*/
+.wd-tu-item{padding: 8px 10px;background-color: #FFFFFF;border-bottom: 1px solid #DDDDDD;}
+.wd-tu-item .title{color:#999999;width: 5em}
+.wd-tu-item .type{width: calc(100% - 6em);padding-right: 8px;}
+.wd-tu-item .type-placeholder{color:#80848f;}
+.wd-tu-item .icon{font-size: 1em;}
+.amount-item{margin-top: 10px;height: 2rem; line-height: 2rem;}
+.amount-item .amount-unit{color: #000000; font-size: 1.5rem;}
+.amount-item .amount{width: calc(100% - 2rem)}
+.amount-item .amount input{width:100%;margin-top:0.25rem;margin-left:10px;margin-right: 10px;font-size: 1.5rem;}
+.amount-hint{padding: 8px 10px;background-color: #FFFFFF;color: #999999; background-color: #FFFFFF; width: 100%;font-size: 14px;}
+.pay-agreement{font-size: 14px;padding: 8px 10px;}
+.pay-agreement .radio-agree{width: 1.2rem;height: 1.2rem;line-height:1.2rem;border-radius: 50%;background-color: #ffffff; border: solid 1px #dddddd;text-align: center;background-clip: padding-box; color: #FFFFFF;font-weight: bold;}
+.pay-agreement .radio-agree.check{background-color: #2fc588; border: solid 1px #2fc588;}
+.pay-agreement .agre-text{margin-left: 10px;}
+.submit-btn{margin: 30px 20%;width: 60%; background-color: #2fc588;color: #FFFFFF;text-align: center;padding: 8px 10px; border-radius: 20px;}
+/* 余额充值、余额提end */
+
+/*账单start*/
+.bill-list-item{background-color: #FFFFFF;padding: 8px 10px 0 10px;}
+.bill-list-item .bill-item-img{width: 10%;height: 0px;padding-bottom: 10%;position: relative;}
+.bill-list-item .bill-item-img img{width: 90%;height: 90%;position: absolute;border-radius: 50%;}
+.bill-list-item .bill-item-info{width: calc(90% - 8px);margin-left: 8px;padding-bottom: 8px;border-bottom: 1px solid #DDDDDD;}
+.bill-list-item .bill-item-info .bill-item-head .bill-item-title{width: calc(100% - 10em);overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
+.bill-list-item .bill-item-info .bill-item-head .bill-item-money{width: 10em;text-align: right;font-weight: bold;color:#000000;}
+.bill-list-item .bill-item-info .bill-item-head .bill-item-money.income{color:#11ce7c}
+.bill-list-item .bill-item-info .bill-item-time{font-size: 0.9em;color:#999999;}
+/*账单end*/

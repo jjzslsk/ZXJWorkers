@@ -1,0 +1,211 @@
+html,.body-bg{
+	background-color: #f7f7f7;
+}
+.header-pt{padding-top:25px;}
+.titlebar {
+	height: 50px;
+	width: 100%;
+	text-align: center;
+	background-color: #2fc588;
+	color: #fff;
+	line-height: 50px;
+	padding-top: 8px;
+	font-size: 18px;
+}
+
+.head-h{line-height: 2.2rem;border: 0}
+			
+#wrap-main {
+	height: 100%;
+}
+
+.flex-vertical {
+	-webkit-box-orient: vertical;
+	-webkit-flex-flow: column;
+	flex-flow: column;
+}
+.flex-wrap {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+}
+.flex-con {
+	-webkit-box-flex: 1;
+	-webkit-flex: 1;
+	flex: 1;
+	overflow: auto
+}
+.bar-btm-footer {
+	background-color: #f2f2f2;
+	border-top: 1px solid #CECECE
+}
+.hover{ opacity: .8; }
+.search-area{
+	width:95%;
+	line-height: 1.6rem;
+	max-height:1.6rem;
+	margin-top:0.3rem;
+	margin-left:5%;
+	background-color: #f7f7f7;
+	border-radius: 8px;
+}
+.search-area .search{
+	width: 100%;
+	color: #000000;
+	padding: 0 10px;
+}
+
+.search-area .search.search-hint{
+	color: #CECECE;
+}
+
+.search-area .search-icon{
+	width:50px;
+	line-height: 1.6rem;
+	max-height:1.6rem;
+	position:absolute;
+	top:0.3rem;
+	right:8px;
+	background-color: #56d391;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+	text-align: center;
+	color:#FFFFFF;
+	font-weight: bold;
+}
+
+.horizontal {
+ 	position: relative;
+  	display: flex;
+  	display: -webkit-flex;
+  	display: box;
+  	display: -webkit-box;
+  	box-sizing: border-box;
+  	border-style: solid;
+  	border-width: 0;
+}
+
+.more-data{
+ 	text-align: center;
+ 	padding: 8px;
+}
+.this-bg-header{background: #FFFFFF;}
+/* .this-bg-theme{background: #2fc588;} */
+.this-bg-theme{background: linear-gradient(to right, #11ce7c 20%,#11cfc8 100%);}
+.this-bg-white{background: #FFFFFF;}
+.this-cl-title{color:#333333 !important;}
+.this-cl-tips{color:#999999 !important;}
+
+.click-item-ser:not(.noclick):active { background-color: #f4f4f4;}
+
+/* 瀑布流布局start */
+/*瀑布流大层*/
+.waterfall-container {
+	width: 100%;
+	margin: 0 auto;
+	padding: 8px 
+}
+/*瀑布流层*/
+.waterfall-container .waterfall {
+	-moz-column-count: 2; /* Firefox */
+	-webkit-column-count: 2; /* Safari 和 Chrome */
+	column-count: 2;
+	-moz-column-gap: 1em;
+	-webkit-column-gap: 1em;
+	column-gap: 1em;
+}
+/*一个内容层*/
+.waterfall-container .waterfall .waterfall-item {
+	padding: 1em;
+	margin: 0 0 10px 0;
+	-moz-page-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+	break-inside: avoid;
+	background-color: #FFFFFF;
+	border-radius: 8px;
+	border-right: 1px solid #DDDDDD;
+	border-bottom: 1px solid #DDDDDD
+}
+.waterfall-container .waterfall .waterfall-item img {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.waterfall-container .waterfall .waterfall-item p{font-size: 0.8em;color: #999999}
+/* 瀑布流布局end */
+.not-data-hint{
+	text-align: center;
+	margin-top: 30px;
+	color:#999999
+}
+
+.submit-btn-bor{background-color: #2fc588;color: #FFFFFF; width: 80%;margin: 30px 10%;text-align: center;height: 40px;line-height: 40px;max-height: 40px;border-radius: 20px;}
+.submit-btn-bor:not(.noclick):active { background-color: #17ab6f;}
+
+
+/*线性渐变
+语法：linear-gradient(to bottom,colorStrat,colorEnd)
+参数含义：
+第一个参数指定 渐变的方向
+to bottom 从上至下；to bottom right 从左上至右下；to right 从左至右；to up right 从左下至右上；
+to up 从下至下；to up left 从右下至左上；to left 从右至左；to bottom left 从右上至左下*/
+.main-gradient-bg{
+	/* background: -moz-linear-gradient(top, #11ce7c 20%, #11cfc8 100%);
+	    background: -webkit-gradient(linear, left top, left bottom, color-stop(20%,#11ce7c), color-stop(100%,#11cfc8));
+	    background: -webkit-linear-gradient(top, #11ce7c 20%,#11cfc8 100%);
+	    background: -o-linear-gradient(top, #11ce7c 20%,#11cfc8 100%);
+	    background: -ms-linear-gradient(top, #11ce7c 20%,#11cfc8 100%); */
+    background: linear-gradient(to right, #11ce7c 20%,#11cfc8 100%);
+}
+/* 拒绝按钮渐变背景 */
+.refused-gradient-bg-footer{
+	/* background: -moz-linear-gradient(top, #e9573f 20%, #fc6e51 100%);
+	    background: -webkit-gradient(linear, left top, left bottom, color-stop(20%,#e9573f), color-stop(100%,#fc6e51));
+	    background: -webkit-linear-gradient(top, #e9573f 20%,#fc6e51 100%);
+	    background: -o-linear-gradient(top, #e9573f 20%,#fc6e51 100%);
+	    background: -ms-linear-gradient(top, #e9573f 20%,#fc6e51 100%); */
+    background: linear-gradient(to right, #e9573f 20%,#fc6e51 100%);
+    color:#FFFFFF;
+    padding: 3px 5px;
+}
+/* 聊一聊按钮渐变背景*/
+.chat-gradient-bg-footer{
+	/* background: -moz-linear-gradient(top, #f6bb42 20%, #ffce54 100%);
+	    background: -webkit-gradient(linear, left top, left bottom, color-stop(20%,#f6bb42), color-stop(100%,#ffce54));
+	    background: -webkit-linear-gradient(top, #f6bb42 20%,#ffce54 100%);
+	    background: -o-linear-gradient(top, #f6bb42 20%,#ffce54 100%);
+	    background: -ms-linear-gradient(top, #f6bb42 20%,#ffce54 100%); */
+    background: linear-gradient(to right, #f6bb42 20%,#ffce54 100%);
+    color:#FFFFFF;
+    padding: 3px 5px;
+}
+/* 提交按钮渐变背景*/
+.submit-gradient-bg-footer{
+	/* background: -moz-linear-gradient(top, #11ce7c 20%, #11cfc8 100%);
+	    background: -webkit-gradient(linear, left top, left bottom, color-stop(20%,#11ce7c), color-stop(100%,#11cfc8));
+	    background: -webkit-linear-gradient(top, #11ce7c 20%,#11cfc8 100%);
+	    background: -o-linear-gradient(top, #11ce7c 20%,#11cfc8 100%);
+	    background: -ms-linear-gradient(top, #11ce7c 20%,#11cfc8 100%); */
+    background: linear-gradient(to right, #11ce7c 20%,#11cfc8 100%);
+    color:#FFFFFF;
+    padding: 3px 5px;
+}
+
+/* 我的团队、我的佣金标题渐变背景*/
+.team-commission-head-gradient{
+	/* background: -moz-linear-gradient(top, #f2f0f1 20%, #f0ebe8 100%);
+	    background: -webkit-gradient(linear, left top, left bottom, color-stop(20%,#f2f0f1), color-stop(100%,#f0ebe8));
+	    background: -webkit-linear-gradient(top, #f2f0f1 20%,#f0ebe8 100%);
+	    background: -o-linear-gradient(top, #f2f0f1 20%,#f0ebe8 100%);
+	    background: -ms-linear-gradient(top, #f2f0f1 20%,#f0ebe8 100%); */
+    background: linear-gradient(to bottom, #f2f0f1 20%,#f0ebe8 100%);
+    color:#000000;
+    padding: 3px 5px;
+}
+
+
+
+
+
+
+

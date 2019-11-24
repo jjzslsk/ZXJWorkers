@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>显示信息dialog</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background:rgba(0,0,0,0);}
+    	.dialog-bg{padding: 10% 5%;height: 100%;}
+    	.dialog-bg .dialog-info{background-color: #FFFFFF;height: 100%;padding: 8px 10px;border-radius: 8px;}
+    	.dialog-bg .dialog-info .head-area{width: 100%;text-align: center;height: 2rem;line-height: 2rem}
+    	.dialog-bg .dialog-info .head-area .title{width: calc(100% - 4rem);}
+    	.dialog-bg .dialog-info .head-area .close-dialog{background-color: #2fc588;width: 1rem;height: 1rem;line-height: 1rem;text-align: center;border-radius: 50%;color:#FFFFFF;position: absolute;margin-top: 0.5rem;margin-left: 0.5rem}
+    	.dialog-content{overflow-y:auto;height:calc(100% - 2rem)}
+    
+    </style>
+</head>
+<body>
+	<div class="dialog-bg" id="dialog_id">
+		<div class="dialog-info">
+			<div class="head-area">
+				<span class="title" id="title_id">标题</span>
+				<span class="close-dialog" tapmode="hover" onclick="closeDialog()"><i class="aui-iconfont aui-icon-close"></i></span>
+			</div>
+			<div class="dialog-content" id="msg_id"></div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript">
+	var closeDialog;
+	apiready = function(){
+		closeDialog=function(){
+			api.closeFrame();
+		}
+		
+		var pageParam = api.pageParam;//页面提交过来的参数
+		var title = pageParam.title;
+		var msg = pageParam.msg;
+		var height = pageParam.height==undefined ? 0:pageParam.height;
+		var width = pageParam.width==undefined ? 0:pageParam.width;
+		
+		var paddingTB=10;
+		if(height>0){
+			var padd = (100-Number(height))/2;
+			paddingTB=padd>0 ? padd:0;
+		}
+		
+		var paddingLR=5;
+		if(width>0){
+			var padd = (100-Number(width))/2;
+			paddingLR=padd>0 ? padd:0;
+		}
+		
+   		$("#dialog_id").css("padding-top", paddingTB+"vh");
+		$("#dialog_id").css("padding-bottom", paddingTB+"vh");
+		$("#dialog_id").css("padding-left", paddingLR+"%");
+		$("#dialog_id").css("padding-right", paddingLR+"%");
+		
+		$('#title_id').text(title);
+		$('#msg_id').text(msg);
+		
+		api.parseTapmode();
+		
+	};
+</script>
+</html>

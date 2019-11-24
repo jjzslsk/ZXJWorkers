@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="tephone=no,email=no,date=no,address=no">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+		<style type="text/css">
+			html, body {
+				height: 100%;
+				background-color: #f7f7f7
+			}
+		</style>
+	</head>
+	<body>
+		<div class="waterfall-container" id="video_list">
+			<template v-if="videoList.length>0">
+	        <div class="waterfall">
+	            <div class="waterfall-item click-item-ser" v-for="videoItem in  videoList" tapmode="hover" @click="videoItemClick(videoItem)">
+	                <img :src="videoItem.videoCover">
+	                <p>{{videoItem.title}}</p>
+	           </div>
+	        </div>
+	        </template>
+	        <template v-else>
+	        	<div class="not-data-hint">暂无视频数据</div>
+	        </template>
+	    </div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	<script type="text/javascript">
+		var videoVm;
+		apiready = function() {
+			var tempVideoList=[
+				{title:'房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'},
+				{title:'房屋装修步骤具体讲解房屋装修步骤具体讲解',videoCover:'../../image/video/decoratestep.png',videoUrl:serviceUrl+'/video/decorate/decorateStep.mp4'}
+			]
+		
+			videoVm = new Vue({
+				el:'#video_list',
+				data:{
+					videoList:[]
+				},
+				methods:{
+					refreshData:function(data){
+						this.videoList=data;
+						this.nextTick();
+					},
+					appendData:function(data){
+						this.dataList=this.dataList.concat(data);
+						this.nextTick();
+					},
+					nextTick:function(){
+						this.$nextTick(function(){
+							api.parseTapmode();
+							api.hideProgress();
+						})
+					},
+					videoItemClick:function(data){
+						videoPlay(data);
+					}
+				}
+			});
+			videoVm.refreshData(tempVideoList);
+
+		};
+	</script>
+</html>

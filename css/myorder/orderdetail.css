@@ -1,0 +1,64 @@
+html,body{height: 100%;background-color: #f7f7f7}/* f7f7f7 */
+.aui-grid [class*=aui-col-xs-4] {
+	padding: 5px 0;
+}
+.aui-grid [class*=aui-col-xs-3] {
+	padding: 0;
+}
+.aui-row-padded [class*=aui-col-xs-4] {
+	padding: 10px;
+}
+.label-item {
+	background-color: #DDDDDD;
+	color: #000000;
+	padding: 5px;
+	border-radius: 20px;
+	font-size: 0.9em;
+	width: 80%
+}
+.label-item.label-active {
+	background-color: #2fc588;
+	color: #FFFFFF
+}
+.base-info {
+	margin-top: 10px;
+	width: 100%;
+	background-color: #FFFFFF;
+}
+.aui-card-list-content-padded {
+	padding: 0.5rem 0;
+}
+.list-item {margin-bottom: 0;}
+.list-item .item-titlebar{line-height: 2em}
+.list-item .item-titlebar .title {color: #2fc588;}
+.att-img {
+	width: 100%;
+	height: 0px;
+	padding-bottom: 100%;
+	position: relative;
+}
+.att-img img {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	border-radius: 20px;
+}
+.eva-item {
+	background-color: #f9e9d8;
+	color: #000000;
+	padding: 2px;
+	border-radius: 20px;
+	font-size: 0.9em;
+	width: 80%
+}
+.completion-info{background-color: #FFFFFF;padding: 0 10px 8px 10px}
+.ct-title{color:#686868}
+.completion-item{padding: 5px 0}
+.completion-item .money-title{width: 50%;text-align: left}
+.completion-item .money-num{width: 50%;text-align: right;color:#ff5400}
+.completion-info .objective-eva{margin-top: 5px}
+.completion-item .stars-title{width: calc(100% - 100px)}
+.completion-item .stars-title .title{width: 50%}
+.completion-item .stars-title .text{width: 50%;text-align: right;color: #d9681d}
+.completion-item .stars{width: 100px;text-align: right;height: 20px;line-height: 20px;}
+.completion-item .stars img{width: 20px;height: 20px}

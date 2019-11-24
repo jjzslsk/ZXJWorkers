@@ -1,0 +1,29 @@
+html,body{height: 100%;background-color: #f7f7f7}
+.aui-grid [class*=aui-col-xs-3] {padding: 10px 0;}
+.aui-grid .aui-iconfont{height: auto}
+.icon-bg-round{padding: 8px;border-radius: 50%;}
+.decorate-live{background-color:#e67563;}
+.qu-in-rep{background-color:#f1c443;}
+.payment{background-color:#6bc7b0;}
+.more-operations{background-color:#65aefd;}
+.icon-Live-decoration:before,.icon-Inspection_report:before,.icon-Payment:before,.icon-More-operations:before{color:#FFFFFF}
+
+.head-info-area{width: 100%;position: absolute;top: 30px;text-align: center;}
+.head-info-area .my-new-home{color:#ec9f47;font-size: 1.5rem;font-weight: bolder}
+.head-info-area .info,.head-info-area .info .icon-phone:before{color:#ad8c61}
+.head-info-area .info .phone{margin-left: 10px;}
+
+.telephone{background-color: #d2cbc3;padding: 10px;border-radius: 50%;position: absolute;top: 8px;right:20px}
+.icon-telephone:before{color:#FFFFFF}
+
+.aui-tab{margin-top: 10px;}
+.aui-tab-item { border-bottom: 1px solid #CECECE;}
+.aui-tab-item.aui-active { color: #59bb88; border-bottom: 1px solid #59bb88;}
+
+.tubs-tab-list{margin-bottom: 10px;}
+.tubs-tab-list .steps-list{background-color: #FFFFFF;padding: 8px 10px;border-bottom: 1px solid #DDDDDD;}
+.tubs-tab-list .steps-list .steps-num{color: #999999;width:2em;text-align: center}
+.tubs-tab-list .steps-list .steps-content{width: calc(100% - 2em)}
+.tubs-tab-list .steps-list .steps-content .title{color:#000000;font-weight: bold}
+.tubs-tab-list .steps-list .steps-content .state{color:#000000;font-size: 0.8em}
+.tubs-tab-list .steps-list .steps-content .content{color:#999999;font-size: 0.8em}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>装小匠(工人端)</title>
+    <link rel="stylesheet" type="text/css" href="./css/api.css" />
+</head>
+<body>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script type="text/javascript" src="./script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="./script/custom/tools.js"></script>
+<script type="text/javascript" src="./script/packajax.js"></script>
+<script type="text/javascript" src="./script/custom/bmap.js"></script>
+<script type="text/javascript">
+    apiready = function(){
+//  	var permissionNameObj={camera:'相机',photos:'相册',location:'位置信息',locationAlways:'后台位置信息',notification:'状态栏通知',phone:'电话',storage:'存储空间'};
+//  	var permissionList=['camera','photos','location','locationAlways','notification','phone','storage'];
+//  	var hasList = api.hasPermission({
+//		    list:permissionList
+//		});
+//		
+//		
+//		
+//		if(!hasList || !hasList[0] || !hasList[0].granted){
+//			api.confirm({
+//			    title: '提醒',
+//			    msg: '没有获得 ' + perm + " 权限\n是否前往设置？",
+//			    buttons: ['去设置', '取消']
+//			}, function(ret, err) {
+//			    if(1 == ret.buttonIndex){
+//			    	reqPermission(perm);
+//			    }
+//			});
+//		}
+    
+   
+		againLoginByUserId();
+		checkUpAppVersion();
+		api.openWin({
+   			name: 'main_win',
+		    url: 'html/main/main_win.html', 
+//			name: 'test',
+//		    url: 'html/chat/test02.html',
+			delay:300,
+		    slidBackEnabled:false//（可选项）是否支持滑动返回。iOS7.0及以上系统中，在新打开的页面中向右滑动，可以返回到上一个页面，该字段只 iOS 有效
+		});
+    };
+</script>
+</html>

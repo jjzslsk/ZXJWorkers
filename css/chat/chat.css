@@ -1,0 +1,29 @@
+html,body{height: 100%;background-color: #FFFFFF}
+.footer-area{
+	background-color: #FFFFFF;
+	border-top: 1px solid #DDDDDD;
+	width: 100%;
+	position: fixed;
+	top: auto;
+	bottom: 0;
+	height: 2.5rem;
+	line-height: 2.5rem;
+	max-height: 2.5rem;
+	padding: 0 10px;
+}
+.camera-item{height: 100%;padding-top: 0.3rem;width: 2.5rem}
+.camera-item img{width: 1.9rem;height: 1.9rem}
+.content{height: 100%;padding-top: 0.3rem;width: calc(100% - 2.5rem - 4em);}
+.content input{height: 1.9rem;border-radius: 20px;border: 1px solid #DDDDDD;padding: 0 10px}
+.send-btn{height: 100%;width: 4em;}
+.send-btn span{height: 1.9rem;width: 100%;text-align: center;color:#2fc588}
+.aui-chat{margin-top: 30px;}
+.aui-chat .aui-chat-right .aui-chat-content {background-color: #DDDDDD;}
+.aui-chat .aui-chat-right .aui-chat-arrow {
+    background-image: -webkit-linear-gradient(45deg, #DDDDDD, #DDDDDD 50%, transparent 50%);
+    background-image: linear-gradient(45deg, #DDDDDD, #DDDDDD 50%, transparent 50%);
+    -webkit-transform: rotate(-135deg);
+            transform: rotate(-135deg);
+    right: -0.25rem;
+}
+.chat-img{margin-top: 10px;}

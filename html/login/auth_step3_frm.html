@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>实名认证3</title>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui_flex.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css"/>
+		<style>
+			.step {font-size: 0.7rem;padding: 1rem 2rem;verflow: hidden;color: #FFFFFF;text-align: center;}
+			.step-num {width: 1rem;height: 1rem;text-align: center;line-height: 1rem;margin: 0 auto;border-radius: 50%;}
+			.id-img {background: #EEEEEE;height: 3rem;line-height: 3rem;text-align: center;font-size: 0.6rem;color: #999999;}
+			.id-img img {width: 100%;height: 100%;}
+			.id-img .del-tip {width: 1.5rem;height: 1.5rem;line-height: 1.5rem;text-align: center;border-radius: 50%;background-color: #d61414;color: #FFFFFF;position: absolute;z-index: 99;right: 0;top: 0;}
+			.font-size-30 {font-size: 1.5rem !important}
+			/*.commit-btn {color: #FFFFFF;border-radius: 0.5rem;position: relative;width: 80%;left: 10%;height: 2rem;line-height: 2rem;text-align: center;border: 1px #EEEEEE solid;}*/
+    		.commit-btn{color:#FFFFFF;border-radius: 0.5rem;width:80%;margin:20px 10%;height:2rem;line-height:2rem;text-align: center;border:1px #EEEEEE solid;}
+			.aui-list .aui-list-item-label {width: 40%;font-size: 0.7rem;}
+			.list-item {padding: 0.75rem;}
+			textarea {border: 1px #EEEEEE solid;padding: 0.5rem;}
+			.choose-area {width: calc(100% - 1rem)}
+			.choose-area .choose-hint {color: #b1babf;}
+			.img-ratio {margin-left: 10px;color: #999999}
+			.read-only {color: #999999}
+			.must-star {color: #DD191B;position: absolute;left: 3px;top: 0.6rem}
+			.must-star1 {color: #DD191B;position: absolute;left: 3px;}
+			
+			.sex-radio{margin: 0 10px;padding: 0 10px;}
+			.sex-radio img{width: 1rem;height: 1rem;margin-top: 2px}
+			
+		</style>
+	</head>
+	<body style="background: #F1F1F1">
+		<div class="step this-bg-theme">
+			<div class="aui-flex-col">
+				<div class="aui-flex-item-4">
+					<div class="step-num">
+						①
+					</div>
+					<div>
+						身份认证
+					</div>
+				</div>
+				<div class="aui-flex-item-4">
+					<div class="step-num">
+						②
+					</div>
+					<div>
+						人脸识别
+					</div>
+				</div>
+				<div class="aui-flex-item-4">
+					<div class="step-num aui-bg-danger">
+						③
+					</div>
+					<div>
+						填写资料
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="info_id">
+			<template>
+				<div class="aui-padded-15">
+					<ul class="aui-list aui-form-list aui-list-noborder">
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									注册手机
+								</div>
+								<div class="aui-list-item-input">
+									<div v-if="regPhone.length>0" class="read-only">
+										{{regPhone}}
+									</div>
+									<input v-else type="tel"  placeholder="请输入注册手机号" maxlength="11" v-model="regPhone"/>
+								</div>
+							</div>
+						</li>
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									性别
+								</div>
+								<div class="aui-list-item-input horizontal"  :class="applyStatus==0 ? '':'read-only'">
+									<div class="sex-radio horizontal" tapmode="hover" @click="radioSex(1)">
+										<img v-if="sex==1" src="../../image/icon/radio_sel.png" />
+										<img v-else src="../../image/icon/radio_nor.png" />
+										男
+									</div>
+									<div class="sex-radio horizontal" tapmode="hover" @click="radioSex(0)">
+										<img v-if="sex==0" src="../../image/icon/radio_sel.png" />
+										<img v-else src="../../image/icon/radio_nor.png" />
+										女
+									</div>
+								</div>
+							</div>
+						</li>
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									紧急联系人
+								</div>
+								<div class="aui-list-item-input">
+									<input v-if="applyStatus==0 || applyStatus==2 || applyStatus==3" type="text" placeholder="如：配偶、子女或父母" maxlength="100" v-model="ecyContactName" />
+									<div v-else class="read-only">{{ecyContactName}}</div>
+								</div>
+							</div>
+						</li>
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									联系人号码
+								</div>
+								<div class="aui-list-item-input">
+									<input v-if="applyStatus==0 || applyStatus==2  || applyStatus==3" type="tel" placeholder="请输入联系人号码" maxlength="11" v-model="ecyContactPhone" />
+									<div v-else class="read-only">{{ecyContactPhone}}</div>
+								</div>
+							</div>
+						</li>
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									工人种类
+								</div>
+								<div v-if="applyStatus==0 || applyStatus==2  || applyStatus==3" class="aui-list-item-inner aui-list-item-input" tapmode="hover" @click="chooseWorkerType">
+									<div class="choose-area">
+										<span v-if="workerClassNames.length>0">{{workerClassNames}}</span>
+										<span v-else class="choose-hint">请选择工人种类</span>
+									</div>
+									<i class="aui-iconfont aui-icon-right aui-flex-right"></i>
+								</div>
+								<div v-else class="aui-list-item-input">
+									<div class="read-only">{{workerClassNames}}</div>
+								</div>
+							</div>
+						</li>
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									入行时间
+								</div>
+								<div id="join_work_date" v-if="applyStatus==0 || applyStatus==2  || applyStatus==3" class="aui-list-item-inner aui-list-item-input" tapmode="hover">
+									<div class="choose-area">
+										<span v-if="joinWorkDate.length>0">{{joinWorkDate}}</span>
+										<span v-else class="choose-hint">请选择入行时间</span>
+									</div>
+									<i class="aui-iconfont aui-icon-right aui-flex-right"></i>
+								</div>
+								<div v-else class="aui-list-item-input">
+									<div class="read-only">{{joinWorkDate}}</div>
+								</div>
+							</div>
+						</li>
+						
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									区域选择
+								</div>
+								<div v-if="applyStatus==0 || applyStatus==2  || applyStatus==3" class="aui-list-item-inner aui-list-item-input" tapmode="hover" @click="chooseAddress('areaChoose')">
+									<div class="choose-area">
+										<span v-if="areaChoose.length>0">{{areaChoose}}</span>
+										<span v-else class="choose-hint">请选择区域</span>
+									</div>
+									<i class="aui-iconfont aui-icon-location aui-flex-right"></i>
+								</div>
+								<div v-else class="aui-list-item-input">
+									<div class="read-only">{{areaChoose}}</div>
+								</div>
+							</div>
+						</li>
+					</ul>
+					<div class="aui-padded-10 aui-text-center aui-font-size-16">
+						我的展示
+					</div>
+					<ul class="aui-list aui-form-list aui-list-noborder">
+						<li class="aui-list-item">
+							<span class="must-star">*</span>
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									意向工作地点
+								</div>
+								<div v-if="applyStatus==0 || applyStatus==2 || applyStatus==3" class="aui-list-item-inner aui-list-item-input" tapmode="hover" @click="chooseAddress('intWorkAddress')">
+									<div class="choose-area">
+										<span v-if="intWorkAddress.length>0">{{intWorkAddress}}</span>
+										<span v-else class="choose-hint">请选择意向工作地点</span>
+									</div>
+									<i class="aui-iconfont aui-icon-location aui-flex-right"></i>
+								</div>
+								<div v-else class="aui-list-item-input">
+									<div class="read-only">{{intWorkAddress}}</div>
+								</div>
+							</div>
+						</li>
+						<li class="list-item aui-border-b">
+							<!--<span class="must-star1">*</span>-->
+							<div class="aui-font-size-14 aui-margin-b-10">
+								<span>行业资质</span><span class="img-ratio">{{busLicImgList.length}}/{{busLicImgMax}}</span>
+							</div>
+							<div class="aui-flex-col aui-flex-middle">
+								<div class="aui-flex-item-3 aui-padded-5" v-for="(budLicItem,budLicIndex) in busLicImgList">
+									<div class="id-img">
+										<span v-if="applyStatus==0 || applyStatus==2 || applyStatus==3" class="del-tip" tapmode="hover" @click="busLicImgDel(budLicIndex,budLicItem)">—</span>
+										<img v-lazy="budLicItem.pic" tapmode="hover" @click="previewImg(budLicIndex,busLicImgList)"/>
+									</div>
+								</div>
+								<div class="aui-flex-item-3 aui-padded-5" v-if="busLicImgList.length<busLicImgMax && (applyStatus==0 || applyStatus==2 || applyStatus==3)">
+									<div class="id-img" tapmode="hover" @click="addBusLicImgClick">
+										<i class="aui-iconfont aui-icon-plus"></i>
+									</div>
+								</div>
+							</div>
+						</li>
+						<li class="list-item aui-border-b">
+							<div class="aui-font-size-14 aui-margin-b-10">
+								<span>工程案例</span><span class="img-ratio">{{proCaseImgList.length}}/{{proCaseImgMax}}</span>
+							</div>
+							<div class="aui-flex-col aui-flex-middle">
+								<div class="aui-flex-item-3 aui-padded-5" v-for="(proCaseItem,proCaseIndex) in proCaseImgList">
+									<div class="id-img">
+										<span v-if="applyStatus==0 || applyStatus==2 || applyStatus==3" class="del-tip" tapmode="hover" @click="proCaseImgDel(proCaseIndex,proCaseItem)">—</span>
+										<img v-lazy="proCaseItem.pic" tapmode="hover" @click="previewImg(proCaseIndex,proCaseImgList)"/>
+									</div>
+								</div>
+								<div class="aui-flex-item-3 aui-padded-5" v-if="proCaseImgList.length<proCaseImgMax && (applyStatus==0 || applyStatus==2 || applyStatus==3)">
+									<div class="id-img" tapmode="hover" @click="addProCaseImgClick">
+										<i class="aui-iconfont aui-icon-plus"></i>
+									</div>
+								</div>
+							</div>
+						</li>
+						<li class="aui-list-item">
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									工匠座右铭
+								</div>
+								<div class="aui-list-item-input">
+									<input  v-if="applyStatus==0 || applyStatus==2 || applyStatus==3" type="text" placeholder="请输入座右铭" maxlength="300" v-model="workerMotto"/>
+									<div v-else class="read-only">{{workerMotto}}</div>
+								</div>
+								
+							</div>
+						</li>
+						<li class="list-item aui-border-b">
+							<div class="aui-font-size-14 aui-margin-b-10">
+								技能介绍
+							</div>
+							<textarea v-if="applyStatus==0 || applyStatus==2 || applyStatus==3" title="text" placeholder="请输入技能介绍" maxlength="3000" v-model="skillsIntroduce"></textarea>
+							<textarea v-else readonly="" class="read-only" title="text" placeholder="请输入技能介绍" maxlength="3000" v-model="skillsIntroduce"></textarea>
+						</li>
+					</ul>
+				</div>
+				<div class="aui-padded-15 aui-font-size-12 this-cl-tips">
+					确认个人信息，可点击修改
+				</div>
+				<div v-if="applyStatus==0 || applyStatus==2 || applyStatus==3" class="commit-btn this-bg-theme" tapmode="hover" @click="submitClick">
+					提交
+				</div>
+			</template>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+	<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+	<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../res/data/citypicker.js"></script>
+	<script type="text/javascript" src="../../script/picker/pickermin.js"></script>
+	<script type="text/javascript" src="../../script/picker/addresspicker.js"></script>
+	<script type="text/javascript" src="../../script/picker/datepicker.js"></script>
+	<script type="text/javascript" src="../../script/packajax.js"></script>
+	<script type="text/javascript">
+		var infoVm;
+		var userId = '', clientPhone = '', idCardUserName = '', idCardNumber = '';
+		var delImgList=[];//存放选择删除的图片对象
+		apiready = function() {
+			var pageParam = api.pageParam;//页面提交过来的参数
+			idCardUserName = pageParam.idCardUserName;//真实姓名
+			idCardNumber = pageParam.idCardNumber;//身份证号
+			userId = $api.getStorage("userid");//用户id
+			clientPhone = $api.getStorage("clientPhone");//用户注册手机号
+			
+			//获取用户信息
+			var getWorkerInfoHttps=function(){
+				var param = 'clientId='+userId+'&applyType=5';
+				_getHttpsData('/member/getApplyInfo',param,
+					function(ret){
+						if(ret.status){
+							infoVm.refreshData(ret.data);
+						}else{
+							showSingleAuiDialog('获取信息失败('+ret.code+')',ret.msg);
+						}
+						getBusLicImgHttps();//获取行业资质
+					},
+					function(err){
+						getBusLicImgHttps();//获取行业资质
+					}
+				);
+			};
+			
+			//获取行业资质图片
+			var getBusLicImgHttps=function(){
+				var param = 'clientId='+userId+'&type=client_quali&userType=5';
+				_getHttpsData('/member/getPhoto',param,
+					function(ret){
+						if(ret.status){
+							var picList = ret.pic;
+//							var busLicImgList=[];
+//							for(var index in picList){
+//								busLicImgList.push(picList[index].pic);
+//							}
+//							infoVm.busLicImgList=busLicImgList;
+							infoVm.busLicImgList=picList;
+						}else{
+							showSingleAuiDialog('获取行业资质失败('+ret.code+')',ret.msg);
+						}
+						getProCaseImgHttps();//获取工程案例
+					},
+					function(err){
+						getProCaseImgHttps();//获取工程案例
+					}
+				);
+			}; 
+			
+			//获工程案例图片
+			var getProCaseImgHttps=function(){
+				var param = 'clientId='+userId+'&type=client_case&userType=5';
+				_getHttpsData('/member/getPhoto',param,
+					function(ret){
+						api.hideProgress();
+						if(ret.status){
+							var picList = ret.pic;
+//							var proCaseImgList=[];
+//							for(var index in picList){
+//								proCaseImgList.push(picList[index].pic);
+//							}
+//							infoVm.proCaseImgList=proCaseImgList;
+							infoVm.proCaseImgList=picList;
+							
+						}else{
+							showSingleAuiDialog('获取行业资质失败('+ret.code+')',ret.msg);
+						}
+					},
+					function(err){
+						api.hideProgress();
+					}
+				);
+			}; 
+			
+			//删除图片
+			var delImgHtts=function(funCal){
+				var totalCount=delImgList.length;
+				
+				var countTemp=0;
+				if(totalCount>0){
+					for(var index in delImgList){
+						api.showProgress({
+							title : '删除图片'
+						});
+						var param="clientId="+userId+'&type='+delImgList[index].attFkName+'&userType='+'&attName='+delImgList[index].attName;
+						_getHttpsData('/member/deletPhoto',param,
+							function(ret){
+								if(ret.status){
+									countTemp++;
+									if(countTemp==totalCount){
+										funCal(true);
+									}
+								}else{
+									totalCount--;
+									api.toast({ msg: '删除图片'+delImgList[index].attName+'失败',duration: 2000, location: 'middle'});
+									if(countTemp==totalCount){
+										funCal(true);
+									}
+								}
+							},
+							function(err){
+								funCal(false);
+							}
+						);
+					}
+				}else{
+					funCal(true);
+				}
+			};
+		
+			/**
+			 *上传工程案例图片
+			 *proCaseImgList 工程案例图片
+			 */
+			var uploadCaseImgList = function(proCaseImgList, funCal) {
+				if (proCaseImgList.length > 0) {
+					//检测压缩工程案例
+					api.showProgress({
+						title : '压缩案例照'
+					});
+					batchCompressList('5_client_case', 'project_case', proCaseImgList, function(attNameList, attFkNameList, imgArray) {
+						if(imgArray.length>0) {
+							var param = {};
+							param.attUser = userId;
+							param.attFkId = userId;
+							param.attName = attNameList;
+							param.attFkName = attFkNameList;
+							param.attNoWater = '1';
+							api.showProgress({
+								title : '上传案例照'
+							});
+							uploadFileHttps(param, imgArray, function(ret) {
+								if (ret.status) {
+									if (funCal != undefined && typeof funCal === "function") {
+										funCal(true);
+									}
+								} else {
+									if (funCal != undefined && typeof funCal === "function") {
+										funCal(false);
+									}
+									showSingleAuiDialog('上传工程案例失败(' + ret.code + ')', ret.msg);
+								}
+							}, function(err) {
+								api.hideProgress();
+							});
+						}else{
+							if (funCal != undefined && typeof funCal === "function") {
+								funCal(true);
+							}
+						}
+						
+					});
+				} else {
+					if (funCal != undefined && typeof funCal === "function") {
+						funCal(true);
+					}
+				}
+			};
+			/**
+			 *上传图片
+			 * busLicImgList 行业资质图片
+			 * proCaseImgList 工程案例图片
+			 */
+			var uploadFileBatch = function(busLicImgList, proCaseImgList, funCal) {
+				if (busLicImgList.length > 0) {
+					//检测压缩行业资质
+					api.showProgress({
+						title : '压缩执照'
+					});
+					batchCompressList('5_client_quali', 'business_license', busLicImgList, function(attNameList, attFkNameList, imgArray) {
+						if(imgArray.length>0) {
+							var param = {};
+							param.attUser = userId;
+							param.attFkId = userId;
+							param.attName = attNameList;
+							param.attFkName = attFkNameList;
+							param.attNoWater = '1';
+							
+							api.showProgress({
+								title : '上传执照'
+							});
+							uploadFileHttps(param, imgArray, function(ret) {
+								if (ret.status) {
+									//行业资质上传成功
+									//开始上传工程案例
+									uploadCaseImgList(proCaseImgList, funCal);
+								} else {
+									if (funCal != undefined && typeof funCal === "function") {
+										funCal(false);
+									}
+									showSingleAuiDialog('上传行业资质失败(' + ret.code + ')', ret.msg);
+								}
+							}, function(err) {
+								api.hideProgress();
+							});
+						}else{
+							//开始上传工程案例
+							uploadCaseImgList(proCaseImgList, funCal);
+						}
+					});
+				} else {
+					//上传工程案例
+					uploadCaseImgList(proCaseImgList, funCal);
+				}
+			};
+			/***
+			 * 提交用户信息
+			 * param 用户信息
+			 * busLicImgList 行业资质图片
+			 * proCaseImgList 工程案例图片
+			 */
+			var submitUserInfoHttps = function(param, busLicImgList, proCaseImgList) {
+				api.showProgress({title : '提交信息'});
+				_postHttpsData('/member/saveApplyInfo',param,
+					function(ret){
+						if(ret.status){
+//							uploadFileBatch(busLicImgList, proCaseImgList, function(upSuccess) {
+//								api.hideProgress();
+//								if(upSuccess){
+//									showSingleAuiDialog('提交', '提交成功','确定',function(ret){
+//										api.closeWin({
+//										    name: 'auth_step_win'
+//										})
+//										api.closeWin();
+//									});
+//								}else{
+//									api.toast({msg : '上传图片异常',duration : 2000,location : 'middle'});
+//								}
+//							});
+							uploadFileBatch(busLicImgList, proCaseImgList, function(upSuccess) {
+								delImgHtts(function(res){
+									api.hideProgress();
+									if(upSuccess){
+										showSingleAuiDialog('提交', '提交成功','确定',function(ret){
+											api.closeWin({
+											    name: 'auth_step_win'
+											})
+											api.sendEvent({
+											    name: 'authstepsend_event',
+											    extra: {
+											        isSuccess: true,
+											    }
+											});
+											api.closeWin();
+										});
+									}else{
+										api.toast({msg : '上传图片异常',duration : 2000,location : 'middle'});
+									}
+								});
+							});
+						} else{
+							api.hideProgress();
+							api.toast({msg : ret.msg+'('+ret.code+')',duration : 2000,location : 'middle'});
+						}
+					},
+					function(err){
+						api.hideProgress();
+					}
+				);
+			};
+			
+			// 图片懒加载配置
+			Vue.use(VueLazyload, {
+			  preLoad: 1, // 预加载高度比例
+			  error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+			  loading: '../../image/placeholder_loading.png', // 预加载图片
+			  attempt: 1, // 尝试加载图片数量
+			  observer: true,
+			  observerOptions: {
+			    rootMargin: '0px',
+			    threshold: 0.1
+			  }
+			});
+			
+			infoVm = new Vue({
+				el : '#info_id',
+				data : {
+					applyId:'',//申请id
+					applyStatus:0,//0未申请，1申请中，2审核通过，3审核不通过
+					regPhone : '', //注册的手机号
+					sex:'',//性别:0-女，1-男
+					ecyContactName : '', //紧急联系人
+					ecyContactPhone : '', //联系人号码
+//					bankCard : '', //银行卡
+//					takeAddress : '', //收货地址
+					workerClassIds:'',//工人种类id,多个用“,”隔开 
+					workerClassNames:'',//工人种类名称,多个用“,”隔开 
+					joinWorkDate:'',//参加工作时间
+					areaChooseId : '', //区域Id
+					areaChoose : '', //区域选择
+					intWorkAddressId : '', //意向工作地址Id
+					intWorkAddress : '', //意向工作地址
+					busLicImgList : [], //行业资质
+					busLicImgMax : 9, //行业资质最多能添加多少张
+					proCaseImgList : [], //工程案例
+					proCaseImgMax : 9, //工程案例图片最多能添加多少张
+					workerMotto : '', //座右铭
+					skillsIntroduce : '',//技能介绍
+					isIntDateControl:false//是否已经初始化选择时间控件
+				},
+				methods : {
+					initData : function(regPhone) {
+						this.regPhone = regPhone;
+						this.nextTick();
+					},
+					refreshData:function(data){
+						this.applyId=data.applyId==undefined ? '':data.applyId;//申请id
+						this.sex=data.sex==undefined ? '':data.sex;// 性别
+						this.ecyContactName=data.emergContact==undefined ? '':data.emergContact;//紧急联系人
+						this.ecyContactPhone=data.emergTel==undefined ? '':data.emergTel;//联系人号码
+						this.workerClassIds=data.clientClassId==undefined ? '':data.clientClassId;//工人种类id,多个用“,”隔开 
+						this.workerClassNames=data.clientClassName==undefined ? '':data.clientClassName;//工人种类名称,多个用“,”隔开 
+						this.joinWorkDate=data.entryTime==undefined ? '':data.entryTime.split(" ")[0];//参加工作时间
+						this.areaChooseId=data.orgId==undefined ? '':data.orgId; //区域Id
+						this.areaChoose=data.applyArea==undefined ? '':data.applyArea; //区域选择
+//						this.intWorkAddressId ='';//意向工作地址Id
+						this.intWorkAddress=data.workAddress==undefined ? '':data.workAddress;//意向工作地址
+						this.workerMotto=data.workZym==undefined ? '':data.workZym;//座右铭
+						this.skillsIntroduce=data.workJnjs==undefined ? '':data.workJnjs;//技能介绍
+						this.applyStatus=data.applyStatus==undefined ? 0:data.applyStatus;
+						if(this.applyStatus==2){
+							refreshIsCertification(1,data.applyType);
+						}else{
+							refreshIsCertification(0);
+						}
+						api.execScript({
+							name : 'auth_step3_win',
+							script : 'refreshCheckPro('+infoVm.applyStatus+')'
+						});
+						
+					},
+					refreshWorkerTypeData:function(data){
+						//选择工人种类返回刷新数据
+						var workerClassIdsTemp='';
+						var workerClassNamesTemp='';
+						var typeList = data.typeList;
+						for(var index in typeList){
+							workerClassIdsTemp=workerClassIdsTemp+typeList[index].CLIENT_CLASS_ID;
+							workerClassNamesTemp=workerClassNamesTemp+typeList[index].CLASS_NAME;
+							if(index<typeList.length-1){
+								workerClassIdsTemp=workerClassIdsTemp+',';
+								workerClassNamesTemp=workerClassNamesTemp+',';
+							}
+						}
+						this.workerClassIds=workerClassIdsTemp;
+						this.workerClassNames=workerClassNamesTemp;
+					},
+					imgObjPackag:function(attFkName,attName,pic){
+						var imgObj={};
+						imgObj.attFkName=attFkName;
+						imgObj.attName=attName;
+						imgObj.pic=pic;
+						return imgObj;
+					},
+					appendBusLicImg : function(pathList) {
+						//追加行业资质图
+						if (this.busLicImgList.length < this.busLicImgMax) {
+							for(var index in pathList){
+								var imgObj = this.imgObjPackag('','',pathList[index]);
+								this.busLicImgList.push(imgObj);
+							}
+//							this.busLicImgList = this.busLicImgList.concat(pathList);
+							this.nextTick();
+						} else {
+							api.toast({
+								msg : '行业资质图片最多只能添加' + this.busLicImgMax + '张',
+								duration : 1000,
+								location : 'bottom'
+							});
+						}
+					},
+					appendProCaseImgImg : function(pathList) {
+						//追加工程案例图片
+						if (this.proCaseImgList.length < this.proCaseImgMax) {
+							for(var index in pathList){
+								var imgObj = this.imgObjPackag('','',pathList[index]);
+								this.proCaseImgList.push(imgObj);
+							}
+//							this.proCaseImgList = this.proCaseImgList.concat(pathList);
+							this.nextTick();
+						} else {
+							api.toast({
+								msg : '工程案例图片最多只能添加' + this.proCaseImgMax + '张',
+								duration : 1000,
+								location : 'bottom'
+							});
+						}
+					},
+					addBusLicImgClick : function() {
+						//添加行业资质图片
+						var chooseNum = Number(this.busLicImgMax) - Number(this.busLicImgList.length);
+						chooseCameraSheet(function(retList) {
+							infoVm.appendBusLicImg(retList);
+						}, chooseNum, '完成');
+					},
+					addProCaseImgClick : function() {
+						//添加工程案例图片
+						var chooseNum = Number(this.proCaseImgMax) - Number(this.proCaseImgList.length);
+						chooseCameraSheet(function(retList) {
+							infoVm.appendProCaseImgImg(retList);
+						}, chooseNum, '完成');
+					},
+					busLicImgDel : function(position,data) {
+						//删除行业资质图片
+						this.busLicImgList.splice(position, 1);
+						if(data.attFkName!=undefined && data.attFkName!=null && data.attFkName!=''){
+							delImgList.push(data)
+						}
+					},
+					proCaseImgDel : function(position,data) {
+						//删除工程案例图片
+						this.proCaseImgList.splice(position, 1);
+						if(data.attFkName!=undefined && data.attFkName!=null && data.attFkName!=''){
+							delImgList.push(data)
+						}
+					},
+					previewImg : function(position, imgList) {
+						var imgListTemp =[];//行业资质
+						for(var index in imgList){
+							imgListTemp.push(imgList[index].pic);
+						}
+						api.openWin({
+							name : 'previewpicture_win',
+							url : 'widget://html/previewpicture/previewpicture_win.html',
+							pageParam : {
+								position : position,
+								imgList : imgListTemp
+							},
+							slidBackEnabled : false,
+							delay : 300
+						});
+					},
+					nextTick : function() {
+						this.$nextTick(function() {
+							api.parseTapmode();
+							api.hideProgress();
+							this.initChoosePicker();
+						})
+					},
+					initChoosePicker:function(){
+						if(this.isIntDateControl) return;
+						this.isIntDateControl=true;
+						initDatePicker('#join_work_date','date',function(ret){
+							infoVm.joinWorkDate = ret;
+						},'auth_step3_frm');
+					},
+					radioSex:function(position){
+						
+						//选择性别
+						if(this.applyStatus==0){
+							this.sex=position;
+						}
+					},
+//					setTakeAddress : function(res) {
+//						this.takeAddress = res.address + res.addressDetail;
+//					},
+					chooseWorkerType:function(){
+						//选择工人种类
+						api.openWin({
+							name : 'workertypelist_win',
+							url : 'widget://html/workertypelist/workertypelist_win.html',
+							pageParam : {
+								winName : 'auth_step3_win',
+								frmName:'auth_step3_frm',
+								funCal:'infoVm.refreshWorkerTypeData'
+							},
+							delay:300,
+							slidBackEnabled : false
+						});
+					},
+					chooseAddress : function(key) {
+						//选择地址
+						if (key == 'areaChoose') {
+							//区域选择
+							shopAddressPicker(getAreaListPicker(), function(addressObj1, addressObj2, addressObj3, fullAddress) {
+								infoVm.areaChooseId = addressObj3.id;
+								infoVm.areaChoose = fullAddress;
+							});
+						} else {
+							//意向工作地址
+							shopAddressPickerCity(getCityListPicker(), function(addressObj1, addressObj2, fullAddress) {
+								infoVm.intWorkAddressId = addressObj2.id;
+								infoVm.intWorkAddress = fullAddress;
+							});
+						}
+					},
+					submitClick : function() {
+						//提交
+						var applyId = this.applyId;//申请id
+						var regPhone = this.regPhone;//注册的手机号
+						var sex = this.sex;//性别
+						var ecyContactName = this.ecyContactName;//紧急联系人
+						var ecyContactPhone = this.ecyContactPhone;//联系人号码
+						var regPhone = this.regPhone;//联系人号码
+						var workerClassIds=this.workerClassIds;//工人种类id
+						var workerClassNames=this.workerClassNames;//工人种类名称
+						var joinWorkDate=this.joinWorkDate;//参加工作时间
+						var areaChooseId = this.areaChooseId;//区域Id
+						var areaChoose = this.areaChoose;//区域名称
+						var intWorkAddressId = this.intWorkAddressId;//意向工作地址Id
+						var intWorkAddress = this.intWorkAddress;//意向工作地址
+//						var busLicImgList = this.busLicImgList;//行业资质
+						var busLicImgList =[];//行业资质
+						for(var index in this.busLicImgList){
+							var attFkName=this.busLicImgList[index].attFkName;
+							if(attFkName==undefined || attFkName==null || attFkName==''){
+								busLicImgList.push(this.busLicImgList[index].pic);
+							}
+						}
+//						var proCaseImgList = this.proCaseImgList;//工程案例
+						var proCaseImgList =[];//工程案例
+						for(var index in this.proCaseImgList){
+							var attFkName=this.proCaseImgList[index].attFkName;
+							if(attFkName==undefined || attFkName==null || attFkName==''){
+								proCaseImgList.push(this.proCaseImgList[index].pic);
+							}
+						}
+						
+						var workerMotto = this.workerMotto;//座右铭
+						var skillsIntroduce = this.skillsIntroduce;//技能介绍
+						
+						if (regPhone == undefined || regPhone == null || regPhone == '') {
+							api.toast({
+								msg : '请填写注册的手机号',
+								duration : 2000,
+								location : 'middle'
+							});
+						} else if (!checkPhone(regPhone)) {
+							api.toast({
+								msg : '注册手机号码格式错误',
+								duration : 2000,
+								location : 'middle'
+							});
+						}  
+						else if (this.applyStatus==0 && (sex == undefined || sex == null || sex == '')) {
+							api.toast({
+								msg : '请选择性别',
+								duration : 2000,
+								location : 'middle'
+							});
+						}
+						else if (ecyContactName == undefined || ecyContactName == null || ecyContactName == '') {
+							api.toast({
+								msg : '请填写紧急联系人',
+								duration : 2000,
+								location : 'middle'
+							});
+						} else if (ecyContactPhone == undefined || ecyContactPhone == null || ecyContactPhone == '') {
+							api.toast({
+								msg : '请填写联系人号码',
+								duration : 2000,
+								location : 'middle'
+							});
+						} else if (!checkPhone(ecyContactPhone)) {
+							api.toast({
+								msg : '联系人手机号码格式错误',
+								duration : 2000,
+								location : 'middle'
+							});
+						}
+						else if (workerClassNames == undefined || workerClassNames == null || workerClassNames == '') {
+							api.toast({
+								msg : '请选择工人种类',
+								duration : 2000,
+								location : 'middle'
+							});
+						} 
+						else if (joinWorkDate == undefined || joinWorkDate == null || joinWorkDate == '') {
+							api.toast({
+								msg : '请选择入行时间',
+								duration : 2000,
+								location : 'middle'
+							});
+						} 
+						else if (areaChoose == undefined || areaChoose == null || areaChoose == '') {
+							api.toast({
+								msg : '请选择区域',
+								duration : 2000,
+								location : 'middle'
+							});
+						} else if (intWorkAddress == undefined || intWorkAddress == null || intWorkAddress == '') {
+							api.toast({
+								msg : '请选择意向工作地址',
+								duration : 2000,
+								location : 'middle'
+							});
+						} 
+//						else if (busLicImgList == undefined || busLicImgList.length == 0) {
+//							api.toast({
+//								msg : '请上传行业资质',
+//								duration : 2000,
+//								location : 'middle'
+//							});
+//						} 
+						else {
+							showDoubleAuiDialog('温馨提示','请谨慎填写信息,一旦提交部分信息将不能修改。','继续提交','取消',
+								function(ret){
+									if(ret.buttonIndex==2){
+										var param = {};
+										if(applyId!=undefined && applyId!=null && applyId!='') {
+											param.applyId = applyId;//申请id
+										}
+										param.applyName = idCardUserName;//姓名
+										param.applyCardNo = idCardNumber;//身份证号
+										param.sex=sex;
+										param.emergContact=ecyContactName;//紧急联系人名称
+										param.emergTel=ecyContactPhone;//紧急联系人号码
+										param.clientClassId=workerClassIds;//工人种类
+										param.entryTimeString =joinWorkDate+' 08:00:00';//工人参加工作时间
+										param.applyType = 5;//申请类型(0行业代表；1服务中心；2县级代理；3市级代理；4省级代理；5工匠；6商铺；7普通用户)
+										param.applyPhone = regPhone;//注册手机号
+										param.workAddress = intWorkAddress;//工作地点
+										param.orgId = areaChooseId;//工作区域id
+										param.applyArea = areaChoose;//
+										param.workZym = workerMotto;//座右铭，可为空
+										param.workJnjs = skillsIntroduce;//技能介绍
+										param.clientId = userId;//用户id
+										param.applyStatus = 1;//0-保存(未申请)；1-申请中；2-审核通过；3-审核不通过
+										submitUserInfoHttps(param, busLicImgList, proCaseImgList);
+									}
+								}
+							);
+						}
+					},
+				}
+			});
+			infoVm.initData(clientPhone);
+			api.showProgress();
+			getWorkerInfoHttps();//获取基本信息
+		
+			
+		}
+	</script>
+</html>

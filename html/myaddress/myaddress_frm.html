@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>收货地址frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #F7F7F7}
+    	.address-item{background-color: #FFFFFF;padding: 8px 10px;margin-bottom: 10px;box-shadow:1px 1px 5px #DDDDDD;}
+    	.address-item .name-phone{padding: 5px 0}
+    	.address-item .name-phone .name{width: calc(100% - 8em);padding-right: 8px;}
+    	.address-item .name-phone .phone{width: 8em;text-align: right;}
+    	.address-item .def-del{border-top: 1px solid #DDDDDD;margin-top: 10px;padding: 8px 0;}
+    	.address-item .def-del .def-btn{width: 60%;padding-right: 8px;}
+    	.address-item .def-del .def-btn .def-icon-nor{border:1px solid #000000;width: 1rem;height: 1rem;line-height:1rem;text-align:center;border-radius: 50%;position: absolute;top:25%}
+    	.address-item .def-del .def-btn .def-icon-sel{background-color: #11ce7c;width: 1rem;height: 1rem;line-height:1rem;text-align:center;border-radius: 50%;position: absolute;top:25%}
+    	.address-item .def-del .def-btn .def-icon-sel i{color:#FFFFFF;font-size: 0.5rem;font-weight: bold}
+    	.address-item .def-del .def-btn .def-text{margin-left: 1.2rem;}
+    	.address-item .def-del .del-btn{width: 40%;text-align: right;}
+    	
+    </style>
+</head>
+<body>
+	<div id="address_list">
+		<template>
+		<div class="address-item" v-for="(addressItem,addressIndex) in dataList">
+			<div class="name-phone horizontal" tapmode="hover" @click="itemClick(addressItem)">
+				<div class="name">收货人:{{addressItem.clientName}}</div>
+				<div class="phone">{{addressItem.clientPhone}}</div>
+			</div>
+			<div tapmode="hover" @click="itemClick(addressItem)">详细地址:{{addressItem.clientAddress}}</div>
+			<div class="def-del horizontal">
+				<div class="def-btn" tapmode="hover" @click="defAddress(addressIndex,addressItem)"><span v-if="addressItem.defaultFlag==1" class="def-icon-sel"><i class="aui-iconfont aui-icon-correct"></i></span><span v-else class="def-icon-nor"></span><span class="def-text">设为默认</span></div>
+				<div class="del-btn" tapmode="hover" @click="delAddress(addressIndex,addressItem)"> <i class="aui-iconfont aui-icon-trash"></i>删除</div>
+			</div>
+		</div>
+		</template>
+	</div>
+	<div id="more_hint" class="more-data"></div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var addressVm;
+	var editAddress;//编辑地址跳转，0新增；1修改
+	var refreshDataCal;//回调刷新数据
+	apiready = function(){
+		var userId = $api.getStorage("userid");//用户id
+		
+		refreshDataCal=function(){
+			api.showProgress();
+			getAddressListHttps();
+		};
+		
+		editAddress=function(data){
+			//action 0新增；1修改
+			api.openWin({
+				name : 'addaddress_win',
+				url : 'widget://html/myaddress/addaddress_win.html',
+				pageParam:data,
+				slidBackEnabled:true,
+				bounces: false,
+				delay:300
+			});
+		}
+		
+		//获取地址列表
+		var getAddressListHttps=function(){
+			var param = 'clientId=' + userId;
+			_getHttpsData('/member/getAddressList',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						addaressVm.refreshData(ret.data);
+					}else{
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		//设置默认地址
+		var setDefAddress=function(position,addressObj){
+			var param = 'clientId=' + userId + '&clientAddressId=' + addressObj.clientAddressId;
+			api.showProgress();
+			_postHttpsData1('/member/setDefaultAddress',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						addaressVm.defSucResresh(position);
+					}else{
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		
+		};
+		
+		//删除地址
+		var delAddressHttps=function(position,addressObj){
+			var param = 'clientId=' + userId + '&clientAddressId=' + addressObj.clientAddressId;
+			api.showProgress();
+			_postHttpsData1('/member/removeAddress',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						addaressVm.delAddressSucResresh(position);
+					}else{
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		addaressVm = new Vue({
+			el:'#address_list',
+			data:{
+				dataList:[]
+			},
+			methods:{
+				refreshData:function(data){
+					this.dataList=data;
+					this.nextTick();
+				},
+				nextTick:function(data){
+//					var ret = data.length>pageNum?true:false;
+					pullupHint('more_hint',false);
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				itemClick:function(data){
+					//点击item进行跳转编辑
+					var param={};
+					param.action=1;
+					param.data=data;
+					editAddress(param);
+				},
+				defSucResresh:function(position){
+					//设置默认地址成功刷新页面
+					for(var index in this.dataList){
+						if(index==position){
+							this.dataList[index].defaultFlag=1;
+						}else{
+							this.dataList[index].defaultFlag=0;
+						}
+					}
+				},
+				defAddress:function(position,data){
+					//设置默认地址
+					setDefAddress(position,data);
+				},
+				delAddressSucResresh:function(position){
+					this.dataList.splice(position, 1);
+				},
+				delAddress:function(position,data){
+					//删除地址
+					showDoubleAuiDialog('删除提示','确定要删除此地址吗?','删除','取消',function(ret){
+						if(ret.buttonIndex==2){
+							delAddressHttps(position,data);
+						}
+					});
+				},
+			}
+		});
+		
+		api.showProgress();
+		getAddressListHttps();
+		
+		
+	};
+</script>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>定位frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/location/location.css" />
+</head>
+<body>
+	<div class="content-info">
+		<div class="location-icon-area"><span class="location-icon"><i class="aui-iconfont aui-icon-location"></i></span></div>
+		<div class="location-address" id="city_hint">正在定位...</div>
+		<div class="hint-content">
+			<div>1.该城市作为您的工作城市，务必正确设置，否则无法查看工单</div>
+			<div>2.若您改变位置，可在“设置-工作城市”中更改</div>
+		</div>
+	</div>
+	<div class="setup-btn" tapmode="hover" onclick="setupClick()">去设置</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript">
+	var setupClick;
+	apiready = function(){
+		var pageParam = api.pageParam;
+		setupClick=function(){
+			api.openWin({
+				name : 'chooselocation_win',
+				url : 'widget://html/location/chooselocation_win.html',
+				slidBackEnabled:true,
+				pageParam:pageParam,
+				delay:300,
+			});		
+		};
+		
+		var curCityCode = $api.getStorage("curCityCode");
+		var curCityName = $api.getStorage("curCityName");
+		if(curCityCode==undefined || curCityCode==null || curCityCode==''){
+			$('#city_hint').text('暂未定位到您所在的城市');
+		} else{
+			$('#city_hint').text('您当前所在:'+curCityName);
+		}
+		api.parseTapmode();
+		
+		api.addEventListener({
+			name : 'viewdisappear'
+		}, function(ret, err) {
+			//关闭当前window，使用默认动画
+			api.closeWin();
+		});
+		
+	};
+</script>
+</html>

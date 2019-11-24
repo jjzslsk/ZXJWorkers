@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>选择地址(详细)</title>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/aui/aui_flex.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/main.css"/>
+		<style>
+			.choose-area {
+				width: calc(100% - 1rem)
+			}
+			.choose-area .choose-hint {
+				color: #b1babf;
+			}
+			.detail-address {
+				background-color: #FFFFFF;
+				padding: 0 0.75rem 0.75rem 0.75rem;
+				border-top: 1px solid #DDDDDD;
+				box-sizing:border-box;
+				-moz-box-sizing:border-box; /* Firefox */
+			}
+			.detail-address textarea {background-color: #f2f2f2;padding: 8px 5px;height: 100px;}
+			.commit-btn {
+				color: #FFFFFF;
+				border-radius: 0.5 rem;
+				position: relative;
+				width: 80%;
+				left: 10%;
+				height: 2rem;
+				line-height: 2rem;
+				text-align: center;
+				border: 1px #EEEEEE solid;
+			}
+		</style>
+	</head>
+	<body style="background: #F1F1F1">
+		<header class="aui-bar aui-bar-nav this-bg-theme" id="header">
+			<a class="aui-pull-left aui-btn" tapmode="hover" onclick="backbar()"> <i class="aui-iconfont aui-icon-left"></i> </a>
+			<div class="aui-title" id="headerTitle">
+				选择地址
+			</div>
+		</header>
+		<div id="info_id">
+			<template>
+				<div class="aui-padded-15">
+					<ul class="aui-list aui-form-list aui-list-noborder">
+						<li class="aui-list-item">
+							<div class="aui-list-item-inner">
+								<div class="aui-list-item-label">
+									地址
+								</div>
+								<div class="aui-list-item-inner aui-list-item-input" tapmode="hover" @click="chooseAddress">
+									<div class="choose-area">
+										<span v-if="address.length>0">{{address}}</span>
+										<span v-else class="choose-hint">请选择地址</span>
+									</div>
+									<i class="aui-iconfont aui-icon-location aui-flex-right"></i>
+								</div>
+							</div>
+						</li>
+					</ul>
+					<div class="detail-address">
+						<div>
+							详细地址
+						</div>
+						<textarea title="text" placeholder="请输入技能介绍" maxlength="3000" v-model="addressDetail"></textarea>
+					</div>
+				</div>
+				<div class="commit-btn this-bg-theme" tapmode="hover" @click="submitClick">
+					确定
+				</div>
+			</template>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+	<script type="text/javascript" src="../../script/vue/vue.js"></script>
+	<script type="text/javascript" src="../../script/custom/tools.js"></script>
+	<script type="text/javascript" src="../../res/data/citypicker.js"></script>
+	<script type="text/javascript" src="../../script/picker/pickermin.js"></script>
+	<script type="text/javascript" src="../../script/picker/addresspicker.js"></script>
+	<!--<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>-->
+	<script type="text/javascript">
+		var backbar;
+		var infoVm;
+		var winName, frmName, funCal;
+		apiready = function() {
+			var header = $api.byId('header');
+			$api.fixStatusBar(header);
+			winName = api.pageParam.winName;
+			//win名称
+			frmName = api.pageParam.frmName;
+			//frm名称
+			funCal = api.pageParam.funCal;
+			//回调
+			backbar = function() {
+				//关闭当前window，使用默认动画
+				api.closeWin();
+			}
+			infoVm = new Vue({
+				el : '#info_id',
+				data : {
+					address : '',
+					addressDetail : '',
+				},
+				methods : {
+					chooseAddress : function(key) {
+						//选择地址
+						shopAddressPicker(getAreaListPicker(), function(addressObj1, addressObj2, addressObj3, fullAddress) {
+							infoVm.address = fullAddress;
+						});
+					},
+					submitClick : function() {
+						//确定
+						if(this.address==undefined || this.address==null || this.address==''){
+							api.toast({ msg:'请选择地址',duration: 2000, location: 'bottom'});
+							return;
+						}
+						var obj={};
+						obj.address=this.address;;
+						obj.addressDetail=this.addressDetail;
+						api.execScript({
+							name : winName,
+							frameName : frmName,
+							script : funCal+'('+JSON.stringify(obj)+')'
+						});
+						backbar();
+					},
+				}
+			});
+		}
+	</script>
+</html>

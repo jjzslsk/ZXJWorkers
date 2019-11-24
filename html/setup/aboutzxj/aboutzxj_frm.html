@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>关于装小匠frm</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #F7F7F7}
+		.logo{padding-top: 5%}
+		.logo img{width: 30%;margin: 0 auto}
+		.app-name{text-align: center;margin-top: 20px;}
+		.app-version{text-align: center;margin-top: 10px;color:#999999}
+		.contact-us{padding: 8px 10px;background-color: #FFFFFF;margin-top: 20px;}
+		.contact-icon:before{font-size: 1.4rem;position: absolute;left: 0;top:-0.5rem}
+		.contact-content{padding-left: 1.6rem}
+		
+		.copyright{text-align:center; font-size:12px;color:#C0C0C0;width: 100%;position: fixed;bottom: 5px;}
+
+		
+    </style>
+</head>
+<body>
+	<div>
+		<div class="logo">
+			<img src="../../../image/app_logo.png" onerror="src='../../../image/placeholder.png'" />
+		</div>
+		<div class="app-name" id="app_name">装小匠工人端</div>
+		<div class="app-version" id="app_version">版本号:V--.--.--</div>
+		<div class="contact-us">
+			<div style="padding-left: 0.75rem">可通过以下方式联系我们</div>
+			<ul class="aui-list aui-list-in">
+	            <li class="aui-list-item" tapmode="hover" onclick="wechatClick()">
+	                <div class="aui-list-item-inner">
+	                    <div class="aui-list-item-title"><i class="aui-iconfont aui-icon-wechat contact-icon"></i><span class="contact-content" id="wechat_number"></span></div>
+	                </div>
+	            </li>
+	            <li class="aui-list-item" tapmode="hover" onclick="qqClick()">
+	                <div class="aui-list-item-inner aui-list-item-arrow">
+	                    <div class="aui-list-item-title"><i class="aui-iconfont aui-icon-qq contact-icon"></i><span class="contact-content" id="qq_number"></span></div>
+	                </div>
+	            </li>
+	            <li class="aui-list-item" tapmode="hover" onclick="phoneClick()">
+	                <div class="aui-list-item-inner aui-list-item-arrow">
+	                    <div class="aui-list-item-title"><i class="aui-iconfont aui-icon-phone contact-icon"></i><span class="contact-content" id="phone_number"></span></div>
+	                </div>
+	            </li>
+	            <li class="aui-list-item" tapmode="hover" onclick="mailClick()">
+	                <div class="aui-list-item-inner">
+	                    <div class="aui-list-item-title"><i class="aui-iconfont aui-icon-mail contact-icon"></i><span class="contact-content" id="mail_number"></span></div>
+	                </div>
+	            </li>
+	        </ul>
+		</div>
+		<ul class="contact-us aui-list aui-list-in">
+			<li class="aui-list-item" tapmode="hover" onclick="statementClick()">
+				<div class="aui-list-item-inner aui-list-item-arrow">
+					<div class="aui-list-item-title"><i class="aui-iconfont aui-icon-calendar contact-icon"></i><span class="contact-content">隐私声明</span></div>
+				</div>
+			</li>
+		</ul>
+        <div class="copyright">
+        	<ul>
+        		<li>Copyright©2019-2033</li>
+        		<li>装小匠zxj888.cn版权所有</li>
+        	</ul>
+        </div>
+	</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../../script/packajax.js"></script>
+<script type="text/javascript">
+	var wechatClick,qqClick,phoneClick,mailClick;
+	apiready = function(){
+		var systemType = api.systemType;
+		var appName = api.appName; //比如： AppLoader
+		var appVersion = api.appVersion; // 比如： 1.0.0
+		$('#app_name').text(appName);
+		
+		if(systemType == 'ios') {
+			var ipa = api.require('ipa');
+			var bundleVersion = ipa.getBundleVersion();
+			$('#app_version').text('版本号:V'+bundleVersion);
+		}else{
+			$('#app_version').text('版本号:V'+appVersion);
+		}
+		$('#wechat_number').text(wxService);
+		$('#qq_number').text(qqService);
+		$('#phone_number').text(phoneService);
+		$('#mail_number').text(emailService);
+		
+		
+		var systemType = api.systemType;  // 比如： ios
+		//隐私声明
+		statementClick=function(){
+			api.openWin({
+				name : 'statement_win',
+				url : 'widget://html/setup/aboutzxj/statement/statement_win.html',
+				slidBackEnabled:true,
+				delay:300
+			});	
+		}
+		//微信
+		wechatClick=function(){
+			var wechatNumber = $('#wechat_number').text();
+			
+		}
+		//qq
+		qqClick=function(){
+			var qqNumber = $('#qq_number').text();
+			if(systemType=='ios'){
+ 				api.openApp({
+                    iosUrl:"mqq://im/chat?chat_type=wpa&uin="+qqNumber+"&version=1&src_type=web",
+                    uri:"mqqwpa://im/chat?chat_type=wpa&uin="+qqNumber
+                },function(ret, err){
+                    if(ret){
+                    	
+                    }else{
+                      api.toast({msg : '您还没安装QQ客户端'});
+                    }
+                });
+	        }else{
+	        	api.openApp({
+                    uri:"mqqwpa://im/chat?chat_type=wpa&uin="+qqNumber
+                },function(ret, err){
+                    if(ret){
+                    }else{
+                      api.toast({msg : '您还没安装QQ客户端'});
+                    }
+                });
+	        }
+		}
+		//电话
+		phoneClick=function(){
+			var permissionNameObj={phone:'电话'};
+			var permissionList=['phone'];
+			if(!checkAppPermission(permissionNameObj,permissionList)) return;
+			var phoneNumber = $('#phone_number').text();
+			//拨打电话
+			if(phoneNumber.length>0){
+				api.call({
+				    type: 'tel_prompt',
+				    number: phoneNumber
+				});
+			}
+		}
+		//邮箱
+		mailClick=function(){
+			var mailNumber = $('#mail_number').text();
+			
+		}
+		
+	};
+</script>
+</html>

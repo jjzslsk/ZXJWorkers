@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSLocationWhenInUseUsageDescription</key>  
+	<string>装小匠想访问您位置信息权限用于筛选过滤当前城市数据以及地图显示</string>  
+	<key>NSLocationUsageDescription</key>  
+	<string>装小匠想访问您位置信息权限用于筛选过滤当前城市数据以及地图显示</string>  
+	<key>NSLocationAlwaysUsageDescription</key>  
+	<string>装小匠想访问您位置信息权限用于筛选过滤当前城市数据以及地图显示</string>  
+	<key>NSCameraUsageDescription</key> 
+	<string>装小匠想访问您的相机权限</string> 
+	<key>NSPhotoLibraryUsageDescription</key>  
+	<string>装小匠想访问您的相机相册权限</string>  
+	<key>NSAppleMusicUsageDescription</key>  
+	<string>装小匠想访问您的音乐权限</string>  
+</dict>
+</plist>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>设置frm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/me/setup.css" />
+</head>
+<body>
+	<div id="set_up_info">
+		<template>
+		<div class="aui-content aui-margin-b-15">
+	        <ul class="aui-list mag-top">
+	            <li class="aui-list-item" v-for="item in dataList" tapmode="hover" @click="itemClick(item.id)">
+	                <div class="aui-list-item-inner aui-list-item-arrow">
+	                    <div class="aui-list-item-title">{{item.title}}</div>
+	                    <div class="aui-list-item-right">{{modelData[item.id]}}</div>
+	                </div>
+	            </li>
+	        </ul>
+	    </div>
+	    </template>
+	    <template v-if="isShowBackLogin">
+	    <div class="back-account" tapmode="hover" @click="backAccount()">退出账号</div>
+    	</template>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var setUpVm;
+	apiready = function(){
+		setUpVm = new Vue({
+			el:'#set_up_info',
+			data:{
+				dataList:[{id:'upPhone',title:'换绑手机'},{id:'upPwd',title:'登录密码'},{id:'forgetpwd',title:'忘记密码'},{id:'share',title:'分享'},{id:'aboutZxj',title:'关于装小匠'}],
+				modelData:{upPhone:'',upPwd:'修改',forgetpwd:'重置'},
+				isShowBackLogin:false//是否显示退出登录按钮
+			},
+			methods:{
+				refreshData:function(data){
+					var phone=$api.getStorage("clientPhone");
+					this.modelData.upPhone=checkPhone(phone)?phoneMiddleHide(phone):phone;
+					this.isShowBackLogin=checkLoginState(false);
+					this.nextTick();
+				},
+				nextTick:function(){
+					this.$nextTick(function(){
+						api.parseTapmode();
+					})
+				},
+				itemClick:function(key){
+					//item点击事件
+					if(key=='upPhone'){
+						if(!checkLoginState(true)) return;
+						api.openWin({
+						    name: 'upbindphone_win',
+						    url: 'widget://html/login/upbindphone_win.html',
+						    delay:300
+						});
+					}
+					else if(key=='upPwd'){
+						if(!checkLoginState(true)) return;
+						api.openWin({
+						    name: 'uploginpwd_win',
+						    url: 'widget://html/login/uploginpwd_win.html',
+						    delay:300
+						});
+					}
+					else if(key=='forgetpwd'){
+						if(!checkLoginState(true)) return;
+						api.openWin({
+						    name: 'forgetpwd_win',
+						    url: 'widget://html/forgetpwd/forgetpwd_win.html',
+						    delay:300,
+						    pageParam:{
+						    	action:'setUp'
+						    }
+						});
+					}
+					else if(key=='share'){
+						//分享
+						var appDwUrl=serviceUrl+'/appVersion/zxjWorkerApp.apk';
+						var sharedModule = api.require('shareAction');
+						sharedModule.shareUrl({
+						    text: '我正在用装小匠工人端接单干活,您也来一起使用吧!',
+						    url: appDwUrl
+						});
+					}
+					else if(key=='aboutZxj'){
+						//关于装小匠
+						api.openWin({
+							name : 'aboutzxj_win',
+							url : 'widget://html/setup/aboutzxj/aboutzxj_win.html',
+							slidBackEnabled:true,
+							delay:300
+						});	
+					} 
+					else{
+						api.toast({ msg: '功能模块开发中,敬请期待...',duration: 1000, location: 'bottom'});
+					}
+				},
+				backAccount:function(){
+					//退出当前登录
+					api.confirm({
+					    title: '退出提示',
+					    msg: '是否退出当前登录？',
+					    buttons: ['退出', '取消']
+					}, function(ret, err) {
+					    var index = ret.buttonIndex;
+					    if(index==1){
+					    	//切换
+					    	clearUserInfoCache();
+					    	api.sendEvent({
+							    name: 'back_curlogin_send_event',
+							    extra: {
+							        backSuccess: true,
+							    }
+							});
+							api.closeWin();
+					    }
+					});
+				}
+			}
+		});
+		setUpVm.refreshData();
+		
+		//修改手机号成功
+		api.addEventListener({
+		    name: 'upPhone_send_event'
+		}, function(ret, err) {
+			if(ret){
+				if(ret.value.upPhoneSuccess){
+					setUpVm.refreshData();
+				}
+			}
+		});
+		
+	};
+</script>
+</html>

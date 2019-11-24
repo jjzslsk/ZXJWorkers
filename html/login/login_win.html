@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>登录win</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+        api.openFrame({
+            name: 'login_frm',
+            url: 'login_frm.html',
+            bounces: false,
+		    scrollToTop:true,
+            rect: { // 推荐使用Margin布局，用于适配屏幕的动态变化
+                marginTop: 0, // main页面距离win顶部的高度
+                marginBottom: 0, // main页面距离win底部的高度
+                w: 'auto' // main页面的宽度 自适应屏幕宽度
+            },
+			allowEdit:true
+        });
+        
+        //监听物理返回键
+		var backSecond = 0;
+		api.addEventListener({
+			name : 'keyback'
+		}, function(ret, err) {
+			var curSecond = new Date().getSeconds();
+			if (Math.abs(curSecond - backSecond) > 2) {
+				backSecond = curSecond;
+				api.toast({
+					msg : '再按一次退出' + api.appName,
+					duration : 2000,
+					location : 'bottom'
+				});
+			} else {
+				api.closeWidget({
+					silent : true
+				});
+			}
+		});
+        
+	};
+</script>
+</html>

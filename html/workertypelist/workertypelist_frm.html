@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>工种现在列表frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #F7F7F7}
+		.type-card{background-color: #FFFFFF;padding: 8px 10px;margin: 8px;border-radius: 8px;box-shadow:1px 1px 2px #DDDDDD;}
+		.type-card .type-title{color: #000000;font-weight: bold;}
+		.aui-grid [class*=aui-col-xs-3] {padding:5px 0;}
+		.me-icon-item img{width: 40%;margin: 0 auto}
+		.aui-grid .aui-grid-label{margin-top: 5px;}
+		.aui-col-xs-3.selAtive{background-color: #DDDDDD;}
+    	
+    </style>
+</head>
+<body>
+	<div id="type_list">
+        <template>
+        <div class="type-card" v-for="(typeItem,typeIndex) in dataList">
+        	<div class="type-title">{{typeItem.CLASS_NAME}}</div>
+        	<div class="aui-grid" v-if="typeItem.child!=undefined">
+		        <div class="aui-row">
+		            <div class="aui-col-xs-3" v-for="(childItem,childIndex) in typeItem.child" :class="checkIsSel(childItem)>-1 ? 'selAtive':''" tapmode="hover" @click="itemClick(childItem)">
+		                <div class="me-icon-item">
+	                		<img :src="childItem.CLASS_ICON" data-src="../../image/placeholder.png" onerror="src='../../image/placeholder.png'" />
+			            </div>
+		                <div class="aui-grid-label child-text">{{childItem.CLASS_NAME}}</div>
+		            </div>
+		        </div>
+		    </div>
+        </div>
+        </template>
+        
+        
+	</div>
+	<!--<div id="more_hint" class="more-data"></div>-->
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+
+	var typeListVm;
+	var confirmClick;
+	var winName,frmName,funCal;
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		winName = pageParam.winName;
+	    frmName = pageParam.frmName;
+	    funCal = pageParam.funCal;
+		confirmClick=function(){
+			var selDataList = typeListVm.selDataList;
+			if(selDataList.length>0){
+				var param={};
+				param.typeList=selDataList;
+				api.execScript({
+			    	name: winName,
+				    frameName: frmName,
+				    script: funCal+'('+JSON.stringify(param)+ ')'
+				});
+				api.closeWin();
+			} else{
+				api.toast({ msg: '您还未选择工种',duration: 2000, location: 'middle'});
+			}
+			
+		};
+		//请求获取数据
+		var getWorkerTypeHttps=function(){
+			_getHttpsData('/worker/getWorkerTypeAll','',
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						typeListVm.refreshData(ret.data);
+					}else{
+						showSingleAuiDialog('请求失败('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+
+		typeListVm = new Vue({
+			el:'#type_list',
+			data:{
+				dataList:[],//工种列表
+				selDataList:[],
+				maxSelCount:5//最多能选择多少个
+			},
+			methods:{
+				refreshData:function(data){
+					this.dataList=data;
+					this.nextTick(data);
+				},
+				nextTick:function(data){
+//					var ret = data.length>pageNum?true:false;
+//					pullupHint('more_hint',false);
+//					if(!ret && indexPage>0){
+//						indexPage--;
+//					}
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				checkIsSel:function(data){
+					//检测是否已经选择
+					var result=-1;
+					var selDataList = this.selDataList;
+					for(var index in selDataList){
+						if(selDataList[index].CLIENT_CLASS_ID==data.CLIENT_CLASS_ID){
+							result=index;
+							break;
+						}
+					}
+					return result;
+				},
+				itemClick:function(data){
+					var retPosition=this.checkIsSel(data);
+					if(retPosition>-1){
+						this.selDataList.splice(retPosition, 1);
+					} else{
+						if(this.selDataList.length<10){
+							this.selDataList.push(data);
+						}else{
+							api.toast({ msg: '最多只能选择10个工种',duration: 2000, location: 'middle'});
+						}
+						
+					}
+				}
+			}
+		});
+		
+		api.showProgress();
+		getWorkerTypeHttps();
+	};
+</script>
+</html>

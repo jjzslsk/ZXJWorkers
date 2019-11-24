@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>搜索附近地址frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui_flex.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	.address-item{padding: 10px;border-bottom: 1px solid #DDDDDD;}
+    	.address-item .address-name{color:#000000;}
+    	.address-item .address-info{color:#999999;font-size: 0.8em;}
+    </style>
+</head>
+<body>
+	<div id="address_lise">
+		<template>
+		<div class="address-item" tapmode="hover" @click="notShowAddressClick()">
+			<div class="address-name">不显示位置</div>
+		</div>
+		<div class="address-item" tapmode="hover" v-for="addressItem in addressList" @click="addressClick(addressItem)">
+			<div class="address-name">{{addressItem.name}}</div>
+			<div class="address-info">{{addressItem.address}}</div>
+		</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/custom/bmap.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var searchnearbyStart;
+	var searchNearKey='';
+	var winName,frmName,funCalRes;
+	var pageInde=0;
+	var pageTotal=0;
+	var addressVm;
+	apiready = function(){
+
+		var nearErr={
+			'-1':'未知错误',
+			'1':'检索词有岐义',
+			'2':'检索地址有岐义',
+			'3':'没有找到检索结果',
+			'4':'key错误',
+			'5':'网络连接错误',
+			'6':'网络连接超时',
+			'7':'还未完成鉴权，请在鉴权通过后重试',
+		};
+		searchnearbyStart=function(data){
+			api.showProgress();
+			searchNearKey=data.searchKey;
+			if(checkLocPer()){
+				startLocation(function(ret){
+					getNearAddressInfo(searchNearKey,true);
+				},function(action,err){
+					getNearAddressInfo(searchNearKey,true);
+				});
+			}else{
+				getNearAddressInfo(searchNearKey,true);
+			}
+		}
+		
+		var mapNearAddress;
+		function getNearAddressInfo(searchNearKey,isRefresh){
+			var curLng = $api.getStorage("curLng")==undefined ? defCurLng:$api.getStorage("curLng");
+			var	curLat = $api.getStorage("curLat")==undefined ? defCurLat:$api.getStorage("curLat");
+			var	curCityName = $api.getStorage("curCityName")==undefined ? defCurCityName:$api.getStorage("curCityName");
+			
+			if(mapNearAddress==undefined || mapNearAddress==null || mapNearAddress==''){
+				mapNearAddress = api.require('bMap');
+			}
+			if(isRefresh){
+				pageIndex=0;
+			}else{
+				pageIndex++;
+			}
+			if(pageIndex>pageTotal){
+				return;
+			}
+			if(searchNearKey!=undefined && searchNearKey.length>0){
+				mapNearAddress.searchInCity({
+				    city: curCityName,
+				    keyword: searchNearKey,
+				    pageIndex: pageInde,
+				    pageCapacity: 50
+				}, function(ret, err) {
+				    api.hideProgress();
+					api.refreshHeaderLoadDone();
+				    if (ret.status) {
+				    	pageTotal=ret.totalPage;
+				    	addressVm.refreshData(ret.results);
+				    } else {
+				    	api.toast({ msg: nearErr[err.code]+'('+err.code+')',duration: 2000, location: 'middle'});
+				    }
+				});
+			}else{
+				 mapNearAddress.searchNearby({
+				    keyword:'街道',//搜索关键字
+				    lon:curLng,
+				    lat:curLat,
+				    radius:2000,//指定区域的半径，单位为 m（米）
+				    pageIndex:pageInde,//（可选项）分页索引
+				    pageCapacity:50//每页包含数据条数，最多为50
+				}, function(ret, err) {
+					api.hideProgress();
+					api.refreshHeaderLoadDone();
+				    if (ret.status) {
+				    	pageTotal=ret.totalPage;
+				    	addressVm.refreshData(ret.results);
+				    } else {
+				    	api.toast({ msg: nearErr[err.code]+'('+err.code+')',duration: 2000, location: 'middle'});
+				    }
+				});
+			}
+	       
+		}
+		
+		addressVm = new Vue({
+			el:'#address_lise',
+			data:{
+				addressList:[]
+			},
+			methods:{
+				refreshData:function(data){
+					this.addressList=data;
+					this.nextTick();
+				},
+				appendData:function(data){
+					this.addressList=this.addressList.concat(data);
+					this.nextTick();
+				},
+				nextTick:function(){
+					this.$nextTick(function(){
+						api.parseTapmode();
+						api.hideProgress();
+					})
+				},
+				notShowAddressClick:function(){
+					var data={
+						"lon": "",
+						"lat": "",
+						"name": "不显示位置",
+						"uid": "",
+						"address": "不显示位置",
+						"city": "",
+						"phone": ""
+					}
+					api.execScript({
+						name : winName,
+						frameName : frmName,
+						script : funCalRes+'('+JSON.stringify(data)+')'
+					});
+					api.closeWin();
+				},
+				addressClick:function(data){
+					api.execScript({
+						name : winName,
+						frameName : frmName,
+						script : funCalRes+'('+JSON.stringify(data)+')'
+					});
+					api.closeWin();
+				}
+			}
+		});
+		
+		var pageParam=api.pageParam;
+		winName = pageParam.winName;
+		frmName = pageParam.frmName;
+		funCalRes = pageParam.funCalRes;
+		searchnearbyStart(pageParam);
+		
+		api.setRefreshHeaderInfo({
+		    loadingImg: '',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉刷新...',
+		    textUp: '松开刷新...'
+		}, function(ret, err) {
+		    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+			getNearAddressInfo(true);
+		});
+		//监听距离底部距离,实现上拉加载更多
+		api.addEventListener({
+		    name:'scrolltobottom',
+		    extra:{
+		        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+		    }
+		}, function(ret, err){
+			getNearAddressInfo(false);
+		});
+		
+
+	};
+</script>
+</html>

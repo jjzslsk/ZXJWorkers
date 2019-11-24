@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>日志详情frm</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui_flex.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background-color: #ffffff}
+    	.cf-head-area{background-color: #FFFFFF;padding: 8px 10px;}
+    	.cf-head-area .title-area{}
+    	.cf-head-area .title-area .text-title{width:calc(100% - 4rem);color:#000000;font-weight: bold;font-size: 1rem;}
+    	.cf-head-area .title-area .del-item{width: 4rem;color:#999999;text-align: right;}
+    	.cf-head-area .time-collect .create-time{width: calc(100% - 4rem);color:#999999;font-size: 0.8em;}
+    	.cf-head-area .time-collect .collect-item{width: 4rem;text-align: right;color:#999999;}
+    	.cf-head-area .time-collect .collect-item.collect-ok{color:#11ce7c;}
+    	
+    	.video-area{width: 100%;height:30vh;background-color: #000000;}
+    	.video-area video{width: 100%;height: 30vh;}
+    	.detail-info{background-color: #FFFFFF;padding: 8px 10px;}
+    	
+    	.img-item{width: 100%;height: 0px;padding-bottom: 74%;position: relative;}
+    	.img-item img{width: 100%;height:100%;position: absolute;z-index: 99}
+    	
+    	.detail-info .text-area{margin-top: 20px;}
+    	/*.detail-info .text-area .text-title{color:#000000;font-weight: bold;font-size: 1rem;}*/
+    	.detail-info .text-area .text-content{margin-top: 10px;}
+    	.detail-info .page-view{widows: 100%;text-align: right;color:#999999;font-size: 0.8em;margin-top: 20px;}
+    	
+    	
+    	.detail-info .eva-list{margin-top: 30px;}
+    	.detail-info .eva-list .eva-title{font-weight: bold;color:#000000;}
+    	.detail-info .eva-list .eva-item{background-color: #FFFFFF;border-bottom: 1px solid #DDDDDD;padding: 8px 0;}
+    	.detail-info .eva-list .eva-item .person-ava{width: 20%;height: 0px;padding-bottom: 20%;position: relative;}
+    	.detail-info .eva-list .eva-item .person-ava img{width: 80%;height:80%;position: absolute;z-index: 99;border-radius: 50%;}
+    	.detail-info .eva-list .eva-item .eva-info{width: 80%;}
+    	.detail-info .eva-list .eva-item .eva-info .eva-info-head .person-name{width: 70%;color:#999999;}
+    	.detail-info .eva-list .eva-item .eva-info .eva-info-head .eva-praise{width: 30%;text-align: right;color:#999999;}
+    	.detail-info .eva-list .eva-item .eva-info .eva-content{margin-top: 10px;}
+    	.detail-info .eva-list .eva-item .eva-info .eva-info-bottom{margin-top: 10px;}
+    	.detail-info .eva-list .eva-item .eva-info .eva-info-bottom .eva-time{width: 100%;color:#999999;text-align: right;}
+    	.detail-info .eva-list .eva-item .eva-info .eva-info-bottom .like-item{width: 30%;text-align: right;color:#999999;}
+    	
+    </style>
+</head>
+<body>
+	<div id="detail_id">
+		<template>
+		<div class="cf-head-area">
+			<div class="title-area horizontal">
+				<div class="text-title">{{dataInfo.SUBJECT_TITLE}}</div>
+				<div v-if="userId==dataInfo.CLIENT_ID" class="del-item" tapmode="hover" @click="delCfItem">删除</div>
+			</div>
+			<div class="time-collect horizontal">
+				<div class="create-time">{{dataInfo.CRETAE_DATE}}</div>
+				<div class="collect-item" :class="isCollect ? 'collect-ok':''" tapmode="hover" @click="collectClick"><i class="aui-iconfont aui-icon-star"></i>收藏</div>
+			</div>
+		</div>
+		<div class="video-area" v-if="dataInfo.attType==1">
+			<video v-for="videoItem in dataInfo.attDataList" v-lazy="videoItem.videoUrl" :poster="videoItem.imgUrl" controls="controls"></video>
+		</div>
+		<div class="detail-info">
+			<div class="aui-row aui-row-padded" v-if="dataInfo.attType==0">
+				<div class="aui-col-xs-4" v-for="(imgItem,imgIndex) in dataInfo.attDataList">
+					<div class="img-item" tapmode="hover" @click="previewImg(imgIndex,dataInfo.attDataList)">
+						<img v-lazy="imgItem.imgUrl"/>
+					</div>
+				</div>
+			</div>
+			<div class="text-area">
+				<!--<div class="text-title">{{dataInfo.SUBJECT_TITLE}}</div>-->
+				<div class="text-content">{{dataInfo.SUBJECT_MEMO}}</div>
+			</div>
+			<div class="page-view">浏览量{{dataInfo.BROWSE_NUMBER}}</div>
+			<div class="eva-list">
+				<div class="eva-title">最新评价</div>
+				<div class="eva-item horizontal" v-for="(evaItem,evaIndex) in evaList">
+					<div class="person-ava">
+						<img src="../../image/icon/me/head.png" datasrc="../../image/placeholder.png" onerror="src='../../image/placeholder.png'"/>
+					</div>
+					<div class="eva-info">
+						<div class="eva-info-head horizontal">
+							<div class="person-name">{{filterEvaPersonName(evaItem.CLIENT_NAME)}}</div>
+							<!--<div class="eva-praise">{{evaItem.DZ_NUM}}<i class="aui-iconfont aui-icon-laud"></i></div>-->
+						</div>
+						<div class="eva-content">{{evaItem.SUBJECT_MEMO}}</div>
+						<div class="eva-info-bottom horizontal">
+							<div class="eva-time">{{cutOuttime(evaItem.CRETAE_DATE)}}</div>
+							<!--<div class="like-item">{{evaItem.DZ_NUM}}<i class="aui-iconfont aui-icon-laud"></i></div>-->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		</template>
+	</div>
+	
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui/aui-sharebox.js" ></script>
+<script type="text/javascript" src="../../script/aui/aui_lazyload.js" ></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/vue/vue_lazyload.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+
+	var detailVm;
+	var submitEvaClick,praiseClick,evaClick,forwardingClick;
+	var dataInfo;
+	var subjectId='';//日志(朋友圈)id
+	var userId='';
+	var startNum=0;//起始位置
+	var pageSize=30;//每页数量
+	var endNum=pageSize;//截止位置
+	var wxModule;
+	apiready = function(){
+		var pageParam = api.pageParam;
+		dataInfo = pageParam.cfDetail;
+		subjectId=dataInfo.SUBJECT_ID;
+		userId = $api.getStorage("userid");//用户id
+		
+		//提交评价
+		submitEvaClick=function(data){
+			var evaContent = filterKeyboardEmoji(data.msg);
+		  	var param = 'FLAG=1&BBS_ID=1&PARENT_SUBJECT_ID=' + subjectId + '&SUBJECT_MEMO=' + evaContent + '&CLIENT_ID=' + userId;
+			_httpsPlatformClass('saveSubject',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.code == 0 || ret.code == '0') {
+						showSingleAuiDialog('提交', '提交成功','确定',function(ret){
+							api.refreshHeaderLoading();
+							api.sendEvent({
+							    name: 'eva_send_event',
+							    extra: {
+							       isSuccess: true,
+							    }
+							});
+						});
+					} else{
+						showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+			
+		}
+		//点赞
+		praiseClick=function(){
+			var param = 'SUBJECT_ID=' + subjectId + '&CLIENT_ID=' + userId +'&OK_NUM=1'
+			api.showProgress();
+			_httpsPlatformClass('upNoAndOk',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.code == 0 || ret.code == '0') {
+						var resultMsg =  checkIsJsonObj(ret.msg);
+//						api.toast({ msg: resultMsg.msg,duration: 2000, location: 'middle'});
+						api.sendEvent({
+						    name: 'like_send_event',
+						    extra: {
+						       isSuccess: true,
+						    }
+						});
+//						showSingleAuiDialog('提交', '点赞成功','确定',function(ret){
+//							api.sendEvent({
+//							    name: 'like_send_event',
+//							    extra: {
+//							       isSuccess: true,
+//							    }
+//							});
+//						});
+					} else{
+						showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		
+		}
+		//点击评论数量按钮
+		evaClick=function(){
+			
+		}
+		//转发
+		forwardingClick=function(){
+			openSharebox('../../image',function(position,sceneValue){
+				var title = dataInfo.SUBJECT_TITLE==undefined || dataInfo.SUBJECT_TITLE=='' ? '装小匠':dataInfo.SUBJECT_TITLE;
+				var content = dataInfo.SUBJECT_MEMO==undefined || dataInfo.SUBJECT_MEMO=='' ? '装小匠':dataInfo.SUBJECT_MEMO;
+				
+				var hintMsg='转发成功';
+				if(sceneValue=='favorite'){
+					hintMsg='收藏成功';
+				}
+				var shareUrl = thirdUseUrl+'/zxj_company/weixin_gzh/worker_detail.html?id='+dataInfo.CLIENT_ID;
+				if(wxModule==undefined || wxModule==null || wxModule==''){
+					wxModule = api.require('wx');
+				}
+				wxModule.isInstalled(function(ret, err) {
+				    if (ret.installed) {
+				        wxModule.shareWebpage({
+//							    apiKey: '',
+						    scene: sceneValue,//session（会话）;timeline（朋友圈）;favorite（收藏）
+						    title: title,
+						    description: content,
+						    thumb: 'widget://image/app_logo.png',
+						    contentUrl: shareUrl
+						}, function(ret, err) {
+							if(ret.status){
+								var param = 'SUBJECT_ID=' + subjectId + '&CLIENT_ID=' + userId +'&NO_NUM=1'
+								api.showProgress();
+								_httpsPlatformClass('upNoAndOk',param,
+									function(ret){
+										api.hideProgress();
+										if(ret.code == 0 || ret.code == '0') {
+											showSingleAuiDialog('提交', hintMsg,'确定',function(ret){
+												api.sendEvent({
+												    name: 'share_send_event',
+												    extra: {
+												       isSuccess: true,
+												    }
+												});
+											});
+										} else{
+											showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+										}
+									},
+									function(err){
+										api.hideProgress();
+									}
+								);
+							}
+						});
+				    } else {
+				    	api.toast({ msg: '当前设备未安装微信客户端',duration: 2000, location: 'bottom'});
+				    }
+				});
+			});
+		}
+		
+		//获取评论列表
+		var getEvaListHttps=function(isRefresh){
+			if(isRefresh){
+				startNum=0;
+				endNum=pageSize;
+			}else{
+				startNum=startNum+pageSize;
+//				endNum=startNum+pageSize;
+			}
+			var param="PARENT_SUBJECT_ID="+subjectId+"&START_POSITION="+startNum+"&END_POSITION="+pageSize;
+			_httpsPlatformSql('bbs_subject_reply_list','list',param,
+				function(ret){
+					if(isRefresh){
+						api.refreshHeaderLoadDone();
+					}
+					if(ret.code == 0 || ret.code == '0') {
+						var resultList = checkIsJsonObj(ret.msg);
+						var msgList = resultList!=null ? resultList:[];
+						if(isRefresh){
+							detailVm.refreshEvaData(msgList);
+						}else{
+							detailVm.appendEvaData(msgList);
+						}
+					} else{
+						api.hideProgress();
+						showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+
+			
+		}
+		
+		//请求更新预览次数
+		var upPreviewNumHttps=function(){
+			var param = "ARTICLE_ID=" + subjectId;
+			_httpsPlatformClass('upArticleBrowseNum',param,
+				function(ret){},
+				function(err){}
+			);
+		}
+		
+		// 图片懒加载配置
+		Vue.use(VueLazyload, {
+		  preLoad: 1, // 预加载高度比例
+		  error: '../../image/placeholder_err.png', // 图片路径错误时加载图片
+		  loading: '../../image/placeholder_loading.png', // 预加载图片
+		  attempt: 1, // 尝试加载图片数量
+		  observer: true,
+		  observerOptions: {
+		    rootMargin: '0px',
+		    threshold: 0.1
+		  }
+		})
+		
+		detailVm = new Vue({
+			el:'#detail_id',
+			data:{
+				userId:'',
+				isCollect:false,//是否收藏
+				dataInfo:{},
+				evaList:[]
+			},
+			methods:{
+				refreshData:function(userId,data){
+					this.userId=userId;
+					this.dataInfo=data;
+					if(data.FAV_FLAG!=undefined && (data.FAV_FLAG==1 || data.FAV_FLAG=='1')){
+						this.isCollect=true;
+					}else{
+						this.isCollect=false;
+					}
+					this.nextTick();
+				},
+				refreshEvaData:function(data){
+					this.evaList=data;
+					this.nextTick();
+				},
+				appendEvaData:function(data){
+					this.evaList=this.evaList.concat(data);
+					this.nextTick();
+				},
+				nextTick:function() {
+					this.$nextTick(function() {
+						api.hideProgress();
+						api.parseTapmode();
+					})
+				},
+				previewImg:function(position, imgList) {
+					//预览图片
+					var imgListTemp=[];
+					for(var index in imgList){
+						imgListTemp.push(imgList[index].imgUrl);
+					}
+					api.openWin({
+						name: 'previewpicture_win',
+						url:'widget://html/previewpicture/previewpicture_win.html',
+						pageParam : {
+							position : position,
+							imgList : imgListTemp
+						},
+						slidBackEnabled : false,
+						delay:300
+					});
+				},
+				filterEvaPersonName:function(nameStr){
+					if(nameStr==undefined || nameStr==null || nameStr==''){
+						return '';
+					}else{
+						return nameStr.substring(0,1)+'**';
+					}
+				},
+				cutOuttime:function(timeStr){
+					if(timeStr==undefined || timeStr==null || timeStr=='' || timeStr.length<19){
+						return timeStr;
+					}else{
+						return timeStr.substring(0,16);
+					}
+				},
+				delCfItem:function(){
+					//删除朋友圈
+					showDoubleAuiDialog('删除提醒','是否确定删除?','删除','取消',
+						function(ret){
+							if(ret.buttonIndex==2){
+								var param = 'SUBJECT_ID=' + subjectId + '&CLIENT_ID=' + userId;
+								api.showProgress();
+								_httpsPlatformClass('delBbs',param,
+									function(ret){
+										api.hideProgress();
+										if(ret.code == 0 || ret.code == '0') {
+											showSingleAuiDialog('提交', '删除成功','确定',function(ret){
+												api.sendEvent({
+												    name: 'delcf_send_event',
+												    extra: {
+												       isSuccess: true,
+												    }
+												});
+												api.closeWin();
+											});
+										} else{
+											showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+										}
+									},
+									function(err){
+										api.hideProgress();
+									}
+								);
+							}
+						}
+					);
+				},
+				collectClick:function(){
+					//收藏
+					var isCollect = this.isCollect;
+					if (isCollect) {
+				      //取消收藏
+				      dataSet = 'clientDelFav';
+				      param = 'CLIENT_ID=' + userId + '&FAV_ID=' + subjectId;
+				    } else {
+				      //添加收藏
+				      dataSet = 'clientFav';
+				      param = 'CLIENT_ID=' + userId + '&FAV_ID=' + subjectId + '&FAV_TYPE=3'; //FAV_TYPE 0商铺；1商品;3朋友圈收藏
+				    }
+					api.showProgress();
+					_httpsPlatformClass(dataSet,param,
+						function(ret){
+							api.hideProgress();
+							if(ret.code == 0 || ret.code == '0') {
+								if (isCollect) {
+									detailVm.isCollect=false;
+									api.toast({ msg: '取消收藏成功',duration: 2000, location: 'middle'});
+						        } else {
+						        	detailVm.isCollect=true;
+						        	api.toast({ msg: '添加收藏成功',duration: 2000, location: 'middle'});
+						        }
+						        api.sendEvent({
+								    name: 'collect_send_event',
+								    extra: {
+								       isSuccess: true,
+								    }
+								});
+							} else{
+								showSingleAuiDialog('提示('+ret.code+')',ret.msg);
+							}
+						},
+						function(err){
+							api.hideProgress();
+						}
+					);
+				}
+			}
+		});
+		
+		api.showProgress();
+		detailVm.refreshData(userId,dataInfo);
+		getEvaListHttps(true);
+		upPreviewNumHttps();
+		//下拉刷新
+		api.setRefreshHeaderInfo({
+		    loadingImg: '',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉刷新...',
+		    textUp: '松开刷新...'
+		}, function(ret, err) {
+		    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+			getEvaListHttps(true);
+		});
+		
+		//监听距离底部距离,实现上拉加载更多
+		api.addEventListener({
+		    name:'scrolltobottom',
+		    extra:{
+		        threshold:20 //设置距离底部多少距离时触发，默认值为0，数字类型
+		    }
+		}, function(ret, err){
+			getEvaListHttps(false);
+		});
+		
+		
+	};
+</script>
+</html>

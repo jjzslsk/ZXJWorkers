@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>余额支付</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+	<link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <style>
+    	html,body{height: 100%;background:rgba(0,0,0,0);}
+    	.balance-bg{height: 100vh;background:rgba(0,0,0,0);}	
+		.balance-dialog{
+			background-color: #FFFFFF;
+			width: 80%;
+			margin: 0 10%;
+			padding: 8px 0;
+			border-radius: 10px;
+			position: absolute;
+			top:30%;
+			z-index: 99;
+		}
+		
+		.balance-dialog .title{padding: 0 10px;text-align: center;font-weight: bold;}
+		.balance-dialog .phone{padding: 8px 10px;text-align: center;color:#999999;}
+		.balance-dialog .sms-code{padding: 8px 10px;}
+		.balance-dialog .sms-code .sms-code-input{width:calc(100% - 7em);height: 2.2rem;line-height: 2.2rem;border: 1px solid #DDDDDD;border-radius: 5px;}
+		.balance-dialog .sms-code .sms-code-input input{width: calc(100% - 16px);padding: 0 8px;outline:none;}
+		.balance-dialog .sms-code .get-code-btn{width: 7em;text-align: right;height: 2.2rem;line-height: 2.2rem;}
+		.balance-dialog .sms-code .get-code-btn .code-hint01{color:#2fc588;border: 1px solid #2fc588;padding: 0 8px;border-radius: 5px;}
+		.balance-dialog .sms-code .get-code-btn .code-hint02{color:#cecece;border: 1px solid #cecece;padding: 0 8px;border-radius: 5px;}
+		.balance-dialog .footer-pay-btn{padding: 8px 10px;}
+		.balance-dialog .footer-pay-btn .pay-btn-cancel,
+		.balance-dialog .footer-pay-btn .pay-btn-ok{width: 50%;}
+		.balance-dialog .footer-pay-btn .pay-btn-cancel span{width: 95%;margin-right:5%;height: 2rem;line-height: 2rem;background-color:#CECECE;border-radius: 5px; text-align: center;}
+		.balance-dialog .footer-pay-btn .pay-btn-ok span{width: 95%;margin-left:5%;height: 2rem;line-height: 2rem;background-color:#2fc588;border-radius: 5px; color: #FFFFFF;text-align: center;}
+	
+    </style>
+</head>
+<body>
+	<div id="balance_id">
+		<template>
+		<div class="balance-bg" tapmode="hover" @click="closeDialogClick">
+			<div class="balance-dialog" @click.stop>
+				<div class="title">余额支付</div>
+				<div class="phone">{{filterPhone(phone)}}</div>
+				<div class="sms-code horizontal">
+					<div class="sms-code-input">
+						<input type="tel" maxlength="4" placeholder="请输入验证码" v-model="smsCode"/>
+					</div>
+					<div class="get-code-btn" tapmode="hover" @click="checkCodeClick"><span  :class="codeIsClick ? 'code-hint01' : 'code-hint02'">{{codeHint}}</span></div>
+				</div>
+				<div class="footer-pay-btn horizontal">
+					<div class="pay-btn-cancel"><span tapmode="hover" @click="cancelClick">取消</span></div>
+					<div class="pay-btn-ok"><span tapmode="hover" @click="okPayClick">确定支付</span></div>
+				</div>
+			</div>
+		</div>
+		</template>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquery213min.js"></script>
+<script type="text/javascript" src="../../script/jquery/jquerymobilecustommin.js"></script>
+<script type="text/javascript" src="../../script/aui/aui_dialog.js"></script>
+<script type="text/javascript" src="../../script/custom/tools.js"></script>
+<script type="text/javascript" src="../../script/vue/vue.js"></script>
+<script type="text/javascript" src="../../script/packajax.js"></script>
+<script type="text/javascript">
+	var balanceVm;
+	var countCodeVal;
+	var orderId='';//订单id
+	var payOrderId='';//支付单号id
+	var payMoney=0;//要支付的金额
+	var winName,frmName,payCallback;
+	apiready = function(){
+		var pageParam = api.pageParam;//页面提交过来的参数
+		orderId = pageParam.orderId;
+		payOrderId = pageParam.payOrderId;
+		payMoney = pageParam.payMoney;
+		winName = pageParam.winName;
+		frmName = pageParam.frmName;
+		payCallback = pageParam.payCallback;
+		
+		var userId = $api.getStorage("userid");//用户id
+		var phone=$api.getStorage("clientPhone");//手机号
+		
+		
+		var closeBalanceDialog=function(isSuc){
+			api.execScript({
+				name : winName,
+				frameName : frmName,
+				script : 'payCallback('+isSuc+')'
+			});
+			api.closeFrame();
+		}
+		
+		//余额支付
+		var balancePayHttps=function(phone,verifyCode){
+			var param={};
+			param.workerId=userId;
+			param.type=7;
+			param.payment = 3;
+			param.amount=payMoney;
+			param.orderId=payOrderId;
+			param.clientPhone=phone;
+			param.verifyCode=verifyCode;
+			api.showProgress();
+			_postHttpsData('/order/refillMargin',param,
+				function(ret){
+					api.hideProgress();
+					if(ret.status){
+						api.alert({
+						    title: '温馨提示',
+						    msg: '支付成功',
+						}, function(ret, err) {
+							closeBalanceDialog(true)
+						});
+					}else{
+						api.alert({
+						    title: '请求失败('+ret.code+')',
+						    msg:ret.msg,
+						}, function(ret, err){
+							
+						});
+					}
+				},
+				function(err){
+					api.hideProgress();
+				}
+			);
+		};
+		
+		balanceVm = new Vue({
+			el:'#balance_id',
+			data:{
+				phone:'',//手机号
+				smsCode:'',//短信验证码
+				codeHint:'获取验证码',
+				codeIsClick:false,//获取验证码按钮是否允许点击
+			},
+			methods:{
+				initData:function(phone){
+					this.phone=phone;
+					this.codeIsClick=checkPhone(phone);
+				},
+				filterPhone:function(phone){
+					return phoneMiddleHide(phone);
+				},
+				startCountDown:function(){
+					//开始计时
+					var timeNum=30;//设定30秒时间
+					balanceVm.codeIsClick=false;
+					balanceVm.codeHint='重新获取'+timeNum;
+					//点击获取验证码
+					countCodeVal = setInterval(function() {
+						timeNum--;
+						balanceVm.codeHint='重新获取'+timeNum;
+						// 你倒计时显示的地方元素
+						if(timeNum==0){
+							balanceVm.codeIsClick=true;
+							balanceVm.codeHint='重新获取';
+							clearInterval(countCodeVal);
+						}
+					}, 1000);
+				},
+				checkCodeClick:function(){
+					//点击获取短信验证码
+					if(!this.codeIsClick) return;
+					var param = 'phone='+this.phone+'&type=5'+'&from=4'; //type:1注册，2登录，3修改密码，4信息变更,5余额支付
+					_getHttpsData('/user/getSmsVerify',param,
+						function(res){
+							if(res.status){
+								balanceVm.startCountDown();
+							}else{
+								api.toast({ msg: res.msg+'('+res.code+')',duration: 2000, location: 'bottom'});
+							}
+						},
+						function(err){
+						
+						}
+					);
+				},
+				closeDialogClick:function(){
+					//关闭dialog
+					closeBalanceDialog(false)
+				},
+				cancelClick:function(){
+					//取消
+					closeBalanceDialog(false)
+				},
+				okPayClick:function(){
+					//确定支付
+					var phone = this.phone;//手机号
+					var smsCode = this.smsCode;//短信验证码
+					if(phone==undefined || phone==null || phone==''){
+						api.alert({
+							title : '提示',
+							msg : '获取不到绑定的手机号',
+						}, function(ret, err) {
+						});
+					}
+					else if(smsCode==undefined || smsCode==null || smsCode==''){
+						api.alert({
+							title : '提示',
+							msg : '请输入验证码',
+						}, function(ret, err) {
+						});
+					}
+					else if(smsCode.length<4){
+						api.alert({
+							title : '提示',
+							msg : '请输入正确的4位数验证码',
+						}, function(ret, err) {
+						});
+					} 
+					else{
+						balancePayHttps(phone,smsCode);
+					}
+				}
+			}
+		});
+		
+		balanceVm.initData(phone);
+		
+		api.addEventListener({
+			name : 'viewdisappear'
+		}, function(ret, err) {
+			//关闭当前window，使用默认动画
+			if(countCodeVal!=undefined){
+				clearInterval(countCodeVal);
+			}
+			
+		});
+		
+	};	
+</script>
+</html>

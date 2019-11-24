@@ -1,0 +1,11 @@
+
+.aui-slide-wrap .aui-slide-node{
+	display: flex;
+    justify-content:center;
+    align-items:Center;
+}
+.aui-slide-node img {
+    width: 100%;
+    height: auto;
+}
+.page-count{position: absolute;bottom: 5px;left:5px;font-size: 1.5em;font-weight: bold}
