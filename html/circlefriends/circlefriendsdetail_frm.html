@@ -15,9 +15,11 @@
     	.cf-head-area .title-area{}
     	.cf-head-area .title-area .text-title{width:calc(100% - 4rem);color:#000000;font-weight: bold;font-size: 1rem;}
     	.cf-head-area .title-area .del-item{width: 4rem;color:#999999;text-align: right;}
-    	.cf-head-area .time-collect .create-time{width: calc(100% - 4rem);color:#999999;font-size: 0.8em;}
+    	.cf-head-area .time-collect .create-time{width: calc(100% - 6rem);color:#999999;font-size: 0.8em;}
     	.cf-head-area .time-collect .collect-item{width: 4rem;text-align: right;color:#999999;}
     	.cf-head-area .time-collect .collect-item.collect-ok{color:#11ce7c;}
+    	.cf-head-area .time-collect .del-item{width: 2rem;color:#999999;text-align: right;}
+    	
     	
     	.video-area{width: 100%;height:30vh;background-color: #000000;}
     	.video-area video{width: 100%;height: 30vh;}
@@ -53,11 +55,12 @@
 		<div class="cf-head-area">
 			<div class="title-area horizontal">
 				<div class="text-title">{{dataInfo.SUBJECT_TITLE}}</div>
-				<div v-if="userId==dataInfo.CLIENT_ID" class="del-item" tapmode="hover" @click="delCfItem">删除</div>
+				<!--<div v-if="userId==dataInfo.CLIENT_ID" class="del-item" tapmode="hover" @click="delCfItem">删除</div>-->
 			</div>
 			<div class="time-collect horizontal">
 				<div class="create-time">{{dataInfo.CRETAE_DATE}}</div>
 				<div class="collect-item" :class="isCollect ? 'collect-ok':''" tapmode="hover" @click="collectClick"><i class="aui-iconfont aui-icon-star"></i>收藏</div>
+				<div class="del-item" v-if="userId==dataInfo.CLIENT_ID" tapmode="hover" @click="delCfItem">删除</div>
 			</div>
 		</div>
 		<div class="video-area" v-if="dataInfo.attType==1">
