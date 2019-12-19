@@ -7,7 +7,7 @@ var webSocketAgreement='wss';//webSocket协议
 var webSocketUrl='zxj888.cn'//webSocket域名
 var webSocketPort=9443;//webSocket端口
 var webSocketPath='zxj/websocket';//webSocket域名后面那部分路径
-///////////////////正式环境地址end///////////////
+/////////////////////正式环境地址end///////////////
 
 /////////////////////////////////开发环境地址//////// //////
 //var serviceUrl = 'https://www.zxjtest.xyz'//开发环境
@@ -17,7 +17,7 @@ var webSocketPath='zxj/websocket';//webSocket域名后面那部分路径
 //var webSocketUrl='zxjtest.xyz'//webSocket域名
 //var webSocketPort=9443;//webSocket端口
 //var webSocketPath='zxj/websocket';//webSocket域名后面那部分路径
-///////////////////////////开发环境地址end///////////////
+/////////////////////////////开发环境地址end///////////////
 
 //////////////////////////////////
 //var serviceUrl = 'http://ybhm6m.natappfree.cc/server'//本地开发原件
@@ -102,11 +102,14 @@ var checkUpAppVersion=function(){
 					    },
 					}, function(ret, err) {
 						if (ret) {
+							var upInfo = ret.upInfo==undefined ? '':ret.upInfo;
+							var upMsg = upInfo.replace(/;/g,";\n")
 							var serAppVersionCode = ret.versionCode;
+							var versionNameNew=ret.versionName;
 							if(Number(serAppVersionCode)>Number(localVersionCode)){
 								api.confirm({
-								    title: '版本提示',
-								    msg: '发现您有新版本待更新',
+					    			title: '版本更新提示(V'+versionNameNew+')',
+								    msg: upMsg,
 								    buttons: ['立即更新', '暂时不更']
 								}, function(ret, err) {
 								    var index = ret.buttonIndex;
@@ -119,8 +122,6 @@ var checkUpAppVersion=function(){
 										    mimeType: 'text/html',
 										    uri: appDwUrl
 										}, function(ret, err) {});
-										
-										
 								    }
 								});
 							}
@@ -142,7 +143,6 @@ var checkUpAppVersion=function(){
 	else if(systemType == 'ios'){
 		var ipa = api.require('ipa');
 		var bundleVersion = ipa.getBundleVersion();
-//  return;
 		api.ajax({
 			url : 'https://itunes.apple.com/cn/lookup?id=1472159762',
 			method : 'post',
@@ -151,10 +151,12 @@ var checkUpAppVersion=function(){
 			if(ret){
 				if(ret.results!=undefined && ret.results.length>0){
 					var newVersion = ret.results[0].version;
+					var releaseNotes = ret.results[0].releaseNotes==undefined ? '':ret.results[0].releaseNotes;
+					var upMsg = releaseNotes.replace(/;/g,";\n")
 					if(checkIOSVersion(bundleVersion,newVersion)){
 						api.confirm({
-						    title: '版本提示',
-						    msg: '发现您有新版本待更新V'+newVersion,
+						    title: '版本更新提示(V'+newVersion+')',
+						    msg: upMsg,
 						    buttons: ['立即更新', '暂时不更']
 						}, function(ret, err) {
 						    var index = ret.buttonIndex;

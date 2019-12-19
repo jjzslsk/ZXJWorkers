@@ -83,7 +83,7 @@ html,body{height: 100%;background-color: #f7f7f7}
 .road-work-area .road-work-item .road-work-money .money-color{color:#ed5565 !important}
 /*.road-work .road-work-money input{height: 1.2rem;width: 50%;margin-left: 50%;border:1px solid #CECECE;background-color: #f2f2f2;border-radius: 5px;padding: 0 5px}*/
 .road-work-area .road-work-item .road-work-money-unit{width:calc(1em + 10px);color:#000000;margin-right: 10px;}
-.img-del {width: 1.5rem;height: 1.5rem;line-height: 1.5rem;text-align: center;border-radius: 50%;background-color: #d61414;color: #FFFFFF;position: absolute;z-index: 99;right: 0;top: 0;}
+.img-del {width: 1.5rem;height: 1.5rem;line-height: 1.5rem;text-align: center;border-radius: 50%;background-color: #d61414;color: #FFFFFF;position: absolute;z-index: 97;right: 0;top: 0;}
 /*施工中end*/		
 
 .up-sett-reason{padding: 8px;}

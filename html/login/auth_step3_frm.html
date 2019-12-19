@@ -85,7 +85,7 @@
 								<div class="aui-list-item-label">
 									性别
 								</div>
-								<div class="aui-list-item-input horizontal"  :class="applyStatus==0 ? '':'read-only'">
+								<div class="aui-list-item-input horizontal"  :class="applyStatus==0 || applyStatus==3 ? '':'read-only'">
 									<div class="sex-radio horizontal" tapmode="hover" @click="radioSex(1)">
 										<img v-if="sex==1" src="../../image/icon/radio_sel.png" />
 										<img v-else src="../../image/icon/radio_nor.png" />
@@ -731,9 +731,8 @@
 						},'auth_step3_frm');
 					},
 					radioSex:function(position){
-						
 						//选择性别
-						if(this.applyStatus==0){
+						if(this.applyStatus==0 || this.applyStatus==3){
 							this.sex=position;
 						}
 					},
@@ -777,7 +776,7 @@
 						var sex = this.sex;//性别
 						var ecyContactName = this.ecyContactName;//紧急联系人
 						var ecyContactPhone = this.ecyContactPhone;//联系人号码
-						var regPhone = this.regPhone;//联系人号码
+//						var regPhone = this.regPhone;//联系人号码
 						var workerClassIds=this.workerClassIds;//工人种类id
 						var workerClassNames=this.workerClassNames;//工人种类名称
 						var joinWorkDate=this.joinWorkDate;//参加工作时间
@@ -804,109 +803,123 @@
 						
 						var workerMotto = this.workerMotto;//座右铭
 						var skillsIntroduce = this.skillsIntroduce;//技能介绍
-						
-						if (regPhone == undefined || regPhone == null || regPhone == '') {
+						if(regPhone == undefined || regPhone == null || regPhone == '') {
 							api.toast({
 								msg : '请填写注册的手机号',
 								duration : 2000,
 								location : 'middle'
 							});
-						} else if (!checkPhone(regPhone)) {
+							return;
+						}
+						if(!checkPhone(regPhone)) {
 							api.toast({
 								msg : '注册手机号码格式错误',
 								duration : 2000,
 								location : 'middle'
 							});
+							return;
 						}  
-						else if (this.applyStatus==0 && (sex == undefined || sex == null || sex == '')) {
-							api.toast({
-								msg : '请选择性别',
-								duration : 2000,
-								location : 'middle'
-							});
+						if(this.applyStatus==0 || this.applyStatus==3) {
+							if(sex==undefined || sex==null || sex===''){
+								api.toast({
+									msg : '请选择性别',
+									duration : 2000,
+									location : 'middle'
+								});
+								return;
+							}
 						}
-						else if (ecyContactName == undefined || ecyContactName == null || ecyContactName == '') {
+						if(ecyContactName == undefined || ecyContactName == null || ecyContactName == '') {
 							api.toast({
 								msg : '请填写紧急联系人',
 								duration : 2000,
 								location : 'middle'
 							});
-						} else if (ecyContactPhone == undefined || ecyContactPhone == null || ecyContactPhone == '') {
+							return;
+						} 
+						if(ecyContactPhone == undefined || ecyContactPhone == null || ecyContactPhone == '') {
 							api.toast({
 								msg : '请填写联系人号码',
 								duration : 2000,
 								location : 'middle'
 							});
-						} else if (!checkPhone(ecyContactPhone)) {
+							return;
+						} 
+						if(!checkPhone(ecyContactPhone)) {
 							api.toast({
 								msg : '联系人手机号码格式错误',
 								duration : 2000,
 								location : 'middle'
 							});
+							return;
 						}
-						else if (workerClassNames == undefined || workerClassNames == null || workerClassNames == '') {
+						if(workerClassNames == undefined || workerClassNames == null || workerClassNames == '') {
 							api.toast({
 								msg : '请选择工人种类',
 								duration : 2000,
 								location : 'middle'
 							});
+							return;
 						} 
-						else if (joinWorkDate == undefined || joinWorkDate == null || joinWorkDate == '') {
+						if(joinWorkDate == undefined || joinWorkDate == null || joinWorkDate == '') {
 							api.toast({
 								msg : '请选择入行时间',
 								duration : 2000,
 								location : 'middle'
 							});
+							return;
 						} 
-						else if (areaChoose == undefined || areaChoose == null || areaChoose == '') {
+						if(areaChoose == undefined || areaChoose == null || areaChoose == '') {
 							api.toast({
 								msg : '请选择区域',
 								duration : 2000,
 								location : 'middle'
 							});
-						} else if (intWorkAddress == undefined || intWorkAddress == null || intWorkAddress == '') {
+							return;
+						}
+						if(intWorkAddress == undefined || intWorkAddress == null || intWorkAddress == '') {
 							api.toast({
 								msg : '请选择意向工作地址',
 								duration : 2000,
 								location : 'middle'
 							});
+							return;
 						} 
-//						else if (busLicImgList == undefined || busLicImgList.length == 0) {
+//						if(busLicImgList == undefined || busLicImgList.length == 0) {
 //							api.toast({
 //								msg : '请上传行业资质',
 //								duration : 2000,
 //								location : 'middle'
 //							});
+//							return;
 //						} 
-						else {
-							showDoubleAuiDialog('温馨提示','请谨慎填写信息,一旦提交部分信息将不能修改。','继续提交','取消',
-								function(ret){
-									if(ret.buttonIndex==2){
-										var param = {};
-										if(applyId!=undefined && applyId!=null && applyId!='') {
-											param.applyId = applyId;//申请id
-										}
-										param.applyName = idCardUserName;//姓名
-										param.applyCardNo = idCardNumber;//身份证号
-										param.sex=sex;
-										param.emergContact=ecyContactName;//紧急联系人名称
-										param.emergTel=ecyContactPhone;//紧急联系人号码
-										param.clientClassId=workerClassIds;//工人种类
-										param.entryTimeString =joinWorkDate+' 08:00:00';//工人参加工作时间
-										param.applyType = 5;//申请类型(0行业代表；1服务中心；2县级代理；3市级代理；4省级代理；5工匠；6商铺；7普通用户)
-										param.applyPhone = regPhone;//注册手机号
-										param.workAddress = intWorkAddress;//工作地点
-										param.orgId = areaChooseId;//工作区域id
-										param.applyArea = areaChoose;//
-										param.workZym = workerMotto;//座右铭，可为空
-										param.workJnjs = skillsIntroduce;//技能介绍
-										param.clientId = userId;//用户id
-										param.applyStatus = 1;//0-保存(未申请)；1-申请中；2-审核通过；3-审核不通过
-										submitUserInfoHttps(param, busLicImgList, proCaseImgList);
+						showDoubleAuiDialog('温馨提示','请谨慎填写信息,一旦提交部分信息将不能修改。','继续提交','取消',
+							function(ret){
+								if(ret.buttonIndex==2){
+									var param = {};
+									if(applyId!=undefined && applyId!=null && applyId!='') {
+										param.applyId = applyId;//申请id
 									}
+									param.applyName = idCardUserName;//姓名
+									param.applyCardNo = idCardNumber;//身份证号
+									param.sex=sex;
+									param.emergContact=ecyContactName;//紧急联系人名称
+									param.emergTel=ecyContactPhone;//紧急联系人号码
+									param.clientClassId=workerClassIds;//工人种类
+									param.entryTimeString =joinWorkDate+' 08:00:00';//工人参加工作时间
+									param.applyType = 5;//申请类型(0行业代表；1服务中心；2县级代理；3市级代理；4省级代理；5工匠；6商铺；7普通用户)
+									param.applyPhone = regPhone;//注册手机号
+									param.workAddress = intWorkAddress;//工作地点
+									param.orgId = areaChooseId;//工作区域id
+									param.applyArea = areaChoose;//
+									param.workZym = workerMotto;//座右铭，可为空
+									param.workJnjs = skillsIntroduce;//技能介绍
+									param.clientId = userId;//用户id
+									param.applyStatus = 1;//0-保存(未申请)；1-申请中；2-审核通过；3-审核不通过
+									submitUserInfoHttps(param, busLicImgList, proCaseImgList);
 								}
-							);
-						}
+							}
+						);
 					},
 				}
 			});
